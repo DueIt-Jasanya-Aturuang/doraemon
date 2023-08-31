@@ -29,14 +29,17 @@ func TestCheckAppByID(t *testing.T) {
 		mock.ExpectPrepare(query)
 		mock.ExpectQuery(query).WithArgs("123").WillReturnRows(rows)
 
-		uowRepo := repository.NewUnitOfWorkImpl(db)
-		appRepo := repository.NewAppRepoImpl(uowRepo)
+		uowRepo := repository.NewUnitOfWorkRepoSqlImpl(db)
+		appRepo := repository.NewAppRepoSqlImpl(uowRepo)
 		err = appRepo.OpenConn(context.TODO())
 		assert.NoError(t, err)
 
 		exists, err := appRepo.CheckAppByID(context.TODO(), "123")
 		assert.NoError(t, err)
 		assert.Equal(t, false, exists)
+
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
 	})
 
 	t.Run("SUCCESS", func(t *testing.T) {
@@ -45,13 +48,16 @@ func TestCheckAppByID(t *testing.T) {
 		mock.ExpectPrepare(query)
 		mock.ExpectQuery(query).WithArgs("123").WillReturnRows(rows)
 
-		uowRepo := repository.NewUnitOfWorkImpl(db)
-		appRepo := repository.NewAppRepoImpl(uowRepo)
+		uowRepo := repository.NewUnitOfWorkRepoSqlImpl(db)
+		appRepo := repository.NewAppRepoSqlImpl(uowRepo)
 		err = appRepo.OpenConn(context.TODO())
 		assert.NoError(t, err)
 
 		exists, err := appRepo.CheckAppByID(context.TODO(), "123")
 		assert.NoError(t, err)
 		assert.Equal(t, true, exists)
+
+		err = mock.ExpectationsWereMet()
+		assert.NoError(t, err)
 	})
 }

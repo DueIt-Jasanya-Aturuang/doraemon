@@ -5,7 +5,7 @@ import (
 	"database/sql"
 )
 
-type UnitOfWorkRepo interface {
+type UnitOfWorkSqlRepo interface {
 	OpenConn(ctx context.Context) error
 	GetConn() (*sql.Conn, error)
 	CloseConn()

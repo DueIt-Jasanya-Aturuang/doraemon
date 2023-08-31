@@ -2,21 +2,23 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 	"github.com/rs/zerolog/log"
 )
 
-type AppRepoImpl struct {
-	repository.UnitOfWorkRepo
+type AppRepoSqlImpl struct {
+	repository.UnitOfWorkSqlRepo
 }
 
-func NewAppRepoImpl(repo repository.UnitOfWorkRepo) repository.AppRepo {
-	return &AppRepoImpl{
-		UnitOfWorkRepo: repo,
+func NewAppRepoSqlImpl(repo repository.UnitOfWorkSqlRepo) repository.AppSqlRepo {
+	return &AppRepoSqlImpl{
+		UnitOfWorkSqlRepo: repo,
 	}
 }
 
-func (a *AppRepoImpl) CheckAppByID(ctx context.Context, id string) (bool, error) {
+func (a *AppRepoSqlImpl) CheckAppByID(ctx context.Context, id string) (bool, error) {
 	query := `SELECT id FROM m_app WHERE id = $1`
 
 	conn, err := a.GetConn()
@@ -29,11 +31,18 @@ func (a *AppRepoImpl) CheckAppByID(ctx context.Context, id string) (bool, error)
 		log.Err(err).Msg("failed to start prepared context")
 		return false, err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg("failed to close prepared context")
+		}
+	}()
 
 	var exists bool
 	err = stmt.QueryRowContext(ctx, id).Scan(&exists)
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Err(err).Msg("cannot scan query row context")
+		}
 		return false, err
 	}
 

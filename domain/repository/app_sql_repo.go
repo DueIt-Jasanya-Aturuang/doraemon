@@ -2,7 +2,7 @@ package repository
 
 import "context"
 
-type AppRepo interface {
+type AppSqlRepo interface {
 	CheckAppByID(ctx context.Context, id string) (bool, error)
-	UnitOfWorkRepo
+	UnitOfWorkSqlRepo
 }

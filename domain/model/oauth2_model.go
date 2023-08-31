@@ -1,11 +1,11 @@
 package model
 
-type GoogleOauthToken struct {
-	AccessToken string `json:"access_token"`
-	IDToken     string `json:"id_token"`
+type GoogleOauth2Token struct {
+	AccessToken string
+	IDToken     string
 }
 
-type GoogleOauthUser struct {
+type GoogleOauth2User struct {
 	ID            string
 	Email         string
 	VerifiedEmail bool

@@ -24,7 +24,7 @@ func NewGoogleOauthRepoImpl(
 	clientID string,
 	secretID string,
 	redirectURI string,
-) repository.GoogleOauthRepo {
+) repository.Oauth2ProviderRepo {
 	return &GoogleOauthRepoImpl{
 		clientID:    clientID,
 		secretID:    secretID,
@@ -32,7 +32,7 @@ func NewGoogleOauthRepoImpl(
 	}
 }
 
-func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOauthToken, error) {
+func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOauth2Token, error) {
 	const uri = "https://oauth2.googleapis.com/token"
 
 	value := url.Values{}
@@ -80,23 +80,23 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOau
 		return nil, err
 	}
 
-	var googleOauthTokenMap map[string]any
+	var googleOauth2TokenMap map[string]any
 
-	err = json.Unmarshal(respBody.Bytes(), &googleOauthTokenMap)
+	err = json.Unmarshal(respBody.Bytes(), &googleOauth2TokenMap)
 	if err != nil {
 		log.Err(err).Msg("failed unmarshal response body bytes buffer to map")
 		return nil, err
 	}
 
-	googleOauthToken := model.GoogleOauthToken{
-		AccessToken: googleOauthTokenMap["access_token"].(string),
-		IDToken:     googleOauthTokenMap["id_token"].(string),
+	googleOauthToken := model.GoogleOauth2Token{
+		AccessToken: googleOauth2TokenMap["access_token"].(string),
+		IDToken:     googleOauth2TokenMap["id_token"].(string),
 	}
 
 	return &googleOauthToken, nil
 }
 
-func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauthToken) (*model.GoogleOauthUser, error) {
+func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauth2Token) (*model.GoogleOauth2User, error) {
 	uri := fmt.Sprintf("https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=%s", token.AccessToken)
 
 	req, err := http.NewRequest("GET", uri, nil)
@@ -134,22 +134,22 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauthToken) 
 		return nil, err
 	}
 
-	var googleOauthUserMap map[string]any
+	var googleOauth2UserMap map[string]any
 
-	err = json.Unmarshal(respBody.Bytes(), &googleOauthUserMap)
+	err = json.Unmarshal(respBody.Bytes(), &googleOauth2UserMap)
 	if err != nil {
 		log.Err(err).Msg("failed unmarshal response body bytes buffer to map")
 		return nil, err
 	}
 
-	userBody := &model.GoogleOauthUser{
-		ID:            googleOauthUserMap["id"].(string),
-		Email:         googleOauthUserMap["email"].(string),
-		VerifiedEmail: googleOauthUserMap["verified_email"].(bool),
-		Name:          googleOauthUserMap["name"].(string),
-		GivenName:     googleOauthUserMap["given_name"].(string),
-		Image:         googleOauthUserMap["picture"].(string),
-		Locale:        googleOauthUserMap["locale"].(string),
+	userBody := &model.GoogleOauth2User{
+		ID:            googleOauth2UserMap["id"].(string),
+		Email:         googleOauth2UserMap["email"].(string),
+		VerifiedEmail: googleOauth2UserMap["verified_email"].(bool),
+		Name:          googleOauth2UserMap["name"].(string),
+		GivenName:     googleOauth2UserMap["given_name"].(string),
+		Image:         googleOauth2UserMap["picture"].(string),
+		Locale:        googleOauth2UserMap["locale"].(string),
 	}
 
 	return userBody, nil

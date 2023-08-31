@@ -1,0 +1,5 @@
+migrate -database "postgres://jasanya:majubersama2023@103.82.92.34:5432/jasanya?search_path=auth&sslmode=disable" -path migrations up
+migrate -database "postgres://jasanya:majubersama2023@103.82.92.34:5432/jasanya?search_path=auth&sslmode=disable" -path migrations down
+migrate -database "postgres://jasanya:majubersama2023@103.82.92.34:5432/jasanya?search_path=auth&sslmode=disable" -path migrations force 1
+
+create -ext sql -dir migrations -seq create_columnt_table

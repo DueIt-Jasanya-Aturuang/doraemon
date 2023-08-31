@@ -14,8 +14,8 @@ func EnvInit() {
 		os.Exit(1)
 	}
 
-	AppPort = os.Getenv("APPLICATION_PORT")
-	AppStatus = os.Getenv("APPLICATION_STATUS")
+	//AppPort = os.Getenv("APPLICATION_PORT")
+	//AppStatus = os.Getenv("APPLICATION_STATUS")
 	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
 
 	PgHost = os.Getenv("DB_POSTGRESQL_HOST")
@@ -35,20 +35,20 @@ func EnvInit() {
 	RedisDB = dbInt
 	RedisPass = os.Getenv("REDIS_PASS")
 
-	KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
-	KafkaBroker = os.Getenv("KAFKA_BROKER")
-	KafkaTopic = os.Getenv("KAFKA_TOPIC")
-
-	DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
-	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
-	AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
-	AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
-
-	DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
-	AccessTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_KEY")
-	AccessTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_EXPIRED")
-	RefreshTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_KEY")
-	RefreshTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_EXPIRED")
+	//KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
+	//KafkaBroker = os.Getenv("KAFKA_BROKER")
+	//KafkaTopic = os.Getenv("KAFKA_TOPIC")
+	//
+	//DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
+	//AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
+	//AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
+	//AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
+	//
+	//DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
+	//AccessTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_KEY")
+	//AccessTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_EXPIRED")
+	//RefreshTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_KEY")
+	//RefreshTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_EXPIRED")
 
 	OauthClientId = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_ID")
 	OauthClientSecret = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_SECRET")
@@ -58,8 +58,9 @@ func EnvInit() {
 }
 
 var (
-	AppPort       string
-	AppStatus     string
+	// AppPort       string
+	// AppStatus     string
+
 	AppAccountApi string
 
 	PgHost   string
@@ -75,21 +76,21 @@ var (
 	RedisDB   int
 	RedisPass string
 
-	KafkaProtocol string
-	KafkaBroker   string
-	KafkaTopic    string
-
-	DefaultImage string
-
-	AesCFB   string
-	AesCBC   string
-	AesCBCIV string
-
-	DefaultKey           string
-	AccessTokenKeyHS     string
-	AccessTokenKeyExpHS  string
-	RefreshTokenKeyHS    string
-	RefreshTokenKeyExpHS string
+	//KafkaProtocol string
+	//KafkaBroker   string
+	//KafkaTopic    string
+	//
+	//DefaultImage string
+	//
+	//AesCFB   string
+	//AesCBC   string
+	//AesCBCIV string
+	//
+	//DefaultKey           string
+	//AccessTokenKeyHS     string
+	//AccessTokenKeyExpHS  string
+	//RefreshTokenKeyHS    string
+	//RefreshTokenKeyExpHS string
 
 	OauthClientId          string
 	OauthClientSecret      string

@@ -2,35 +2,39 @@ package repository
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/rs/zerolog/log"
 	"net/http"
+	"time"
 )
 
 type AccountApiRepoImpl struct {
+	endPoint string
 }
 
-func NewAccountApiRepoImpl() repository.AccountApiRepo {
-	return &AccountApiRepoImpl{}
+func NewAccountApiRepoImpl(endPoint string) repository.AccountApiRepo {
+	return &AccountApiRepoImpl{
+		endPoint: endPoint,
+	}
 }
 
-func (a *AccountApiRepoImpl) CreateProfile(ctx context.Context, data []byte) (*model.Profile, error) {
-	endPoint := fmt.Sprintf("%s/profile", config.AppAccountApi)
+func (a *AccountApiRepoImpl) CreateProfile(data []byte) (*model.Profile, error) {
+	endPoint := fmt.Sprintf("%s/profile", a.endPoint)
 
 	dataReq := bytes.NewReader(data)
-	req, err := http.NewRequestWithContext(ctx, "POST", endPoint, dataReq)
+	req, err := http.NewRequest("POST", endPoint, dataReq)
 	if err != nil {
 		log.Err(err).Msg("failed request post to account service")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
-	client := http.Client{}
+	client := http.Client{
+		Timeout: 2 * time.Second,
+	}
 	response, err := client.Do(req)
 	if err != nil {
 		log.Err(err).Msg("failed get response from http request post")

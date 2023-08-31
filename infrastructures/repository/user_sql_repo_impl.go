@@ -59,7 +59,7 @@ func (u UserRepoImpl) CreateUser(ctx context.Context, user *model.User) (*model.
 	return user, nil
 }
 
-func (u UserRepoImpl) CheckEmailUser(ctx context.Context, email string) (bool, error) {
+func (u UserRepoImpl) CheckUserByEmail(ctx context.Context, email string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM m_users WHERE email = $1 AND deleted_at IS NULL)`
 
 	conn, err := u.GetConn()
@@ -92,7 +92,7 @@ func (u UserRepoImpl) CheckEmailUser(ctx context.Context, email string) (bool, e
 	return false, nil
 }
 
-func (u UserRepoImpl) CheckUsernameUser(ctx context.Context, username string) (bool, error) {
+func (u UserRepoImpl) CheckUserByUsername(ctx context.Context, username string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM m_users WHERE username = $1 AND deleted_at IS NULL)`
 
 	conn, err := u.GetConn()

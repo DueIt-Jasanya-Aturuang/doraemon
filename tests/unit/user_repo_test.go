@@ -95,7 +95,7 @@ func TestCheckEmailUser(t *testing.T) {
 		err = userRepo.OpenConn(context.TODO())
 		assert.NoError(t, err)
 
-		exists, err := userRepo.CheckEmailUser(context.TODO(), "ibanrama29@gmail.com")
+		exists, err := userRepo.CheckUserByEmail(context.TODO(), "ibanrama29@gmail.com")
 		assert.NoError(t, err)
 		assert.Equal(t, false, exists)
 
@@ -114,7 +114,7 @@ func TestCheckEmailUser(t *testing.T) {
 		err = userRepo.OpenConn(context.TODO())
 		assert.NoError(t, err)
 
-		exists, err := userRepo.CheckEmailUser(context.TODO(), "ibanrama29@gmail.com")
+		exists, err := userRepo.CheckUserByEmail(context.TODO(), "ibanrama29@gmail.com")
 		assert.NoError(t, err)
 		assert.Equal(t, true, exists)
 
@@ -148,7 +148,7 @@ func TestCheckUsernameUser(t *testing.T) {
 		err = userRepo.OpenConn(context.TODO())
 		assert.NoError(t, err)
 
-		exists, err := userRepo.CheckUsernameUser(context.TODO(), "rmaa")
+		exists, err := userRepo.CheckUserByUsername(context.TODO(), "rmaa")
 		assert.NoError(t, err)
 		assert.Equal(t, false, exists)
 
@@ -167,7 +167,7 @@ func TestCheckUsernameUser(t *testing.T) {
 		err = userRepo.OpenConn(context.TODO())
 		assert.NoError(t, err)
 
-		exists, err := userRepo.CheckUsernameUser(context.TODO(), "rmaa")
+		exists, err := userRepo.CheckUserByUsername(context.TODO(), "rmaa")
 		assert.NoError(t, err)
 		assert.Equal(t, true, exists)
 

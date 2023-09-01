@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 	"time"
@@ -13,11 +15,15 @@ func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {
 	timeNow := time.Now()
 	timeExp := timeNow.Add(jwtModel.Exp).Unix()
 
-	sub := fmt.Sprintf("%s:%t:%s", jwtModel.UUID, jwtModel.RememberMe, jwtModel.Type)
+	sub := fmt.Sprintf("%s:%s:%s", jwtModel.UUID, jwtModel.UserID, jwtModel.Type)
+	subEncrypt, err := encryption.EncrypStringCFB(sub, config.AesCFB)
+	if err != nil {
+		return "", err
+	}
 
 	tokenParse := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp": timeExp,
-		"sub": sub,
+		"sub": subEncrypt,
 	})
 
 	tokenStr, err := tokenParse.SignedString([]byte(jwtModel.Key))

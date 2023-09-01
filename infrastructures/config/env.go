@@ -1,11 +1,12 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 func EnvInit() {
@@ -15,8 +16,8 @@ func EnvInit() {
 		os.Exit(1)
 	}
 
-	//AppPort = os.Getenv("APPLICATION_PORT")
-	//AppStatus = os.Getenv("APPLICATION_STATUS")
+	// AppPort = os.Getenv("APPLICATION_PORT")
+	// AppStatus = os.Getenv("APPLICATION_STATUS")
 	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
 
 	PgHost = os.Getenv("DB_POSTGRESQL_HOST")
@@ -36,14 +37,14 @@ func EnvInit() {
 	RedisDB = dbInt
 	RedisPass = os.Getenv("REDIS_PASS")
 
-	//KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
-	//KafkaBroker = os.Getenv("KAFKA_BROKER")
-	//KafkaTopic = os.Getenv("KAFKA_TOPIC")
+	// KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
+	// KafkaBroker = os.Getenv("KAFKA_BROKER")
+	// KafkaTopic = os.Getenv("KAFKA_TOPIC")
 	//
-	//DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
-	//AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
-	//AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
-	//AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
+	// DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
+	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
+	// AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
+	// AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
 	//
 	DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
 
@@ -75,7 +76,7 @@ func EnvInit() {
 
 	OauthClientId = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_ID")
 	OauthClientSecret = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_SECRET")
-	//OauthClientRedirectURI = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_REDIRECT_URL")
+	OauthClientRedirectURI = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_REDIRECT_URL")
 
 	log.Info().Msg("config initialization successfully")
 }
@@ -99,15 +100,15 @@ var (
 	RedisDB   int
 	RedisPass string
 
-	//KafkaProtocol string
-	//KafkaBroker   string
-	//KafkaTopic    string
-	//
-	//DefaultImage string
-	//
-	//AesCFB   string
-	//AesCBC   string
-	//AesCBCIV string
+	// KafkaProtocol string
+	// KafkaBroker   string
+	// KafkaTopic    string
+
+	// DefaultImage string
+
+	AesCFB string
+	// AesCBC   string
+	// AesCBCIV string
 
 	DefaultKey             string
 	AccessTokenKeyHS       string
@@ -117,7 +118,7 @@ var (
 	RememberMeTokenExp     time.Duration
 	ForgotPasswordTokenExp time.Duration
 
-	OauthClientId     string
-	OauthClientSecret string
-	//OauthClientRedirectURI string
+	OauthClientId          string
+	OauthClientSecret      string
+	OauthClientRedirectURI string
 )

@@ -2,11 +2,13 @@ package unit
 
 import (
 	"context"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
-	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
 )
 
 func TestCheckAppByID(t *testing.T) {

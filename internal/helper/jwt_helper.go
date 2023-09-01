@@ -3,12 +3,14 @@ package helper
 import (
 	"errors"
 	"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/rs/zerolog/log"
+	
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/rs/zerolog/log"
-	"time"
 )
 
 func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {

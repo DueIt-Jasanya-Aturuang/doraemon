@@ -6,8 +6,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"io"
+
+	"github.com/rs/zerolog/log"
 )
 
 func DecryptStringCFB(text string, key string) (string, error) {

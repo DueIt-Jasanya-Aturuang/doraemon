@@ -3,16 +3,17 @@ package config
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
-	"os"
 )
 
 type RedisImpl struct {
 	Client *redis.Client
 }
 
-func NewRedisConn() *RedisImpl {
+func _() *RedisImpl {
 	host := fmt.Sprintf("%s:%s", RedisHost, RedisPort)
 	rDB := redis.NewClient(&redis.Options{
 		Addr:     host,

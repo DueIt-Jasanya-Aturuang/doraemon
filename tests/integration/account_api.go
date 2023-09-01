@@ -1,10 +1,12 @@
 package integration
 
 import (
+	"testing"
+	
+	"github.com/stretchr/testify/assert"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func CreateProfile(t *testing.T) {
@@ -17,8 +19,8 @@ func CreateProfile(t *testing.T) {
 		 }`)
 
 	profile, err := accountApi.CreateProfile(req)
-	//assert.NoError(t, err)
+	// assert.NoError(t, err)
 	assert.Error(t, err)
-	//assert.NotNil(t, profile)
+	// assert.NotNil(t, profile)
 	assert.Nil(t, profile)
 }

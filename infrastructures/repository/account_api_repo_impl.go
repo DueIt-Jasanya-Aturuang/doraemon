@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 )
 
 type AccountApiRepoImpl struct {

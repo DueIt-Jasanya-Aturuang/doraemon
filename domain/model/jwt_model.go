@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"time"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 )
 
 type Jwt struct {

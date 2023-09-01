@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
+	"github.com/rs/zerolog/log"
+	
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-	"github.com/rs/zerolog/log"
 )
 
 type UserRepoSqlImpl struct {

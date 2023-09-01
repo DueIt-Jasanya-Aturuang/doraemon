@@ -2,14 +2,16 @@ package unit
 
 import (
 	"errors"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
+	"testing"
+	"time"
+	
 	"github.com/golang-jwt/jwt/v5"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 )
 
 func TestJwtHelper(t *testing.T) {

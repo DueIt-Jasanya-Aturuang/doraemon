@@ -3,13 +3,15 @@ package unit
 import (
 	"context"
 	"database/sql"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
-	"github.com/rs/zerolog/log"
-	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/rs/zerolog/log"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
 )
 
 func TestCreateUserRepo(t *testing.T) {

@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
+	"time"
 )
 
 func EnvInit() {
@@ -44,15 +45,37 @@ func EnvInit() {
 	//AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
 	//AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
 	//
-	//DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
-	//AccessTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_KEY")
-	//AccessTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_EXPIRED")
-	//RefreshTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_KEY")
-	//RefreshTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_EXPIRED")
+	DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
+
+	AccessTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_KEY")
+	accessTokenKeyExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	AccessTokenKeyExpHS = accessTokenKeyExp
+
+	RefreshTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_KEY")
+	refreshTokenKeyExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	RefreshTokenKeyExpHS = refreshTokenKeyExp
+
+	rememberMeExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_REMEMBER_ME_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	RememberMeTokenExp = rememberMeExp
+
+	forgotPasswordTokenExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_FORGOT_PASSWORD_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	ForgotPasswordTokenExp = forgotPasswordTokenExp
 
 	OauthClientId = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_ID")
 	OauthClientSecret = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_SECRET")
-	OauthClientRedirectURI = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_REDIRECT_URL")
+	//OauthClientRedirectURI = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_REDIRECT_URL")
 
 	log.Info().Msg("config initialization successfully")
 }
@@ -85,14 +108,16 @@ var (
 	//AesCFB   string
 	//AesCBC   string
 	//AesCBCIV string
-	//
-	//DefaultKey           string
-	//AccessTokenKeyHS     string
-	//AccessTokenKeyExpHS  string
-	//RefreshTokenKeyHS    string
-	//RefreshTokenKeyExpHS string
 
-	OauthClientId          string
-	OauthClientSecret      string
-	OauthClientRedirectURI string
+	DefaultKey             string
+	AccessTokenKeyHS       string
+	AccessTokenKeyExpHS    time.Duration
+	RefreshTokenKeyHS      string
+	RefreshTokenKeyExpHS   time.Duration
+	RememberMeTokenExp     time.Duration
+	ForgotPasswordTokenExp time.Duration
+
+	OauthClientId     string
+	OauthClientSecret string
+	//OauthClientRedirectURI string
 )

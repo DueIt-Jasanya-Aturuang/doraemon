@@ -6,6 +6,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 )
 
+//counterfeiter:generate -o ./../mocks . UserSqlRepo
 type UserSqlRepo interface {
 	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
 	CheckUserByEmail(ctx context.Context, email string) (bool, error)

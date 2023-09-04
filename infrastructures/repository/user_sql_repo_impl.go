@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/rs/zerolog/log"
-	
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 )
@@ -59,7 +59,6 @@ func (u *UserRepoSqlImpl) CreateUser(ctx context.Context, user *model.User) (*mo
 		return nil, err
 	}
 
-	user.Gender = "undefined"
 	return user, nil
 }
 
@@ -202,6 +201,32 @@ func (u *UserRepoSqlImpl) GetUserByUsername(ctx context.Context, username string
 	}
 
 	row := stmt.QueryRowContext(ctx, username)
+
+	user, err := u.scanRow(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *UserRepoSqlImpl) GetUserByEmailOrUsername(ctx context.Context, emailOrUsername string) (*model.User, error) {
+	query := `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
+       				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
+			  FROM m_users WHERE username = $1 OR email = $2`
+
+	conn, err := u.GetConn()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Err(err).Msg("failed to start prepared context")
+		return nil, err
+	}
+
+	row := stmt.QueryRowContext(ctx, emailOrUsername, emailOrUsername)
 
 	user, err := u.scanRow(row)
 	if err != nil {

@@ -43,9 +43,9 @@ func EnvInit() {
 
 	DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
 	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
-	// AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
-	// AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
-	//
+	AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
+	AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
+
 	DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
 
 	AccessTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_KEY")
@@ -106,9 +106,9 @@ var (
 
 	DefaultImage string
 
-	AesCFB string
-	// AesCBC   string
-	// AesCBCIV string
+	AesCFB   string
+	AesCBC   string
+	AesCBCIV string
 
 	DefaultKey             string
 	AccessTokenKeyHS       string

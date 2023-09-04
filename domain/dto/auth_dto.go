@@ -6,8 +6,8 @@ type RegisterReq struct {
 	Email           string `json:"email"`
 	Password        string `json:"password"`
 	RePassword      string `json:"re_password"`
-	EmailVerifiedAt bool   // EmailVerifiedAt set in handler
 	AppId           string // AppId get in header
+	EmailVerifiedAt bool   // EmailVerifiedAt set in handler
 	Role            int8   // Role set in handler
 }
 
@@ -16,7 +16,7 @@ type LoginReq struct {
 	Password        string `json:"password"`
 	RememberMe      bool   `json:"remember_me"`
 	AppId           string // AppId get in header
-	Oauth2          bool   // Oauth2 helper for login
+	Oauth2          bool   // Oauth2 set in handler
 }
 
 type LogoutReq struct {

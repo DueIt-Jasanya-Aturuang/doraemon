@@ -20,7 +20,7 @@ func RegisterReqToModel(req *dto.RegisterReq, id string) (*model.User, *model.Ac
 		Email:           req.Email,
 		Password:        req.Password,
 		PhoneNumber:     sql.NullString{},
-		EmailVerifiedAt: false,
+		EmailVerifiedAt: req.EmailVerifiedAt,
 		CreatedAt:       time.Now().Unix(),
 		CreatedBy:       id,
 		UpdatedAt:       time.Now().Unix(),

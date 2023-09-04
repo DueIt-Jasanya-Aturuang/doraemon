@@ -9,27 +9,27 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 )
 
-type SecurityUsecaseImpl struct {
+type UserUsecaseImpl struct {
 	userRepo repository.UserSqlRepo
 	timeout  time.Duration
 }
 
-func NewSecurityUsecaseImpl(
+func NewUserUsecaseImpl(
 	userRepo repository.UserSqlRepo,
 	timeout time.Duration,
-) usecase.SecurityUsecase {
-	return &SecurityUsecaseImpl{
+) usecase.UserUsecase {
+	return &UserUsecaseImpl{
 		userRepo: userRepo,
 		timeout:  timeout,
 	}
 }
 
-func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, endpoint string) error {
+func (s *UserUsecaseImpl) ResetPassword(ctx context.Context, req *dto.ResetPasswordReq) error {
 	// TODO implement me
 	panic("implement me")
 }
 
-func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtTokenReq) (*dto.JwtTokenResp, error) {
+func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.ForgottenPasswordReq) error {
 	// TODO implement me
 	panic("implement me")
 }

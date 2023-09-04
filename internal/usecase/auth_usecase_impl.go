@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 
@@ -26,7 +25,6 @@ import (
 
 type AuthUsecaseImpl struct {
 	userRepo     repository.UserSqlRepo
-	oauth2Repo   repository.Oauth2ProviderRepo
 	appRepo      repository.AppSqlRepo
 	accessRepo   repository.AccessSqlRepo
 	securityRepo repository.SecuritySqlRepo
@@ -35,7 +33,6 @@ type AuthUsecaseImpl struct {
 
 func NewAuthUsecaseImpl(
 	userRepo repository.UserSqlRepo,
-	oauth2Repo repository.Oauth2ProviderRepo,
 	appRepo repository.AppSqlRepo,
 	accessRepo repository.AccessSqlRepo,
 	securityRepo repository.SecuritySqlRepo,
@@ -43,7 +40,6 @@ func NewAuthUsecaseImpl(
 ) usecase.AuthUsecase {
 	return &AuthUsecaseImpl{
 		userRepo:     userRepo,
-		oauth2Repo:   oauth2Repo,
 		appRepo:      appRepo,
 		accessRepo:   accessRepo,
 		securityRepo: securityRepo,
@@ -62,13 +58,13 @@ func (a *AuthUsecaseImpl) Login(c context.Context, req *dto.LoginReq) (userResp 
 
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	defer a.userRepo.CloseConn()
 
 	exists, err := a.appRepo.CheckAppByID(ctx, req.AppId)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	if !exists {
 		log.Warn().Msgf("app id is not registered: %s", req.AppId)
@@ -80,7 +76,7 @@ func (a *AuthUsecaseImpl) Login(c context.Context, req *dto.LoginReq) (userResp 
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, _error.BadLogin()
 		}
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	if !req.Oauth2 {
@@ -96,13 +92,13 @@ func (a *AuthUsecaseImpl) Login(c context.Context, req *dto.LoginReq) (userResp 
 	jwtModelAT := jwtModel.AccessTokenDefault(tokenID, user.ID, req.RememberMe)
 	accessToken, err := helper.GenerateJwtHS256(jwtModelAT)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	jwtModelRT := jwtModel.RefreshTokenDefault(tokenID, user.ID, req.RememberMe)
 	refreshToken, err := helper.GenerateJwtHS256(jwtModelRT)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	err = a.userRepo.StartTx(ctx, &sql.TxOptions{
@@ -110,12 +106,12 @@ func (a *AuthUsecaseImpl) Login(c context.Context, req *dto.LoginReq) (userResp 
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	defer func() {
 		errEndTx := a.userRepo.EndTx(err)
 		if errEndTx != nil {
-			err = errEndTx
+			err = _error.ErrString("INTERNAL SERVER ERROR", 500)
 			userResp = nil
 		}
 	}()
@@ -127,7 +123,7 @@ func (a *AuthUsecaseImpl) Login(c context.Context, req *dto.LoginReq) (userResp 
 		Token:  refreshToken,
 	})
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	emailFormat := util.EmailFormat(user.Email)
@@ -142,14 +138,11 @@ func (a *AuthUsecaseImpl) Logout(c context.Context, req *dto.LogoutReq) error {
 
 	claims, err := helper.ClaimsJwtHS256(config.AccessTokenKeyHS, req.Token)
 	if err != nil {
-		if !errors.Is(err, jwt.ErrTokenExpired) {
-			return err
-		}
+		return nil
 	}
-
 	sub, err := encryption.DecryptStringCFB(claims["sub"].(string), config.AesCFB)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	tokenID := strings.Split(sub, ":")[0]
@@ -157,7 +150,7 @@ func (a *AuthUsecaseImpl) Logout(c context.Context, req *dto.LogoutReq) error {
 
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return err
+		return _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	defer a.userRepo.CloseConn()
 
@@ -166,18 +159,18 @@ func (a *AuthUsecaseImpl) Logout(c context.Context, req *dto.LogoutReq) error {
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return err
+		return _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	defer func() {
 		errEndTx := a.userRepo.EndTx(err)
 		if errEndTx != nil {
-			err = errEndTx
+			err = _error.ErrString("INTERNAL SERVER ERROR", 500)
 		}
 	}()
 
 	err = a.securityRepo.DeleteToken(ctx, tokenID, userID)
 	if err != nil {
-		return err
+		return _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	return nil
@@ -194,22 +187,22 @@ func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (use
 
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	defer a.userRepo.CloseConn()
 
 	exists, err := a.appRepo.CheckAppByID(ctx, req.AppId)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	if !exists {
 		log.Warn().Msgf("app id is not registered: %s", req.AppId)
-		return nil, _error.ErrString("FORBIDDEN", 403)
+		return nil, _error.ErrString("UNAUTHORIZATION", 403)
 	}
 
 	exists, err = a.userRepo.CheckUserByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	if exists {
 		return nil, _error.Err400(map[string][]string{
@@ -221,7 +214,7 @@ func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (use
 
 	exists, err = a.userRepo.CheckUserByUsername(ctx, req.Email)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	if exists {
 		return nil, _error.Err400(map[string][]string{
@@ -233,7 +226,7 @@ func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (use
 
 	passwordHash, err := helper.BcryptPasswordHash(req.Password)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	req.Password = passwordHash
 
@@ -242,12 +235,12 @@ func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (use
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 	defer func() {
 		errEndTx := a.userRepo.EndTx(err)
 		if errEndTx != nil {
-			err = errEndTx
+			err = _error.ErrString("INTERNAL SERVER ERROR", 500)
 			userResp = nil
 		}
 	}()
@@ -257,12 +250,12 @@ func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (use
 
 	user, err := a.userRepo.CreateUser(ctx, userConv)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	_, err = a.accessRepo.CreateAccess(ctx, accessConv)
 	if err != nil {
-		return nil, err
+		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
 	}
 
 	emailFormat := util.EmailFormat(user.Email)

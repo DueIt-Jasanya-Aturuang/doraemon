@@ -1,7 +1,7 @@
 package validation
 
-var required = "this %s is required"
-var min = "this %s must be a least %s characters"
-var max = "this %s must be a maximum %s characters"
-var passwordAndRePassword = "password and re password are not the same"
-var email = "email must use gmail.com"
+var required = "%s tidak boleh dikosongkan"
+var min = "%s minimal %s karakter"
+var max = "%s maximal %s karakter"
+var passwordAndRePassword = "password dan re password tidak sesuai"
+var email = "email harus menggunakan yourmail@gmail.com"

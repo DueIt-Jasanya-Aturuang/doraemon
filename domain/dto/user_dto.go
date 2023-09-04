@@ -10,4 +10,5 @@ type UserResp struct {
 	EmailFormat     string `json:"email_format"`
 	PhoneNumber     string `json:"phone_number"`
 	EmailVerifiedAt bool   `json:"activited"`
+	Token           string `json:"token"`
 }

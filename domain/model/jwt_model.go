@@ -7,7 +7,7 @@ import (
 )
 
 type Jwt struct {
-	UUID       string
+	TokenID    string
 	UserID     string
 	Type       string
 	RememberMe bool
@@ -15,9 +15,9 @@ type Jwt struct {
 	Exp        time.Duration
 }
 
-func (j *Jwt) AccessTokenDefault(uuid string, userID string, rememberMe bool) *Jwt {
+func (j *Jwt) AccessTokenDefault(tokenID string, userID string, rememberMe bool) *Jwt {
 	return &Jwt{
-		UUID:       uuid,
+		TokenID:    tokenID,
 		UserID:     userID,
 		Type:       "access_token",
 		RememberMe: rememberMe,
@@ -26,7 +26,7 @@ func (j *Jwt) AccessTokenDefault(uuid string, userID string, rememberMe bool) *J
 	}
 }
 
-func (j *Jwt) RefreshTokenDefault(uuid string, userID string, rememberMe bool) *Jwt {
+func (j *Jwt) RefreshTokenDefault(tokenID string, userID string, rememberMe bool) *Jwt {
 	var exp time.Duration
 	if rememberMe {
 		exp = config.RememberMeTokenExp
@@ -35,7 +35,7 @@ func (j *Jwt) RefreshTokenDefault(uuid string, userID string, rememberMe bool) *
 	}
 
 	return &Jwt{
-		UUID:       uuid,
+		TokenID:    tokenID,
 		UserID:     userID,
 		Type:       "refresh_token",
 		RememberMe: rememberMe,
@@ -44,9 +44,9 @@ func (j *Jwt) RefreshTokenDefault(uuid string, userID string, rememberMe bool) *
 	}
 }
 
-func (j *Jwt) ForgotPasswordTokenDefault(uuid string, userID string) *Jwt {
+func (j *Jwt) ForgotPasswordTokenDefault(tokenID string, userID string) *Jwt {
 	return &Jwt{
-		UUID:       uuid,
+		TokenID:    tokenID,
 		UserID:     userID,
 		Type:       "forgot_password",
 		RememberMe: false,

@@ -40,8 +40,8 @@ func EnvInit() {
 	// KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
 	// KafkaBroker = os.Getenv("KAFKA_BROKER")
 	// KafkaTopic = os.Getenv("KAFKA_TOPIC")
-	//
-	// DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
+
+	DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
 	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
 	// AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
 	// AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
@@ -104,7 +104,7 @@ var (
 	// KafkaBroker   string
 	// KafkaTopic    string
 
-	// DefaultImage string
+	DefaultImage string
 
 	AesCFB string
 	// AesCBC   string

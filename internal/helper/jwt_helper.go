@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
-	
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
@@ -17,7 +17,7 @@ func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {
 	timeNow := time.Now()
 	timeExp := timeNow.Add(jwtModel.Exp).Unix()
 
-	sub := fmt.Sprintf("%s:%s:%s", jwtModel.UUID, jwtModel.UserID, jwtModel.Type)
+	sub := fmt.Sprintf("%s:%s:%s", jwtModel.TokenID, jwtModel.UserID, jwtModel.Type)
 	subEncrypt, err := encryption.EncrypStringCFB(sub, config.AesCFB)
 	if err != nil {
 		return "", err

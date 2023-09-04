@@ -50,9 +50,7 @@ func ClaimsJwtHS256(tokenStr, key string) (map[string]any, error) {
 		return nil, err
 	}
 
-	if claims, ok := tokenParse.Claims.(jwt.MapClaims); ok && tokenParse.Valid {
-		return claims, nil
-	}
+	claims, _ := tokenParse.Claims.(jwt.MapClaims)
 
-	return nil, errors.New("invalid token")
+	return claims, nil
 }

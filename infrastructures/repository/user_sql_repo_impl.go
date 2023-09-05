@@ -153,6 +153,32 @@ func (u *UserRepoSqlImpl) CheckUserByEmail(ctx context.Context, email string) (b
 	return false, nil
 }
 
+func (u *UserRepoSqlImpl) CheckActivasiUserByID(ctx context.Context, id string) (bool, error) {
+	query := `SELECT email_verified_at FROM m_users WHERE id = $1`
+
+	conn, err := u.GetConn()
+	if err != nil {
+		return false, err
+	}
+
+	stmt, err := conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Err(err).Msg("failed to start prepared context")
+		return false, err
+	}
+
+	row := stmt.QueryRowContext(ctx, id)
+
+	var activasi bool
+	err = row.Scan(&activasi)
+	if err != nil {
+		log.Err(err).Msg("failed scan row query")
+		return false, err
+	}
+
+	return activasi, nil
+}
+
 func (u *UserRepoSqlImpl) CheckUserByUsername(ctx context.Context, username string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM m_users WHERE username = $1 AND deleted_at IS NULL)`
 

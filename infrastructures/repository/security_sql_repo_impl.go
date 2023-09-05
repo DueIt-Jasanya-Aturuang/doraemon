@@ -24,7 +24,7 @@ func NewSecuritySqlRepoImpl(
 }
 
 func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Token) error {
-	query := `INSERT INTO m_tokens (id, user_id, app_id, token) VALUES ($1, $2, $3, $4)`
+	query := `INSERT INTO m_tokens (id, user_id, app_id, token, remember_me) VALUES ($1, $2, $3, $4, $5)`
 
 	tx, err := s.GetTx()
 	if err != nil {
@@ -48,6 +48,7 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 		token.UserID,
 		token.AppID,
 		token.Token,
+		token.RememberMe,
 	)
 	if err != nil {
 		log.Err(err).Msg("failed to query row context prepared statement")

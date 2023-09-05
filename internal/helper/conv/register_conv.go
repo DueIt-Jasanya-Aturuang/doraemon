@@ -61,7 +61,7 @@ func RegisterModelToResp(user *model.User, profile *model.Profile, emailFormat s
 		Email:           user.Email,
 		EmailFormat:     emailFormat,
 		PhoneNumber:     phoneNumber,
-		EmailVerifiedAt: false,
+		EmailVerifiedAt: user.EmailVerifiedAt,
 	}
 
 	profileResp := &dto.ProfileResp{

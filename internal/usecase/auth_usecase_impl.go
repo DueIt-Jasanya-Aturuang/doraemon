@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 
@@ -80,8 +81,11 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *dto.LoginReq) (userRes
 func (a *AuthUsecaseImpl) Logout(ctx context.Context, req *dto.LogoutReq) error {
 	claims, err := helper.ClaimsJwtHS256(config.AccessTokenKeyHS, req.Token)
 	if err != nil {
-		return nil
+		if !errors.Is(err, jwt.ErrTokenExpired) {
+			return nil
+		}
 	}
+
 	sub, err := encryption.DecryptStringCFB(claims["sub"].(string), config.AesCFB)
 	if err != nil {
 		return nil

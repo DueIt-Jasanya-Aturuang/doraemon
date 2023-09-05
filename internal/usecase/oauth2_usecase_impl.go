@@ -36,35 +36,35 @@ func (o *Oauth2UsecaseImpl) GoogleClaimUser(ctx context.Context, req *dto.LoginG
 	if req.Device == "mobile" {
 		googleToken, err := encryption.DecryptStringCBC(req.Token, config.AesCBC, config.AesCBCIV)
 		if err != nil {
-			return nil, _error.ErrStringDefault(http.StatusUnauthorized)
+			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 
 		err = json.Unmarshal([]byte(googleToken), &googleOauthToken)
 		if err != nil {
-			return nil, _error.ErrStringDefault(http.StatusUnauthorized)
+			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 	} else {
 		googleCode, err := encryption.DecryptStringCBC(req.Token, config.AesCBC, config.AesCBCIV)
 		if err != nil {
-			return nil, _error.ErrStringDefault(http.StatusUnauthorized)
+			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 
 		googleOauthToken, err = o.oauth2Repo.GetGoogleOauthToken(googleCode)
 		if err != nil {
-			return nil, _error.ErrStringDefault(http.StatusUnauthorized)
+			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 	}
 
-	err := o.userRepo.OpenConn(ctx)
+	googleUser, err := o.oauth2Repo.GetGoogleOauthUser(googleOauthToken)
+	if err != nil {
+		return nil, _error.ErrStringDefault(http.StatusForbidden)
+	}
+
+	err = o.userRepo.OpenConn(ctx)
 	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer o.userRepo.CloseConn()
-
-	googleUser, err := o.oauth2Repo.GetGoogleOauthUser(googleOauthToken)
-	if err != nil {
-		return nil, _error.ErrStringDefault(http.StatusUnauthorized)
-	}
 
 	exist, err := o.userRepo.CheckUserByEmail(ctx, googleUser.Email)
 	if err != nil {

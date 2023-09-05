@@ -25,11 +25,11 @@ func TestSecurityCreateToken(t *testing.T) {
 		}
 	}()
 
-	query := regexp.QuoteMeta(`INSERT INTO m_tokens (id, user_id, app_id, token) VALUES ($1, $2, $3, $4)`)
+	query := regexp.QuoteMeta(`INSERT INTO m_tokens (id, user_id, app_id, token, remember_me) VALUES ($1, $2, $3, $4, $5)`)
 	mock.ExpectBegin()
 	mock.ExpectPrepare(query)
 	mock.ExpectExec(query).WithArgs(
-		"test", "test", "test", "test",
+		"test", "test", "test", "test", true,
 	).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectCommit()
 
@@ -45,10 +45,11 @@ func TestSecurityCreateToken(t *testing.T) {
 	assert.NoError(t, err)
 
 	err = securityRepo.CreateToken(context.TODO(), &model.Token{
-		ID:     "test",
-		UserID: "test",
-		AppID:  "test",
-		Token:  "test",
+		ID:         "test",
+		UserID:     "test",
+		AppID:      "test",
+		Token:      "test",
+		RememberMe: true,
 	})
 	assert.NoError(t, err)
 	err = securityRepo.EndTx(err)

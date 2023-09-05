@@ -41,19 +41,21 @@ func (o *OTPUsecaseImpl) OTPGenerate(ctx context.Context, req *dto.OTPGenerateRe
 	}
 	defer o.userRepo.CloseConn()
 
-	user, err := o.userRepo.GetUserByEmail(ctx, req.Email)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return _error.ErrStringDefault(http.StatusNotFound)
+	if req.Type == "activasi-account" {
+		exist, err := o.userRepo.CheckActivasiUserByID(ctx, req.UserID)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return _error.ErrStringDefault(http.StatusNotFound)
+			}
 		}
-	}
 
-	if user.EmailVerifiedAt {
-		return _error.Err400(map[string][]string{
-			"email": {
-				"permintaan anda tidak dapat di proses, email anda sudah di aktivasi silahkan login",
-			},
-		})
+		if exist {
+			return _error.Err400(map[string][]string{
+				"email": {
+					"permintaan anda tidak dapat di proses, email anda sudah di aktivasi silahkan login",
+				},
+			})
+		}
 	}
 
 	otp, err := util.RandomChar(6)

@@ -19,7 +19,7 @@ func (j *Jwt) AccessTokenDefault(tokenID string, userID string, rememberMe bool)
 	return &Jwt{
 		TokenID:    tokenID,
 		UserID:     userID,
-		Type:       "access_token",
+		Type:       "access-token",
 		RememberMe: rememberMe,
 		Key:        config.AccessTokenKeyHS,
 		Exp:        config.AccessTokenKeyExpHS,
@@ -37,7 +37,7 @@ func (j *Jwt) RefreshTokenDefault(tokenID string, userID string, rememberMe bool
 	return &Jwt{
 		TokenID:    tokenID,
 		UserID:     userID,
-		Type:       "refresh_token",
+		Type:       "refresh-token",
 		RememberMe: rememberMe,
 		Key:        config.RefreshTokenKeyHS,
 		Exp:        exp,
@@ -48,7 +48,7 @@ func (j *Jwt) ForgotPasswordTokenDefault(tokenID string, userID string) *Jwt {
 	return &Jwt{
 		TokenID:    tokenID,
 		UserID:     userID,
-		Type:       "forgot_password",
+		Type:       "forgot-password",
 		RememberMe: false,
 		Key:        config.DefaultKey,
 		Exp:        config.ForgotPasswordTokenExp,

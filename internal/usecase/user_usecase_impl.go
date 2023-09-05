@@ -11,7 +11,6 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 
-	validation2 "github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
@@ -39,11 +38,6 @@ func NewUserUsecaseImpl(
 }
 
 func (s *UserUsecaseImpl) ResetPassword(ctx context.Context, req *dto.ResetPasswordReq) (err error) {
-	err = validation2.ResetPasswordValidation(req)
-	if err != nil {
-		return err
-	}
-
 	err = s.userRepo.OpenConn(ctx)
 	if err != nil {
 		return _error.ErrStringDefault(http.StatusInternalServerError)
@@ -96,11 +90,6 @@ func (s *UserUsecaseImpl) ResetPassword(ctx context.Context, req *dto.ResetPassw
 }
 
 func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.ForgottenPasswordReq) (url string, err error) {
-	err = validation2.ForgottenPasswordValidation(req)
-	if err != nil {
-		return "", err
-	}
-
 	err = s.userRepo.OpenConn(ctx)
 	if err != nil {
 		return "", _error.ErrStringDefault(http.StatusInternalServerError)
@@ -134,11 +123,6 @@ func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.Forgot
 }
 
 func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.ResetForgottenPasswordReq) (err error) {
-	err = validation2.ResetForgottenPasswordValidation(req)
-	if err != nil {
-		return err
-	}
-
 	claims, err := helper.ClaimsJwtHS256(req.Token, config.DefaultKey)
 	if err != nil {
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
@@ -151,6 +135,10 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 
 	tokenArray := strings.Split(sub, ":")
 	if len(tokenArray) != 3 {
+		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
+	}
+
+	if tokenArray[2] != "forgot-password" {
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
@@ -176,14 +164,6 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 	}
 	defer s.userRepo.CloseConn()
 
-	user, err := s.userRepo.GetUserByEmail(ctx, req.Email)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return _error.ErrStringDefault(http.StatusUnauthorized)
-		}
-		return _error.ErrStringDefault(http.StatusInternalServerError)
-	}
-
 	err = s.userRepo.StartTx(ctx, &sql.TxOptions{
 		Isolation: sql.LevelReadCommitted,
 		ReadOnly:  false,
@@ -198,7 +178,9 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 		}
 	}()
 
-	userConv := conv.ResetPasswordReqToModel(passwordHash, user.ID)
+	userID := tokenArray[1]
+	userConv := conv.ResetPasswordReqToModel(passwordHash, userID)
+	
 	err = s.userRepo.UpdatePasswordUser(ctx, userConv)
 	if err != nil {
 		return _error.ErrStringDefault(http.StatusInternalServerError)

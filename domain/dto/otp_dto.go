@@ -1,8 +1,9 @@
 package dto
 
 type OTPGenerateReq struct {
-	Email string `json:"email" validate:"required,email,min=3,max=55"`
-	Type  string // Type set in header
+	Email  string `json:"email" validate:"required,email,min=3,max=55"`
+	Type   string // Type set in header
+	UserID string // UserID set in header
 }
 
 type OTPValidationReq struct {

@@ -2,7 +2,7 @@ package encryption
 
 import (
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +22,7 @@ func TestEncrypStringCFB(t *testing.T) {
 }
 func TestDecryptStringCBC(t *testing.T) {
 	key := "rp1LZ7WNMXaq9KhK2LIkMbAA8qbMkFQb"
-	iv := "my16digitIvKey12"
+	iv := "auTHxeaZSrsxfIZI"
 	text := "sxy5+KAARCFYkU16AQPWyw=="
 	res, err := DecryptStringCBC(text, key, iv)
 	assert.NoError(t, err)
@@ -31,7 +31,15 @@ func TestDecryptStringCBC(t *testing.T) {
 
 func TestEncrypStringCBC(t *testing.T) {
 	key := "rp1LZ7WNMXaq9KhK2LIkMbAA8qbMkFQb"
-	iv := "my16digitIvKey12"
+	iv := "mydigit15digit11"
+
+	// req := map[string]string{
+	// 	"access_token": "this is access token",
+	// 	"id_token":     "this is access token",
+	// }
+	//
+	// reqJson, _ := json.Marshal(req)
+
 	res, err := EncrypStringCBC("rama", key, iv)
 	assert.NoError(t, err)
 	t.Log(res)

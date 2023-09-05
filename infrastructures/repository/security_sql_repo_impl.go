@@ -24,7 +24,7 @@ func NewSecuritySqlRepoImpl(
 }
 
 func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Token) error {
-	query := `INSERT INTO m_tokens (id, user_id, app_id, token, remember_me) VALUES ($1, $2, $3, $4, $5)`
+	query := `INSERT INTO m_tokens (user_id, app_id, access_token, refresh_token, remember_me) VALUES ($1, $2, $3, $4, $5)`
 
 	tx, err := s.GetTx()
 	if err != nil {
@@ -44,10 +44,10 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 
 	_, err = stmt.ExecContext(
 		ctx,
-		token.ID,
 		token.UserID,
 		token.AppID,
-		token.Token,
+		token.AcceesToken,
+		token.RefreshToken,
 		token.RememberMe,
 	)
 	if err != nil {
@@ -58,10 +58,10 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 	return nil
 }
 
-func (s *SecuritySqlRepoImpl) GetTokenByIDAndUserID(
-	ctx context.Context, tokenID string, userID string,
+func (s *SecuritySqlRepoImpl) GetTokenByAT(
+	ctx context.Context, token string,
 ) (*model.Token, error) {
-	query := `SELECT id, user_id, app_id, token FROM m_tokens WHERE id = $1 AND user_id = $2`
+	query := `SELECT id, refresh_token, app_id, remember_me FROM m_tokens WHERE access_token = $1`
 
 	conn, err := s.GetConn()
 	if err != nil {
@@ -79,14 +79,14 @@ func (s *SecuritySqlRepoImpl) GetTokenByIDAndUserID(
 		}
 	}()
 
-	row := stmt.QueryRowContext(ctx, tokenID, userID)
+	row := stmt.QueryRowContext(ctx, token)
 
-	var token model.Token
+	var tokenModel model.Token
 	err = row.Scan(
-		&token.ID,
-		&token.UserID,
-		&token.AppID,
-		&token.Token,
+		&tokenModel.ID,
+		&tokenModel.RefreshToken,
+		&tokenModel.AppID,
+		&tokenModel.RememberMe,
 	)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
@@ -95,11 +95,11 @@ func (s *SecuritySqlRepoImpl) GetTokenByIDAndUserID(
 		return nil, err
 	}
 
-	return &token, nil
+	return &tokenModel, nil
 }
 
-func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, token *model.TokenUpdate) error {
-	query := `UPDATE m_tokens SET token = $1, id = $2 WHERE id = $3`
+func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshToken string, accessToken string) error {
+	query := `UPDATE m_tokens SET refresh_token = $1, access_token = $2 WHERE id = $3`
 
 	tx, err := s.GetTx()
 	if err != nil {
@@ -119,9 +119,9 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, token *model.Toke
 
 	_, err = stmt.ExecContext(
 		ctx,
-		token.Token,
-		token.ID,
-		token.OldID,
+		refreshToken,
+		accessToken,
+		id,
 	)
 	if err != nil {
 		log.Err(err).Msg("failed to query row context prepared statement")
@@ -131,7 +131,7 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, token *model.Toke
 	return nil
 }
 
-func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, tokenID string, userID string) error {
+func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID string) error {
 	query := `DELETE m_tokens WHERE id = $1 AND user_id = $2`
 
 	tx, err := s.GetTx()
@@ -152,7 +152,7 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, tokenID string, u
 
 	_, err = stmt.ExecContext(
 		ctx,
-		tokenID,
+		id,
 		userID,
 	)
 	if err != nil {
@@ -162,6 +162,7 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, tokenID string, u
 
 	return nil
 }
+
 func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID string) error {
 	query := `DELETE m_tokens WHERE user_id = $1`
 

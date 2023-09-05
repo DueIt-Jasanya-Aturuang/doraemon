@@ -6,10 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
-
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
@@ -18,7 +15,6 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper/conv"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
 
@@ -104,16 +100,15 @@ func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.Forgot
 		return "", _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	tokenID := uuid.NewV4().String()
 	var jwtModel *model.Jwt
 
-	jwtModelFPT := jwtModel.ForgotPasswordTokenDefault(tokenID, user.ID)
+	jwtModelFPT := jwtModel.ForgotPasswordTokenDefault(user.ID)
 	forgotPasswordToken, err := helper.GenerateJwtHS256(jwtModelFPT)
 	if err != nil {
 		return "", _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	_, err = s.redis.Client.Set(ctx, "forgot-password-link:"+req.Email, tokenID, jwtModelFPT.Exp).Result()
+	err = s.redis.Client.Set(ctx, "forgot-password-link:"+req.Email, user.ID, jwtModelFPT.Exp).Err()
 	if err != nil {
 		return "", _error.ErrStringDefault(http.StatusInternalServerError)
 	}
@@ -128,28 +123,17 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
-	sub, err := encryption.DecryptStringCFB(claims["sub"].(string), config.AesCFB)
-	if err != nil {
-		return nil
-	}
-
-	tokenArray := strings.Split(sub, ":")
-	if len(tokenArray) != 3 {
+	userID, ok := claims["sub"].(string)
+	if !ok {
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
-	if tokenArray[2] != "forgot-password" {
-		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
-	}
-
-	tokenID := tokenArray[0]
-
-	getTokenID, err := s.redis.Client.Get(ctx, "forgot-password-link:"+req.Email).Result()
+	getUserID, err := s.redis.Client.Get(ctx, "forgot-password-link:"+req.Email).Result()
 	if err != nil {
 		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	if tokenID != getTokenID {
+	if userID != getUserID {
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
@@ -178,9 +162,8 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 		}
 	}()
 
-	userID := tokenArray[1]
 	userConv := conv.ResetPasswordReqToModel(passwordHash, userID)
-	
+
 	err = s.userRepo.UpdatePasswordUser(ctx, userConv)
 	if err != nil {
 		return _error.ErrStringDefault(http.StatusInternalServerError)

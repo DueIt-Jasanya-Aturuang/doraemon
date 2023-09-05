@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
@@ -36,11 +38,13 @@ func (o *Oauth2UsecaseImpl) GoogleClaimUser(ctx context.Context, req *dto.LoginG
 	if req.Device == "mobile" {
 		googleToken, err := encryption.DecryptStringCBC(req.Token, config.AesCBC, config.AesCBCIV)
 		if err != nil {
+			log.Err(err).Msg("invalid decrypt token")
 			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 
 		err = json.Unmarshal([]byte(googleToken), &googleOauthToken)
 		if err != nil {
+
 			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 	} else {

@@ -1,10 +1,11 @@
 CREATE TABLE m_tokens
 (
-    id              VARCHAR(64) NOT NULL UNIQUE PRIMARY KEY,
-    user_id         VARCHAR(64),
-    app_id          VARCHAR(64),
-    remember_me     BOOLEAN NOT NULL DEFAULT FALSE,
-    token           TEXT,
+    id            SERIAL primary key,
+    user_id       VARCHAR(64),
+    app_id        VARCHAR(64),
+    remember_me   BOOLEAN NOT NULL DEFAULT FALSE,
+    access_token  VARCHAR(255),
+    refresh_token VARCHAR(255),
     CONSTRAINT fk_m_user
         FOREIGN KEY (user_id)
             REFERENCES m_users (id)

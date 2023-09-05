@@ -11,9 +11,9 @@ func BadLogin() error {
 	})
 }
 
-func BadUsername(msg string) error {
+func BadExistField(field string, msg string) error {
 	return Err400(map[string][]string{
-		"email": {
+		field: {
 			msg,
 		},
 	})

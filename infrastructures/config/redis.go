@@ -13,7 +13,7 @@ type RedisImpl struct {
 	Client *redis.Client
 }
 
-func _() *RedisImpl {
+func NewRedisConnection() *RedisImpl {
 	host := fmt.Sprintf("%s:%s", RedisHost, RedisPort)
 	rDB := redis.NewClient(&redis.Options{
 		Addr:     host,

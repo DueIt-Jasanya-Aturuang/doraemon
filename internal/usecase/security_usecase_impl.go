@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
@@ -16,7 +15,6 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
 
@@ -35,93 +33,69 @@ func NewSecurityUsecaseImpl(
 	}
 }
 
-func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, endpoint string) (string, bool, error) {
+func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, endpoint string) (bool, error) {
 	claims, err := helper.ClaimsJwtHS256(req.Authorization, config.AccessTokenKeyHS)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return "", true, nil
+			return true, nil
 		}
-		return "", false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
+		return false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
-	sub, err := encryption.DecryptStringCFB(claims["sub"].(string), config.AesCFB)
-	if err != nil {
-		return "", false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
+	userID, ok := claims["sub"].(string)
+	if !ok {
+		return false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
-	subArray := strings.Split(sub, ":")
-	if len(subArray) != 3 {
-		return "", false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
-	}
-
-	if subArray[2] != "access-token" {
-		return "", false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
-	}
-
-	if subArray[1] != req.UserId {
-		return "", false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
+	if req.UserId != userID {
+		return false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
 	err = s.securityRepo.OpenConn(ctx)
 	if err != nil {
-		return "", false, _error.ErrStringDefault(http.StatusInternalServerError)
+		return false, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer s.securityRepo.CloseConn()
 
-	getRT, err := s.securityRepo.GetTokenByIDAndUserID(ctx, subArray[0], req.UserId)
+	getToken, err := s.securityRepo.GetTokenByAT(ctx, req.Authorization)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err := s.securityRepo.DeleteAllTokenByUserID(ctx, req.UserId)
-			if err != nil {
-				return "", false, _error.ErrStringDefault(http.StatusInternalServerError)
+			if err := s.securityRepo.DeleteAllTokenByUserID(ctx, req.UserId); err != nil {
+				return false, _error.ErrStringDefault(http.StatusInternalServerError)
 			}
-			return "", false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
+			return false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 		}
-		return "", false, _error.ErrStringDefault(http.StatusInternalServerError)
+		return false, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	if req.AppId != getRT.AppID {
-		return "", false, _error.ErrStringDefault(http.StatusForbidden)
+	if req.AppId != getToken.AppID {
+		return false, _error.ErrStringDefault(http.StatusForbidden)
 	}
 
 	if strings.Contains(endpoint, "/activasi-account") {
 		activasi, err := s.userRepo.CheckActivasiUserByID(ctx, req.UserId)
 		if err != nil {
-			return "", false, _error.ErrStringDefault(http.StatusInternalServerError)
+			return false, _error.ErrStringDefault(http.StatusInternalServerError)
 		}
 		if !activasi {
-			return "", false, _error.ErrString("akun anda tidak aktif, silahkan aktifkan akun anda", http.StatusForbidden)
+			return false, _error.ErrString("akun anda tidak aktif, silahkan aktifkan akun anda", http.StatusForbidden)
 		}
 	}
 
-	return getRT.Token, false, nil
+	return false, nil
 }
 
 func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtTokenReq) (tokenResp *dto.JwtTokenResp, err error) {
-	claims, err := helper.ClaimsJwtHS256(req.Authorization, config.AccessTokenKeyHS)
-	if err != nil {
-		return nil, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
-	}
-
-	sub, err := encryption.DecryptStringCFB(claims["sub"].(string), config.AesCFB)
-	if err != nil {
-		return nil, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
-	}
-
-	subArray := strings.Split(sub, ":")
-	tokenID := subArray[0]
-
 	err = s.securityRepo.OpenConn(ctx)
 	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer s.securityRepo.CloseConn()
 
-	getRT, err := s.securityRepo.GetTokenByIDAndUserID(ctx, tokenID, req.UserId)
+	getToken, err := s.securityRepo.GetTokenByAT(ctx, req.Authorization)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			err := s.securityRepo.DeleteAllTokenByUserID(ctx, req.UserId)
-			if err != nil {
+			if err := s.securityRepo.DeleteAllTokenByUserID(ctx, req.UserId); err != nil {
 				return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 			}
 			return nil, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
@@ -136,45 +110,63 @@ func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtT
 	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
-	defer func() {
+
+	err = s.securityRepo.DeleteToken(ctx, getToken.ID, req.UserId)
+	if err != nil {
 		errEndTx := s.userRepo.EndTx(err)
 		if errEndTx != nil {
 			err = _error.ErrStringDefault(http.StatusInternalServerError)
 		}
-	}()
-
-	err = s.securityRepo.DeleteToken(ctx, tokenID, req.UserId)
-	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	newTokenID := uuid.NewV4().String()
+	_, err = helper.ClaimsJwtHS256(getToken.RefreshToken, config.RefreshTokenKeyHS)
+	if err != nil {
+		errEndTx := s.userRepo.EndTx(nil)
+		if errEndTx != nil {
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
+		}
+		return nil, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
+	}
+
 	var jwtModel *model.Jwt
 
-	jwtModelAT := jwtModel.AccessTokenDefault(newTokenID, req.UserId, getRT.RememberMe)
+	jwtModelAT := jwtModel.AccessTokenDefault(req.UserId)
 	accessToken, err := helper.GenerateJwtHS256(jwtModelAT)
 	if err != nil {
+		errEndTx := s.userRepo.EndTx(err)
+		if errEndTx != nil {
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
+		}
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	jwtModelRT := jwtModel.RefreshTokenDefault(newTokenID, req.UserId, getRT.RememberMe)
+	jwtModelRT := jwtModel.RefreshTokenDefault(req.UserId, getToken.RememberMe)
 	refreshToken, err := helper.GenerateJwtHS256(jwtModelRT)
 	if err != nil {
+		errEndTx := s.userRepo.EndTx(err)
+		if errEndTx != nil {
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
+		}
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	tokenUpdate := &model.TokenUpdate{
-		ID:    newTokenID,
-		OldID: tokenID,
-		Token: refreshToken,
-	}
-	err = s.securityRepo.UpdateToken(ctx, tokenUpdate)
+	err = s.securityRepo.UpdateToken(ctx, getToken.ID, refreshToken, accessToken)
 	if err != nil {
+		errEndTx := s.userRepo.EndTx(err)
+		if errEndTx != nil {
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
+		}
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+
+	errEndTx := s.userRepo.EndTx(err)
+	if errEndTx != nil {
+		err = _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	tokenResp = &dto.JwtTokenResp{
-		RememberMe: getRT.RememberMe,
+		RememberMe: getToken.RememberMe,
 		Token:      accessToken,
 		Exp:        config.AccessTokenKeyExpHS,
 	}
@@ -183,26 +175,25 @@ func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtT
 }
 
 func (s *SecurityUsecaseImpl) JwtRegistredRTAT(ctx context.Context, req *dto.JwtRegisteredTokenReq) (tokenResp *dto.JwtTokenResp, err error) {
-	err = s.userRepo.OpenConn(ctx)
-	if err != nil {
-		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
-	}
-	defer s.userRepo.CloseConn()
-
-	tokenID := uuid.NewV4().String()
 	var jwtModel *model.Jwt
 
-	jwtModelAT := jwtModel.AccessTokenDefault(tokenID, req.UserId, req.RememberMe)
+	jwtModelAT := jwtModel.AccessTokenDefault(req.UserId)
 	accessToken, err := helper.GenerateJwtHS256(jwtModelAT)
 	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	jwtModelRT := jwtModel.RefreshTokenDefault(tokenID, req.UserId, req.RememberMe)
+	jwtModelRT := jwtModel.RefreshTokenDefault(req.UserId, req.RememberMe)
 	refreshToken, err := helper.GenerateJwtHS256(jwtModelRT)
 	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
+
+	err = s.userRepo.OpenConn(ctx)
+	if err != nil {
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+	defer s.userRepo.CloseConn()
 
 	err = s.userRepo.StartTx(ctx, &sql.TxOptions{
 		Isolation: sql.LevelReadCommitted,
@@ -220,11 +211,11 @@ func (s *SecurityUsecaseImpl) JwtRegistredRTAT(ctx context.Context, req *dto.Jwt
 	}()
 
 	err = s.securityRepo.CreateToken(ctx, &model.Token{
-		ID:         tokenID,
-		UserID:     req.UserId,
-		AppID:      req.AppId,
-		Token:      refreshToken,
-		RememberMe: req.RememberMe,
+		UserID:       req.UserId,
+		AppID:        req.AppId,
+		RefreshToken: refreshToken,
+		RememberMe:   req.RememberMe,
+		AcceesToken:  accessToken,
 	})
 	if err != nil {
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
@@ -237,4 +228,37 @@ func (s *SecurityUsecaseImpl) JwtRegistredRTAT(ctx context.Context, req *dto.Jwt
 	}
 
 	return tokenResp, nil
+}
+
+func (s *SecurityUsecaseImpl) Logout(ctx context.Context, req *dto.LogoutReq) (err error) {
+	err = s.securityRepo.OpenConn(ctx)
+	if err != nil {
+		return _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+	defer s.securityRepo.CloseConn()
+
+	getToken, err := s.securityRepo.GetTokenByAT(ctx, req.Token)
+	if err != nil {
+		return nil
+	}
+
+	err = s.securityRepo.StartTx(ctx, &sql.TxOptions{
+		Isolation: sql.LevelReadCommitted,
+		ReadOnly:  false,
+	})
+	if err != nil {
+		return _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+	defer func() {
+		errEndTx := s.securityRepo.EndTx(err)
+		if errEndTx != nil {
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
+		}
+	}()
+	err = s.securityRepo.DeleteToken(ctx, getToken.ID, req.UserID)
+	if err != nil {
+		return _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+
+	return nil
 }

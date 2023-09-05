@@ -6,41 +6,34 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strings"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper/conv"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
 
 type AuthUsecaseImpl struct {
-	userRepo     repository.UserSqlRepo
-	accessRepo   repository.AccessSqlRepo
-	securityRepo repository.SecuritySqlRepo
-	accountApi   repository.AccountApiRepo
+	userRepo   repository.UserSqlRepo
+	accessRepo repository.AccessSqlRepo
+	accountApi repository.AccountApiRepo
 }
 
 func NewAuthUsecaseImpl(
 	userRepo repository.UserSqlRepo,
 	accessRepo repository.AccessSqlRepo,
-	securityRepo repository.SecuritySqlRepo,
 	accountApi repository.AccountApiRepo,
 ) usecase.AuthUsecase {
 	return &AuthUsecaseImpl{
-		userRepo:     userRepo,
-		accessRepo:   accessRepo,
-		securityRepo: securityRepo,
-		accountApi:   accountApi,
+		userRepo:   userRepo,
+		accessRepo: accessRepo,
+		accountApi: accountApi,
 	}
 }
 
@@ -78,50 +71,6 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *dto.LoginReq) (userRes
 	return userResp, profileResp, nil
 }
 
-func (a *AuthUsecaseImpl) Logout(ctx context.Context, req *dto.LogoutReq) error {
-	claims, err := helper.ClaimsJwtHS256(config.AccessTokenKeyHS, req.Token)
-	if err != nil {
-		if !errors.Is(err, jwt.ErrTokenExpired) {
-			return nil
-		}
-	}
-
-	sub, err := encryption.DecryptStringCFB(claims["sub"].(string), config.AesCFB)
-	if err != nil {
-		return nil
-	}
-
-	tokenID := strings.Split(sub, ":")[0]
-	userID := strings.Split(sub, ":")[1]
-
-	err = a.userRepo.OpenConn(ctx)
-	if err != nil {
-		return _error.ErrStringDefault(http.StatusInternalServerError)
-	}
-	defer a.userRepo.CloseConn()
-
-	err = a.userRepo.StartTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelReadCommitted,
-		ReadOnly:  false,
-	})
-	if err != nil {
-		return _error.ErrStringDefault(http.StatusInternalServerError)
-	}
-	defer func() {
-		errEndTx := a.userRepo.EndTx(err)
-		if errEndTx != nil {
-			err = _error.ErrStringDefault(http.StatusInternalServerError)
-		}
-	}()
-
-	err = a.securityRepo.DeleteToken(ctx, tokenID, userID)
-	if err != nil {
-		return _error.ErrStringDefault(http.StatusInternalServerError)
-	}
-
-	return nil
-}
-
 func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (userResp *dto.UserResp, profileResp *dto.ProfileResp, err error) {
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
@@ -134,7 +83,7 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
-		return nil, nil, _error.BadUsername("username has been registered")
+		return nil, nil, _error.BadExistField("email", "email has been registered")
 	}
 
 	exists, err = a.userRepo.CheckUserByUsername(ctx, req.Email)
@@ -142,7 +91,7 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
-		return nil, nil, _error.BadUsername("username has been registered")
+		return nil, nil, _error.BadExistField("username", "username has been registered")
 	}
 
 	passwordHash, err := helper.BcryptPasswordHash(req.Password)

@@ -39,11 +39,11 @@ type FakeSecuritySqlRepo struct {
 	deleteAllTokenByUserIDReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteTokenStub        func(context.Context, string, string) error
+	DeleteTokenStub        func(context.Context, int, string) error
 	deleteTokenMutex       sync.RWMutex
 	deleteTokenArgsForCall []struct {
 		arg1 context.Context
-		arg2 string
+		arg2 int
 		arg3 string
 	}
 	deleteTokenReturns struct {
@@ -75,18 +75,17 @@ type FakeSecuritySqlRepo struct {
 		result1 *sql.Conn
 		result2 error
 	}
-	GetTokenByIDAndUserIDStub        func(context.Context, string, string) (*model.Token, error)
-	getTokenByIDAndUserIDMutex       sync.RWMutex
-	getTokenByIDAndUserIDArgsForCall []struct {
+	GetTokenByATStub        func(context.Context, string) (*model.Token, error)
+	getTokenByATMutex       sync.RWMutex
+	getTokenByATArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
-		arg3 string
 	}
-	getTokenByIDAndUserIDReturns struct {
+	getTokenByATReturns struct {
 		result1 *model.Token
 		result2 error
 	}
-	getTokenByIDAndUserIDReturnsOnCall map[int]struct {
+	getTokenByATReturnsOnCall map[int]struct {
 		result1 *model.Token
 		result2 error
 	}
@@ -125,11 +124,13 @@ type FakeSecuritySqlRepo struct {
 	startTxReturnsOnCall map[int]struct {
 		result1 error
 	}
-	UpdateTokenStub        func(context.Context, *model.TokenUpdate) error
+	UpdateTokenStub        func(context.Context, int, string, string) error
 	updateTokenMutex       sync.RWMutex
 	updateTokenArgsForCall []struct {
 		arg1 context.Context
-		arg2 *model.TokenUpdate
+		arg2 int
+		arg3 string
+		arg4 string
 	}
 	updateTokenReturns struct {
 		result1 error
@@ -289,12 +290,12 @@ func (fake *FakeSecuritySqlRepo) DeleteAllTokenByUserIDReturnsOnCall(i int, resu
 	}{result1}
 }
 
-func (fake *FakeSecuritySqlRepo) DeleteToken(arg1 context.Context, arg2 string, arg3 string) error {
+func (fake *FakeSecuritySqlRepo) DeleteToken(arg1 context.Context, arg2 int, arg3 string) error {
 	fake.deleteTokenMutex.Lock()
 	ret, specificReturn := fake.deleteTokenReturnsOnCall[len(fake.deleteTokenArgsForCall)]
 	fake.deleteTokenArgsForCall = append(fake.deleteTokenArgsForCall, struct {
 		arg1 context.Context
-		arg2 string
+		arg2 int
 		arg3 string
 	}{arg1, arg2, arg3})
 	stub := fake.DeleteTokenStub
@@ -316,13 +317,13 @@ func (fake *FakeSecuritySqlRepo) DeleteTokenCallCount() int {
 	return len(fake.deleteTokenArgsForCall)
 }
 
-func (fake *FakeSecuritySqlRepo) DeleteTokenCalls(stub func(context.Context, string, string) error) {
+func (fake *FakeSecuritySqlRepo) DeleteTokenCalls(stub func(context.Context, int, string) error) {
 	fake.deleteTokenMutex.Lock()
 	defer fake.deleteTokenMutex.Unlock()
 	fake.DeleteTokenStub = stub
 }
 
-func (fake *FakeSecuritySqlRepo) DeleteTokenArgsForCall(i int) (context.Context, string, string) {
+func (fake *FakeSecuritySqlRepo) DeleteTokenArgsForCall(i int) (context.Context, int, string) {
 	fake.deleteTokenMutex.RLock()
 	defer fake.deleteTokenMutex.RUnlock()
 	argsForCall := fake.deleteTokenArgsForCall[i]
@@ -469,20 +470,19 @@ func (fake *FakeSecuritySqlRepo) GetConnReturnsOnCall(i int, result1 *sql.Conn, 
 	}{result1, result2}
 }
 
-func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserID(arg1 context.Context, arg2 string, arg3 string) (*model.Token, error) {
-	fake.getTokenByIDAndUserIDMutex.Lock()
-	ret, specificReturn := fake.getTokenByIDAndUserIDReturnsOnCall[len(fake.getTokenByIDAndUserIDArgsForCall)]
-	fake.getTokenByIDAndUserIDArgsForCall = append(fake.getTokenByIDAndUserIDArgsForCall, struct {
+func (fake *FakeSecuritySqlRepo) GetTokenByAT(arg1 context.Context, arg2 string) (*model.Token, error) {
+	fake.getTokenByATMutex.Lock()
+	ret, specificReturn := fake.getTokenByATReturnsOnCall[len(fake.getTokenByATArgsForCall)]
+	fake.getTokenByATArgsForCall = append(fake.getTokenByATArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
-		arg3 string
-	}{arg1, arg2, arg3})
-	stub := fake.GetTokenByIDAndUserIDStub
-	fakeReturns := fake.getTokenByIDAndUserIDReturns
-	fake.recordInvocation("GetTokenByIDAndUserID", []interface{}{arg1, arg2, arg3})
-	fake.getTokenByIDAndUserIDMutex.Unlock()
+	}{arg1, arg2})
+	stub := fake.GetTokenByATStub
+	fakeReturns := fake.getTokenByATReturns
+	fake.recordInvocation("GetTokenByAT", []interface{}{arg1, arg2})
+	fake.getTokenByATMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -490,46 +490,46 @@ func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserID(arg1 context.Context, arg
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserIDCallCount() int {
-	fake.getTokenByIDAndUserIDMutex.RLock()
-	defer fake.getTokenByIDAndUserIDMutex.RUnlock()
-	return len(fake.getTokenByIDAndUserIDArgsForCall)
+func (fake *FakeSecuritySqlRepo) GetTokenByATCallCount() int {
+	fake.getTokenByATMutex.RLock()
+	defer fake.getTokenByATMutex.RUnlock()
+	return len(fake.getTokenByATArgsForCall)
 }
 
-func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserIDCalls(stub func(context.Context, string, string) (*model.Token, error)) {
-	fake.getTokenByIDAndUserIDMutex.Lock()
-	defer fake.getTokenByIDAndUserIDMutex.Unlock()
-	fake.GetTokenByIDAndUserIDStub = stub
+func (fake *FakeSecuritySqlRepo) GetTokenByATCalls(stub func(context.Context, string) (*model.Token, error)) {
+	fake.getTokenByATMutex.Lock()
+	defer fake.getTokenByATMutex.Unlock()
+	fake.GetTokenByATStub = stub
 }
 
-func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserIDArgsForCall(i int) (context.Context, string, string) {
-	fake.getTokenByIDAndUserIDMutex.RLock()
-	defer fake.getTokenByIDAndUserIDMutex.RUnlock()
-	argsForCall := fake.getTokenByIDAndUserIDArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+func (fake *FakeSecuritySqlRepo) GetTokenByATArgsForCall(i int) (context.Context, string) {
+	fake.getTokenByATMutex.RLock()
+	defer fake.getTokenByATMutex.RUnlock()
+	argsForCall := fake.getTokenByATArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserIDReturns(result1 *model.Token, result2 error) {
-	fake.getTokenByIDAndUserIDMutex.Lock()
-	defer fake.getTokenByIDAndUserIDMutex.Unlock()
-	fake.GetTokenByIDAndUserIDStub = nil
-	fake.getTokenByIDAndUserIDReturns = struct {
+func (fake *FakeSecuritySqlRepo) GetTokenByATReturns(result1 *model.Token, result2 error) {
+	fake.getTokenByATMutex.Lock()
+	defer fake.getTokenByATMutex.Unlock()
+	fake.GetTokenByATStub = nil
+	fake.getTokenByATReturns = struct {
 		result1 *model.Token
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeSecuritySqlRepo) GetTokenByIDAndUserIDReturnsOnCall(i int, result1 *model.Token, result2 error) {
-	fake.getTokenByIDAndUserIDMutex.Lock()
-	defer fake.getTokenByIDAndUserIDMutex.Unlock()
-	fake.GetTokenByIDAndUserIDStub = nil
-	if fake.getTokenByIDAndUserIDReturnsOnCall == nil {
-		fake.getTokenByIDAndUserIDReturnsOnCall = make(map[int]struct {
+func (fake *FakeSecuritySqlRepo) GetTokenByATReturnsOnCall(i int, result1 *model.Token, result2 error) {
+	fake.getTokenByATMutex.Lock()
+	defer fake.getTokenByATMutex.Unlock()
+	fake.GetTokenByATStub = nil
+	if fake.getTokenByATReturnsOnCall == nil {
+		fake.getTokenByATReturnsOnCall = make(map[int]struct {
 			result1 *model.Token
 			result2 error
 		})
 	}
-	fake.getTokenByIDAndUserIDReturnsOnCall[i] = struct {
+	fake.getTokenByATReturnsOnCall[i] = struct {
 		result1 *model.Token
 		result2 error
 	}{result1, result2}
@@ -714,19 +714,21 @@ func (fake *FakeSecuritySqlRepo) StartTxReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeSecuritySqlRepo) UpdateToken(arg1 context.Context, arg2 *model.TokenUpdate) error {
+func (fake *FakeSecuritySqlRepo) UpdateToken(arg1 context.Context, arg2 int, arg3 string, arg4 string) error {
 	fake.updateTokenMutex.Lock()
 	ret, specificReturn := fake.updateTokenReturnsOnCall[len(fake.updateTokenArgsForCall)]
 	fake.updateTokenArgsForCall = append(fake.updateTokenArgsForCall, struct {
 		arg1 context.Context
-		arg2 *model.TokenUpdate
-	}{arg1, arg2})
+		arg2 int
+		arg3 string
+		arg4 string
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.UpdateTokenStub
 	fakeReturns := fake.updateTokenReturns
-	fake.recordInvocation("UpdateToken", []interface{}{arg1, arg2})
+	fake.recordInvocation("UpdateToken", []interface{}{arg1, arg2, arg3, arg4})
 	fake.updateTokenMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -740,17 +742,17 @@ func (fake *FakeSecuritySqlRepo) UpdateTokenCallCount() int {
 	return len(fake.updateTokenArgsForCall)
 }
 
-func (fake *FakeSecuritySqlRepo) UpdateTokenCalls(stub func(context.Context, *model.TokenUpdate) error) {
+func (fake *FakeSecuritySqlRepo) UpdateTokenCalls(stub func(context.Context, int, string, string) error) {
 	fake.updateTokenMutex.Lock()
 	defer fake.updateTokenMutex.Unlock()
 	fake.UpdateTokenStub = stub
 }
 
-func (fake *FakeSecuritySqlRepo) UpdateTokenArgsForCall(i int) (context.Context, *model.TokenUpdate) {
+func (fake *FakeSecuritySqlRepo) UpdateTokenArgsForCall(i int) (context.Context, int, string, string) {
 	fake.updateTokenMutex.RLock()
 	defer fake.updateTokenMutex.RUnlock()
 	argsForCall := fake.updateTokenArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *FakeSecuritySqlRepo) UpdateTokenReturns(result1 error) {
@@ -791,8 +793,8 @@ func (fake *FakeSecuritySqlRepo) Invocations() map[string][][]interface{} {
 	defer fake.endTxMutex.RUnlock()
 	fake.getConnMutex.RLock()
 	defer fake.getConnMutex.RUnlock()
-	fake.getTokenByIDAndUserIDMutex.RLock()
-	defer fake.getTokenByIDAndUserIDMutex.RUnlock()
+	fake.getTokenByATMutex.RLock()
+	defer fake.getTokenByATMutex.RUnlock()
 	fake.getTxMutex.RLock()
 	defer fake.getTxMutex.RUnlock()
 	fake.openConnMutex.RLock()

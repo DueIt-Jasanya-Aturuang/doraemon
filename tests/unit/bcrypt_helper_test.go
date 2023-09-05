@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 )
 
 func TestBcryptHelper(t *testing.T) {
-	password := "rama"
+	password := "old12345"
 	hash := ""
 
 	t.Run("SUCCESS_hash", func(t *testing.T) {

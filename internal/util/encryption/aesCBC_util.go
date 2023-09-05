@@ -5,12 +5,18 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"errors"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
 )
 
-func DecryptStringCBC(text string, key string, iv string) (string, error) {
+func DecryptStringCBC(text string, key string, iv string) (textResp string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New("invalid cbc")
+		}
+	}()
 	if len(key) > 32 {
 		log.Warn().Msg("key must be 32 character")
 		return "", fmt.Errorf("%s", "invalid key encryptions")
@@ -50,8 +56,10 @@ func paddingPKCS7(plainText []byte) []byte {
 func unpaddingPKCS7(plaintext []byte) []byte {
 	length := len(plaintext)
 	unpadding := int(plaintext[length-1])
+
 	return plaintext[:(length - unpadding)]
 }
+
 func EncrypStringCBC(text string, key string, iv string) (string, error) {
 	if len(key) > 32 {
 		log.Warn().Msg("key must be 32 character")

@@ -11,6 +11,20 @@ import (
 )
 
 type FakeUserSqlRepo struct {
+	CheckActivasiUserByIDStub        func(context.Context, string) (bool, error)
+	checkActivasiUserByIDMutex       sync.RWMutex
+	checkActivasiUserByIDArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	checkActivasiUserByIDReturns struct {
+		result1 bool
+		result2 error
+	}
+	checkActivasiUserByIDReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
+	}
 	CheckUserByEmailStub        func(context.Context, string) (bool, error)
 	checkUserByEmailMutex       sync.RWMutex
 	checkUserByEmailArgsForCall []struct {
@@ -195,6 +209,71 @@ type FakeUserSqlRepo struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeUserSqlRepo) CheckActivasiUserByID(arg1 context.Context, arg2 string) (bool, error) {
+	fake.checkActivasiUserByIDMutex.Lock()
+	ret, specificReturn := fake.checkActivasiUserByIDReturnsOnCall[len(fake.checkActivasiUserByIDArgsForCall)]
+	fake.checkActivasiUserByIDArgsForCall = append(fake.checkActivasiUserByIDArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.CheckActivasiUserByIDStub
+	fakeReturns := fake.checkActivasiUserByIDReturns
+	fake.recordInvocation("CheckActivasiUserByID", []interface{}{arg1, arg2})
+	fake.checkActivasiUserByIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeUserSqlRepo) CheckActivasiUserByIDCallCount() int {
+	fake.checkActivasiUserByIDMutex.RLock()
+	defer fake.checkActivasiUserByIDMutex.RUnlock()
+	return len(fake.checkActivasiUserByIDArgsForCall)
+}
+
+func (fake *FakeUserSqlRepo) CheckActivasiUserByIDCalls(stub func(context.Context, string) (bool, error)) {
+	fake.checkActivasiUserByIDMutex.Lock()
+	defer fake.checkActivasiUserByIDMutex.Unlock()
+	fake.CheckActivasiUserByIDStub = stub
+}
+
+func (fake *FakeUserSqlRepo) CheckActivasiUserByIDArgsForCall(i int) (context.Context, string) {
+	fake.checkActivasiUserByIDMutex.RLock()
+	defer fake.checkActivasiUserByIDMutex.RUnlock()
+	argsForCall := fake.checkActivasiUserByIDArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeUserSqlRepo) CheckActivasiUserByIDReturns(result1 bool, result2 error) {
+	fake.checkActivasiUserByIDMutex.Lock()
+	defer fake.checkActivasiUserByIDMutex.Unlock()
+	fake.CheckActivasiUserByIDStub = nil
+	fake.checkActivasiUserByIDReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeUserSqlRepo) CheckActivasiUserByIDReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.checkActivasiUserByIDMutex.Lock()
+	defer fake.checkActivasiUserByIDMutex.Unlock()
+	fake.CheckActivasiUserByIDStub = nil
+	if fake.checkActivasiUserByIDReturnsOnCall == nil {
+		fake.checkActivasiUserByIDReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.checkActivasiUserByIDReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeUserSqlRepo) CheckUserByEmail(arg1 context.Context, arg2 string) (bool, error) {
@@ -1096,6 +1175,8 @@ func (fake *FakeUserSqlRepo) UpdatePasswordUserReturnsOnCall(i int, result1 erro
 func (fake *FakeUserSqlRepo) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.checkActivasiUserByIDMutex.RLock()
+	defer fake.checkActivasiUserByIDMutex.RUnlock()
 	fake.checkUserByEmailMutex.RLock()
 	defer fake.checkUserByEmailMutex.RUnlock()
 	fake.checkUserByUsernameMutex.RLock()

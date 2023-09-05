@@ -1,15 +1,10 @@
 package model
 
 type Token struct {
-	ID         string
-	UserID     string
-	AppID      string
-	Token      string
-	RememberMe bool
-}
-
-type TokenUpdate struct {
-	ID    string
-	OldID string
-	Token string
+	ID           int
+	UserID       string
+	AppID        string
+	RememberMe   bool
+	AcceesToken  string
+	RefreshToken string
 }

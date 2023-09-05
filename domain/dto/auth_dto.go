@@ -19,7 +19,8 @@ type LoginReq struct {
 }
 
 type LogoutReq struct {
-	Token string
+	Token  string
+	UserID string
 }
 
 type ProfileReq struct {

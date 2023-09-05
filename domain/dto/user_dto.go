@@ -21,7 +21,6 @@ type ResetPasswordReq struct {
 
 type ForgottenPasswordReq struct {
 	Email string // Email get in query param
-	Token string // Token get in query param
 }
 
 type ResetForgottenPasswordReq struct {

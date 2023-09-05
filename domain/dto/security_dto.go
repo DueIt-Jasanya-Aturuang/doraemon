@@ -8,15 +8,12 @@ type JwtTokenReq struct {
 	AppId         string
 	Authorization string
 	UserId        string
-	Activasi      bool
 }
 
 type JwtRegisteredTokenReq struct {
-	AppId         string
-	Authorization string
-	UserId        string
-	Activasi      bool
-	RememberMe    bool
+	AppId      string
+	UserId     string
+	RememberMe bool
 }
 
 type JwtTokenResp struct {

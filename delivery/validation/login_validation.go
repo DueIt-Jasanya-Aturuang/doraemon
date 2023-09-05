@@ -9,11 +9,6 @@ import (
 
 func LoginValidation(req *dto.LoginReq) error {
 	err400 := map[string][]string{}
-
-	if req.AppId == "" {
-		return _error.ErrString("FORBIDDEN", 403)
-	}
-
 	if req.EmailOrUsername == "" {
 		err400["email_or_username"] = append(err400["email_or_username"], fmt.Sprintf(required, "email_or_username"))
 	}

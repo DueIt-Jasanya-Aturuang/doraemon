@@ -3,21 +3,20 @@ package usecase
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper/conv"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/encryption"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
@@ -25,117 +24,60 @@ import (
 
 type AuthUsecaseImpl struct {
 	userRepo     repository.UserSqlRepo
-	appRepo      repository.AppSqlRepo
 	accessRepo   repository.AccessSqlRepo
 	securityRepo repository.SecuritySqlRepo
-	timeout      time.Duration
+	accountApi   repository.AccountApiRepo
 }
 
 func NewAuthUsecaseImpl(
 	userRepo repository.UserSqlRepo,
-	appRepo repository.AppSqlRepo,
 	accessRepo repository.AccessSqlRepo,
 	securityRepo repository.SecuritySqlRepo,
-	timeout time.Duration,
+	accountApi repository.AccountApiRepo,
 ) usecase.AuthUsecase {
 	return &AuthUsecaseImpl{
 		userRepo:     userRepo,
-		appRepo:      appRepo,
 		accessRepo:   accessRepo,
 		securityRepo: securityRepo,
-		timeout:      timeout,
+		accountApi:   accountApi,
 	}
 }
 
-func (a *AuthUsecaseImpl) Login(c context.Context, req *dto.LoginReq) (userResp *dto.UserResp, err error) {
-	ctx, cancel := context.WithTimeout(c, a.timeout)
-	defer cancel()
-
-	err = validation.LoginValidation(req)
-	if err != nil {
-		return nil, err
-	}
-
+func (a *AuthUsecaseImpl) Login(ctx context.Context, req *dto.LoginReq) (userResp *dto.UserResp, profileResp *dto.ProfileResp, err error) {
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer a.userRepo.CloseConn()
-
-	exists, err := a.appRepo.CheckAppByID(ctx, req.AppId)
-	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
-	}
-	if !exists {
-		log.Warn().Msgf("app id is not registered: %s", req.AppId)
-		return nil, _error.ErrString("FORBIDDEN", 403)
-	}
 
 	user, err := a.userRepo.GetUserByEmailOrUsername(ctx, req.EmailOrUsername)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, _error.BadLogin()
+			return nil, nil, _error.BadLogin()
 		}
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	if !req.Oauth2 {
 		checkPassword := helper.BcryptPasswordCompare(req.Password, user.Password)
 		if !checkPassword {
-			return nil, _error.BadLogin()
+			return nil, nil, _error.BadLogin()
 		}
 	}
 
-	tokenID := uuid.NewV4().String()
-	var jwtModel *model.Jwt
-
-	jwtModelAT := jwtModel.AccessTokenDefault(tokenID, user.ID, req.RememberMe)
-	accessToken, err := helper.GenerateJwtHS256(jwtModelAT)
+	profile, err := a.accountApi.GetProfileByUserID(user.ID)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
-	}
-
-	jwtModelRT := jwtModel.RefreshTokenDefault(tokenID, user.ID, req.RememberMe)
-	refreshToken, err := helper.GenerateJwtHS256(jwtModelRT)
-	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
-	}
-
-	err = a.userRepo.StartTx(ctx, &sql.TxOptions{
-		Isolation: sql.LevelReadCommitted,
-		ReadOnly:  false,
-	})
-	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
-	}
-	defer func() {
-		errEndTx := a.userRepo.EndTx(err)
-		if errEndTx != nil {
-			err = _error.ErrString("INTERNAL SERVER ERROR", 500)
-			userResp = nil
-		}
-	}()
-
-	_, err = a.securityRepo.CreateToken(ctx, &model.Token{
-		ID:     tokenID,
-		UserID: user.ID,
-		AppID:  req.AppId,
-		Token:  refreshToken,
-	})
-	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		log.Err(err).Msg("error account service")
+		return nil, nil, _error.ErrStringDefault(http.StatusBadGateway)
 	}
 
 	emailFormat := util.EmailFormat(user.Email)
-	userResp = conv.LoginModelToResp(user, accessToken, emailFormat)
+	userResp, profileResp = conv.LoginModelToResp(user, profile, emailFormat)
 
-	return userResp, nil
+	return userResp, profileResp, nil
 }
 
-func (a *AuthUsecaseImpl) Logout(c context.Context, req *dto.LogoutReq) error {
-	ctx, cancel := context.WithTimeout(c, a.timeout)
-	defer cancel()
-
+func (a *AuthUsecaseImpl) Logout(ctx context.Context, req *dto.LogoutReq) error {
 	claims, err := helper.ClaimsJwtHS256(config.AccessTokenKeyHS, req.Token)
 	if err != nil {
 		return nil
@@ -150,7 +92,7 @@ func (a *AuthUsecaseImpl) Logout(c context.Context, req *dto.LogoutReq) error {
 
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer a.userRepo.CloseConn()
 
@@ -159,74 +101,49 @@ func (a *AuthUsecaseImpl) Logout(c context.Context, req *dto.LogoutReq) error {
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer func() {
 		errEndTx := a.userRepo.EndTx(err)
 		if errEndTx != nil {
-			err = _error.ErrString("INTERNAL SERVER ERROR", 500)
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
 		}
 	}()
 
 	err = a.securityRepo.DeleteToken(ctx, tokenID, userID)
 	if err != nil {
-		return _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	return nil
 }
 
-func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (userResp *dto.UserResp, err error) {
-	ctx, cancel := context.WithTimeout(c, a.timeout)
-	defer cancel()
-
-	err = validation.RegisterValidation(req)
-	if err != nil {
-		return nil, err
-	}
-
+func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (userResp *dto.UserResp, profileResp *dto.ProfileResp, err error) {
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer a.userRepo.CloseConn()
 
-	exists, err := a.appRepo.CheckAppByID(ctx, req.AppId)
+	exists, err := a.userRepo.CheckUserByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
-	}
-	if !exists {
-		log.Warn().Msgf("app id is not registered: %s", req.AppId)
-		return nil, _error.ErrString("UNAUTHORIZATION", 403)
-	}
-
-	exists, err = a.userRepo.CheckUserByEmail(ctx, req.Email)
-	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
-		return nil, _error.Err400(map[string][]string{
-			"email": {
-				"email has been registered",
-			},
-		})
+		return nil, nil, _error.BadUsername("username has been registered")
 	}
 
 	exists, err = a.userRepo.CheckUserByUsername(ctx, req.Email)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
-		return nil, _error.Err400(map[string][]string{
-			"username": {
-				"username has been registered",
-			},
-		})
+		return nil, nil, _error.BadUsername("username has been registered")
 	}
 
 	passwordHash, err := helper.BcryptPasswordHash(req.Password)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	req.Password = passwordHash
 
@@ -235,31 +152,47 @@ func (a *AuthUsecaseImpl) Register(c context.Context, req *dto.RegisterReq) (use
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer func() {
 		errEndTx := a.userRepo.EndTx(err)
 		if errEndTx != nil {
-			err = _error.ErrString("INTERNAL SERVER ERROR", 500)
+			err = _error.ErrStringDefault(http.StatusInternalServerError)
 			userResp = nil
+			profileResp = nil
 		}
 	}()
 
 	id := uuid.NewV4().String()
 	userConv, accessConv := conv.RegisterReqToModel(req, id)
 
-	user, err := a.userRepo.CreateUser(ctx, userConv)
+	err = a.userRepo.CreateUser(ctx, userConv)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	_, err = a.accessRepo.CreateAccess(ctx, accessConv)
 	if err != nil {
-		return nil, _error.ErrString("INTERNAL SERVER ERROR", 500)
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	emailFormat := util.EmailFormat(user.Email)
-	userResp = conv.RegisterModelToResp(user, emailFormat)
+	profileReq := dto.ProfileReq{
+		UserID: userConv.ID,
+	}
+	profileJson, err := json.Marshal(profileReq)
+	if err != nil {
+		log.Err(err).Msg("failed marshal profile req")
+		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+	}
 
-	return userResp, nil
+	profile, err := a.accountApi.CreateProfile(profileJson)
+	if err != nil {
+		log.Err(err).Msg("error account service")
+		return nil, nil, _error.ErrStringDefault(http.StatusBadGateway)
+	}
+
+	emailFormat := util.EmailFormat(userConv.Email)
+	userResp, profileResp = conv.RegisterModelToResp(userConv, profile, emailFormat)
+
+	return userResp, profileResp, nil
 }

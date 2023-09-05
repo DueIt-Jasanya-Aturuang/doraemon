@@ -22,6 +22,19 @@ type FakeAccountApiRepo struct {
 		result1 *model.Profile
 		result2 error
 	}
+	GetProfileByUserIDStub        func(string) (*model.Profile, error)
+	getProfileByUserIDMutex       sync.RWMutex
+	getProfileByUserIDArgsForCall []struct {
+		arg1 string
+	}
+	getProfileByUserIDReturns struct {
+		result1 *model.Profile
+		result2 error
+	}
+	getProfileByUserIDReturnsOnCall map[int]struct {
+		result1 *model.Profile
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -95,11 +108,77 @@ func (fake *FakeAccountApiRepo) CreateProfileReturnsOnCall(i int, result1 *model
 	}{result1, result2}
 }
 
+func (fake *FakeAccountApiRepo) GetProfileByUserID(arg1 string) (*model.Profile, error) {
+	fake.getProfileByUserIDMutex.Lock()
+	ret, specificReturn := fake.getProfileByUserIDReturnsOnCall[len(fake.getProfileByUserIDArgsForCall)]
+	fake.getProfileByUserIDArgsForCall = append(fake.getProfileByUserIDArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetProfileByUserIDStub
+	fakeReturns := fake.getProfileByUserIDReturns
+	fake.recordInvocation("GetProfileByUserID", []interface{}{arg1})
+	fake.getProfileByUserIDMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeAccountApiRepo) GetProfileByUserIDCallCount() int {
+	fake.getProfileByUserIDMutex.RLock()
+	defer fake.getProfileByUserIDMutex.RUnlock()
+	return len(fake.getProfileByUserIDArgsForCall)
+}
+
+func (fake *FakeAccountApiRepo) GetProfileByUserIDCalls(stub func(string) (*model.Profile, error)) {
+	fake.getProfileByUserIDMutex.Lock()
+	defer fake.getProfileByUserIDMutex.Unlock()
+	fake.GetProfileByUserIDStub = stub
+}
+
+func (fake *FakeAccountApiRepo) GetProfileByUserIDArgsForCall(i int) string {
+	fake.getProfileByUserIDMutex.RLock()
+	defer fake.getProfileByUserIDMutex.RUnlock()
+	argsForCall := fake.getProfileByUserIDArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeAccountApiRepo) GetProfileByUserIDReturns(result1 *model.Profile, result2 error) {
+	fake.getProfileByUserIDMutex.Lock()
+	defer fake.getProfileByUserIDMutex.Unlock()
+	fake.GetProfileByUserIDStub = nil
+	fake.getProfileByUserIDReturns = struct {
+		result1 *model.Profile
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeAccountApiRepo) GetProfileByUserIDReturnsOnCall(i int, result1 *model.Profile, result2 error) {
+	fake.getProfileByUserIDMutex.Lock()
+	defer fake.getProfileByUserIDMutex.Unlock()
+	fake.GetProfileByUserIDStub = nil
+	if fake.getProfileByUserIDReturnsOnCall == nil {
+		fake.getProfileByUserIDReturnsOnCall = make(map[int]struct {
+			result1 *model.Profile
+			result2 error
+		})
+	}
+	fake.getProfileByUserIDReturnsOnCall[i] = struct {
+		result1 *model.Profile
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeAccountApiRepo) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.createProfileMutex.RLock()
 	defer fake.createProfileMutex.RUnlock()
+	fake.getProfileByUserIDMutex.RLock()
+	defer fake.getProfileByUserIDMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

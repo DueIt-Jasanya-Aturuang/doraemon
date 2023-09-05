@@ -8,7 +8,9 @@ import (
 
 //counterfeiter:generate -o ./../mocks . UserSqlRepo
 type UserSqlRepo interface {
-	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
+	CreateUser(ctx context.Context, user *model.User) error
+	UpdateActivasiUser(ctx context.Context, user *model.User) error
+	UpdatePasswordUser(ctx context.Context, user *model.User) error
 	CheckUserByEmail(ctx context.Context, email string) (bool, error)
 	CheckUserByUsername(ctx context.Context, username string) (bool, error)
 	GetUserByID(ctx context.Context, id string) (*model.User, error)

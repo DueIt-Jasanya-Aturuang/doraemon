@@ -10,3 +10,11 @@ func BadLogin() error {
 		},
 	})
 }
+
+func BadUsername(msg string) error {
+	return Err400(map[string][]string{
+		"email": {
+			msg,
+		},
+	})
+}

@@ -6,19 +6,28 @@ type RegisterReq struct {
 	Email           string `json:"email"`
 	Password        string `json:"password"`
 	RePassword      string `json:"re_password"`
-	AppId           string // AppId get in header
 	EmailVerifiedAt bool   // EmailVerifiedAt set in handler
-	Role            int8   // Role set in handler
+	AppID           string
+	Role            int8 // Role set in handler
 }
 
 type LoginReq struct {
 	EmailOrUsername string `json:"email_or_username"`
 	Password        string `json:"password"`
 	RememberMe      bool   `json:"remember_me"`
-	AppId           string // AppId get in header
 	Oauth2          bool   // Oauth2 set in handler
 }
 
 type LogoutReq struct {
 	Token string
+}
+
+type ProfileReq struct {
+	UserID string `json:"user_id"`
+}
+
+type ProfileResp struct {
+	ProfileID string `json:"profile_id"`
+	Quote     string `json:"quote"`
+	Profesi   string `json:"profesi"`
 }

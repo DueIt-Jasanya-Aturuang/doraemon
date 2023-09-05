@@ -32,7 +32,7 @@ func RegisterReqToModel(req *dto.RegisterReq, id string) (*model.User, *model.Ac
 	endPoint := helper.EndPointMarshal()
 
 	access := &model.Access{
-		AppId:          req.AppId,
+		AppId:          req.AppID,
 		UserId:         id,
 		RoleId:         req.Role,
 		AccessEndpoint: endPoint,
@@ -46,12 +46,10 @@ func RegisterReqToModel(req *dto.RegisterReq, id string) (*model.User, *model.Ac
 	return user, access
 }
 
-func RegisterModelToResp(user *model.User, emailFormat string) *dto.UserResp {
-	phoneNumber := ""
+func RegisterModelToResp(user *model.User, profile *model.Profile, emailFormat string) (*dto.UserResp, *dto.ProfileResp) {
+	phoneNumber := "null"
 	if user.PhoneNumber.Valid {
 		phoneNumber = user.PhoneNumber.String
-	} else {
-		phoneNumber = "null"
 	}
 
 	userResp := &dto.UserResp{
@@ -66,5 +64,11 @@ func RegisterModelToResp(user *model.User, emailFormat string) *dto.UserResp {
 		EmailVerifiedAt: false,
 	}
 
-	return userResp
+	profileResp := &dto.ProfileResp{
+		ProfileID: profile.ProfileID,
+		Quote:     profile.Quote,
+		Profesi:   profile.Profesi,
+	}
+
+	return userResp, profileResp
 }

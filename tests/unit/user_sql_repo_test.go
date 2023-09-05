@@ -42,7 +42,7 @@ func TestCreateUserRepo(t *testing.T) {
 	err = userRepo.StartTx(context.TODO(), &sql.TxOptions{})
 	assert.NoError(t, err)
 
-	user, err := userRepo.CreateUser(context.TODO(), &model.User{
+	err = userRepo.CreateUser(context.TODO(), &model.User{
 		ID:              "test",
 		FullName:        "test",
 		Gender:          "undefined",
@@ -60,9 +60,89 @@ func TestCreateUserRepo(t *testing.T) {
 		DeletedBy:       sql.NullString{},
 	})
 	assert.NoError(t, err)
-	assert.NotNil(t, user)
-	assert.Equal(t, "test", user.ID)
 
+	err = userRepo.EndTx(err)
+	assert.NoError(t, err)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
+}
+
+func TestUpdateActivatiUser(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			log.Err(err)
+		}
+	}()
+
+	query := regexp.QuoteMeta(`UPDATE m_users SET email_verified_at = $1, updated_at = $2, updated_by = $3 WHERE id = $4`)
+
+	mock.ExpectBegin()
+	mock.ExpectPrepare(query)
+	mock.ExpectExec(query).WithArgs(
+		true, 0, "test", "test",
+	).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	uowRepo := repository.NewUnitOfWorkRepoSqlImpl(db)
+	userRepo := repository.NewUserRepoSqlImpl(uowRepo)
+	err = userRepo.OpenConn(context.TODO())
+	assert.NoError(t, err)
+	err = userRepo.StartTx(context.TODO(), &sql.TxOptions{})
+	assert.NoError(t, err)
+
+	err = userRepo.UpdateActivasiUser(context.TODO(), &model.User{
+		ID:              "test",
+		EmailVerifiedAt: true,
+		UpdatedAt:       0,
+		UpdatedBy:       sql.NullString{String: "test", Valid: true},
+	})
+	assert.NoError(t, err)
+	err = userRepo.EndTx(err)
+	assert.NoError(t, err)
+
+	err = mock.ExpectationsWereMet()
+	assert.NoError(t, err)
+}
+
+func TestUpdatePasswordUser(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	assert.NoError(t, err)
+
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			log.Err(err)
+		}
+	}()
+
+	query := regexp.QuoteMeta(`UPDATE m_users SET password = $1, updated_at = $2, updated_by = $3 WHERE id = $4`)
+
+	mock.ExpectBegin()
+	mock.ExpectPrepare(query)
+	mock.ExpectExec(query).WithArgs(
+		"true", 0, "test", "test",
+	).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	uowRepo := repository.NewUnitOfWorkRepoSqlImpl(db)
+	userRepo := repository.NewUserRepoSqlImpl(uowRepo)
+	err = userRepo.OpenConn(context.TODO())
+	assert.NoError(t, err)
+	err = userRepo.StartTx(context.TODO(), &sql.TxOptions{})
+	assert.NoError(t, err)
+
+	err = userRepo.UpdatePasswordUser(context.TODO(), &model.User{
+		ID:        "test",
+		Password:  "true",
+		UpdatedAt: 0,
+		UpdatedBy: sql.NullString{String: "test", Valid: true},
+	})
+	assert.NoError(t, err)
 	err = userRepo.EndTx(err)
 	assert.NoError(t, err)
 
@@ -395,7 +475,7 @@ func TestGetUserByEmailOrUsername(t *testing.T) {
 
 	t.Run("ERROR", func(t *testing.T) {
 		mock.ExpectPrepare(query)
-		mock.ExpectQuery(query).WithArgs("nil").WillReturnError(sql.ErrNoRows)
+		mock.ExpectQuery(query).WithArgs("nil", "nil").WillReturnError(sql.ErrNoRows)
 
 		uowRepo := repository.NewUnitOfWorkRepoSqlImpl(db)
 		userRepo := repository.NewUserRepoSqlImpl(uowRepo)

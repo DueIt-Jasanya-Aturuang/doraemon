@@ -3,7 +3,7 @@ CREATE TABLE m_access(
     role_id INT,
     user_id VARCHAR(64),
     app_id VARCHAR(64),
-    access_endpoint JSON,
+    access_endpoint JSONB,
     created_at DECIMAL NOT NULL,
     created_by VARCHAR(64),
     updated_at DECIMAL NOT NULL,

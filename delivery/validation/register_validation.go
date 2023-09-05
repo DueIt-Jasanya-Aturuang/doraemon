@@ -29,11 +29,6 @@ will be return error for example [_error.Err400]
 */
 func RegisterValidation(req *dto.RegisterReq) error {
 	err400 := map[string][]string{}
-
-	if req.AppId == "" {
-		return _error.ErrString("FORBIDDEN", 403)
-	}
-
 	if req.FullName == "" {
 		err400["full_name"] = append(err400["full_name"], fmt.Sprintf(required, "full_name"))
 	}

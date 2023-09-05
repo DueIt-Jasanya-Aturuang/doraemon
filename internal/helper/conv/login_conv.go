@@ -5,15 +5,13 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 )
 
-func LoginModelToResp(user *model.User, accessToken string, emailFormat string) *dto.UserResp {
-	phoneNumber := ""
+func LoginModelToResp(user *model.User, profile *model.Profile, emailFormat string) (*dto.UserResp, *dto.ProfileResp) {
+	phoneNumber := "null"
 	if user.PhoneNumber.Valid {
 		phoneNumber = user.PhoneNumber.String
-	} else {
-		phoneNumber = "null"
 	}
 
-	return &dto.UserResp{
+	userResp := &dto.UserResp{
 		ID:              user.ID,
 		FullName:        user.FullName,
 		Gender:          user.Gender,
@@ -23,6 +21,13 @@ func LoginModelToResp(user *model.User, accessToken string, emailFormat string) 
 		EmailFormat:     emailFormat,
 		PhoneNumber:     phoneNumber,
 		EmailVerifiedAt: user.EmailVerifiedAt,
-		Token:           accessToken,
 	}
+
+	profileResp := &dto.ProfileResp{
+		ProfileID: profile.ProfileID,
+		Quote:     profile.Quote,
+		Profesi:   profile.Profesi,
+	}
+
+	return userResp, profileResp
 }

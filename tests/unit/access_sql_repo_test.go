@@ -76,7 +76,7 @@ func TestGetAccessByUserIDAndAppID(t *testing.T) {
 			FROM m_access WHERE user_id = $1 AND app_id = $2`)
 
 	rows := sqlmock.NewRows([]string{
-		"ID", "AppId",
+		"ID", "AppID",
 		"UserId", "role_id",
 		"AccessEndpoint", "CreatedAt",
 		"CreatedBy", "UpdatedAt",

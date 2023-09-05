@@ -19,6 +19,7 @@ func EnvInit() {
 	// AppPort = os.Getenv("APPLICATION_PORT")
 	// AppStatus = os.Getenv("APPLICATION_STATUS")
 	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
+	AppAuthApi = os.Getenv("APPLICATION_AUTH_API")
 
 	PgHost = os.Getenv("DB_POSTGRESQL_HOST")
 	PgPort = os.Getenv("DB_POSTGRESQL_PORT")
@@ -38,8 +39,8 @@ func EnvInit() {
 	RedisPass = os.Getenv("REDIS_PASS")
 
 	// KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
-	// KafkaBroker = os.Getenv("KAFKA_BROKER")
-	// KafkaTopic = os.Getenv("KAFKA_TOPIC")
+	KafkaBroker = os.Getenv("KAFKA_BROKER")
+	KafkaTopic = os.Getenv("KAFKA_TOPIC")
 
 	DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
 	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
@@ -86,6 +87,7 @@ var (
 	// AppStatus     string
 
 	AppAccountApi string
+	AppAuthApi    string
 
 	PgHost   string
 	PgPort   string
@@ -100,9 +102,8 @@ var (
 	RedisDB   int
 	RedisPass string
 
-	// KafkaProtocol string
-	// KafkaBroker   string
-	// KafkaTopic    string
+	KafkaBroker string
+	KafkaTopic  string
 
 	DefaultImage string
 

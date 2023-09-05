@@ -44,14 +44,13 @@ func TestSecurityCreateToken(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	token, err := securityRepo.CreateToken(context.TODO(), &model.Token{
+	err = securityRepo.CreateToken(context.TODO(), &model.Token{
 		ID:     "test",
 		UserID: "test",
 		AppID:  "test",
 		Token:  "test",
 	})
 	assert.NoError(t, err)
-	assert.NotNil(t, token)
 	err = securityRepo.EndTx(err)
 	assert.NoError(t, err)
 	securityRepo.CloseConn()

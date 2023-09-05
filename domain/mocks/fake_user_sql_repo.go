@@ -43,19 +43,17 @@ type FakeUserSqlRepo struct {
 	closeConnMutex       sync.RWMutex
 	closeConnArgsForCall []struct {
 	}
-	CreateUserStub        func(context.Context, *model.User) (*model.User, error)
+	CreateUserStub        func(context.Context, *model.User) error
 	createUserMutex       sync.RWMutex
 	createUserArgsForCall []struct {
 		arg1 context.Context
 		arg2 *model.User
 	}
 	createUserReturns struct {
-		result1 *model.User
-		result2 error
+		result1 error
 	}
 	createUserReturnsOnCall map[int]struct {
-		result1 *model.User
-		result2 error
+		result1 error
 	}
 	EndTxStub        func(error) error
 	endTxMutex       sync.RWMutex
@@ -103,6 +101,20 @@ type FakeUserSqlRepo struct {
 		result2 error
 	}
 	getUserByEmailReturnsOnCall map[int]struct {
+		result1 *model.User
+		result2 error
+	}
+	GetUserByEmailOrUsernameStub        func(context.Context, string) (*model.User, error)
+	getUserByEmailOrUsernameMutex       sync.RWMutex
+	getUserByEmailOrUsernameArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	getUserByEmailOrUsernameReturns struct {
+		result1 *model.User
+		result2 error
+	}
+	getUserByEmailOrUsernameReturnsOnCall map[int]struct {
 		result1 *model.User
 		result2 error
 	}
@@ -155,6 +167,30 @@ type FakeUserSqlRepo struct {
 		result1 error
 	}
 	startTxReturnsOnCall map[int]struct {
+		result1 error
+	}
+	UpdateActivasiUserStub        func(context.Context, *model.User) error
+	updateActivasiUserMutex       sync.RWMutex
+	updateActivasiUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 *model.User
+	}
+	updateActivasiUserReturns struct {
+		result1 error
+	}
+	updateActivasiUserReturnsOnCall map[int]struct {
+		result1 error
+	}
+	UpdatePasswordUserStub        func(context.Context, *model.User) error
+	updatePasswordUserMutex       sync.RWMutex
+	updatePasswordUserArgsForCall []struct {
+		arg1 context.Context
+		arg2 *model.User
+	}
+	updatePasswordUserReturns struct {
+		result1 error
+	}
+	updatePasswordUserReturnsOnCall map[int]struct {
 		result1 error
 	}
 	invocations      map[string][][]interface{}
@@ -315,7 +351,7 @@ func (fake *FakeUserSqlRepo) CloseConnCalls(stub func()) {
 	fake.CloseConnStub = stub
 }
 
-func (fake *FakeUserSqlRepo) CreateUser(arg1 context.Context, arg2 *model.User) (*model.User, error) {
+func (fake *FakeUserSqlRepo) CreateUser(arg1 context.Context, arg2 *model.User) error {
 	fake.createUserMutex.Lock()
 	ret, specificReturn := fake.createUserReturnsOnCall[len(fake.createUserArgsForCall)]
 	fake.createUserArgsForCall = append(fake.createUserArgsForCall, struct {
@@ -330,9 +366,9 @@ func (fake *FakeUserSqlRepo) CreateUser(arg1 context.Context, arg2 *model.User) 
 		return stub(arg1, arg2)
 	}
 	if specificReturn {
-		return ret.result1, ret.result2
+		return ret.result1
 	}
-	return fakeReturns.result1, fakeReturns.result2
+	return fakeReturns.result1
 }
 
 func (fake *FakeUserSqlRepo) CreateUserCallCount() int {
@@ -341,7 +377,7 @@ func (fake *FakeUserSqlRepo) CreateUserCallCount() int {
 	return len(fake.createUserArgsForCall)
 }
 
-func (fake *FakeUserSqlRepo) CreateUserCalls(stub func(context.Context, *model.User) (*model.User, error)) {
+func (fake *FakeUserSqlRepo) CreateUserCalls(stub func(context.Context, *model.User) error) {
 	fake.createUserMutex.Lock()
 	defer fake.createUserMutex.Unlock()
 	fake.CreateUserStub = stub
@@ -354,30 +390,27 @@ func (fake *FakeUserSqlRepo) CreateUserArgsForCall(i int) (context.Context, *mod
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeUserSqlRepo) CreateUserReturns(result1 *model.User, result2 error) {
+func (fake *FakeUserSqlRepo) CreateUserReturns(result1 error) {
 	fake.createUserMutex.Lock()
 	defer fake.createUserMutex.Unlock()
 	fake.CreateUserStub = nil
 	fake.createUserReturns = struct {
-		result1 *model.User
-		result2 error
-	}{result1, result2}
+		result1 error
+	}{result1}
 }
 
-func (fake *FakeUserSqlRepo) CreateUserReturnsOnCall(i int, result1 *model.User, result2 error) {
+func (fake *FakeUserSqlRepo) CreateUserReturnsOnCall(i int, result1 error) {
 	fake.createUserMutex.Lock()
 	defer fake.createUserMutex.Unlock()
 	fake.CreateUserStub = nil
 	if fake.createUserReturnsOnCall == nil {
 		fake.createUserReturnsOnCall = make(map[int]struct {
-			result1 *model.User
-			result2 error
+			result1 error
 		})
 	}
 	fake.createUserReturnsOnCall[i] = struct {
-		result1 *model.User
-		result2 error
-	}{result1, result2}
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeUserSqlRepo) EndTx(arg1 error) error {
@@ -613,6 +646,71 @@ func (fake *FakeUserSqlRepo) GetUserByEmailReturnsOnCall(i int, result1 *model.U
 		})
 	}
 	fake.getUserByEmailReturnsOnCall[i] = struct {
+		result1 *model.User
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeUserSqlRepo) GetUserByEmailOrUsername(arg1 context.Context, arg2 string) (*model.User, error) {
+	fake.getUserByEmailOrUsernameMutex.Lock()
+	ret, specificReturn := fake.getUserByEmailOrUsernameReturnsOnCall[len(fake.getUserByEmailOrUsernameArgsForCall)]
+	fake.getUserByEmailOrUsernameArgsForCall = append(fake.getUserByEmailOrUsernameArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetUserByEmailOrUsernameStub
+	fakeReturns := fake.getUserByEmailOrUsernameReturns
+	fake.recordInvocation("GetUserByEmailOrUsername", []interface{}{arg1, arg2})
+	fake.getUserByEmailOrUsernameMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeUserSqlRepo) GetUserByEmailOrUsernameCallCount() int {
+	fake.getUserByEmailOrUsernameMutex.RLock()
+	defer fake.getUserByEmailOrUsernameMutex.RUnlock()
+	return len(fake.getUserByEmailOrUsernameArgsForCall)
+}
+
+func (fake *FakeUserSqlRepo) GetUserByEmailOrUsernameCalls(stub func(context.Context, string) (*model.User, error)) {
+	fake.getUserByEmailOrUsernameMutex.Lock()
+	defer fake.getUserByEmailOrUsernameMutex.Unlock()
+	fake.GetUserByEmailOrUsernameStub = stub
+}
+
+func (fake *FakeUserSqlRepo) GetUserByEmailOrUsernameArgsForCall(i int) (context.Context, string) {
+	fake.getUserByEmailOrUsernameMutex.RLock()
+	defer fake.getUserByEmailOrUsernameMutex.RUnlock()
+	argsForCall := fake.getUserByEmailOrUsernameArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeUserSqlRepo) GetUserByEmailOrUsernameReturns(result1 *model.User, result2 error) {
+	fake.getUserByEmailOrUsernameMutex.Lock()
+	defer fake.getUserByEmailOrUsernameMutex.Unlock()
+	fake.GetUserByEmailOrUsernameStub = nil
+	fake.getUserByEmailOrUsernameReturns = struct {
+		result1 *model.User
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeUserSqlRepo) GetUserByEmailOrUsernameReturnsOnCall(i int, result1 *model.User, result2 error) {
+	fake.getUserByEmailOrUsernameMutex.Lock()
+	defer fake.getUserByEmailOrUsernameMutex.Unlock()
+	fake.GetUserByEmailOrUsernameStub = nil
+	if fake.getUserByEmailOrUsernameReturnsOnCall == nil {
+		fake.getUserByEmailOrUsernameReturnsOnCall = make(map[int]struct {
+			result1 *model.User
+			result2 error
+		})
+	}
+	fake.getUserByEmailOrUsernameReturnsOnCall[i] = struct {
 		result1 *model.User
 		result2 error
 	}{result1, result2}
@@ -871,6 +969,130 @@ func (fake *FakeUserSqlRepo) StartTxReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *FakeUserSqlRepo) UpdateActivasiUser(arg1 context.Context, arg2 *model.User) error {
+	fake.updateActivasiUserMutex.Lock()
+	ret, specificReturn := fake.updateActivasiUserReturnsOnCall[len(fake.updateActivasiUserArgsForCall)]
+	fake.updateActivasiUserArgsForCall = append(fake.updateActivasiUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 *model.User
+	}{arg1, arg2})
+	stub := fake.UpdateActivasiUserStub
+	fakeReturns := fake.updateActivasiUserReturns
+	fake.recordInvocation("UpdateActivasiUser", []interface{}{arg1, arg2})
+	fake.updateActivasiUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeUserSqlRepo) UpdateActivasiUserCallCount() int {
+	fake.updateActivasiUserMutex.RLock()
+	defer fake.updateActivasiUserMutex.RUnlock()
+	return len(fake.updateActivasiUserArgsForCall)
+}
+
+func (fake *FakeUserSqlRepo) UpdateActivasiUserCalls(stub func(context.Context, *model.User) error) {
+	fake.updateActivasiUserMutex.Lock()
+	defer fake.updateActivasiUserMutex.Unlock()
+	fake.UpdateActivasiUserStub = stub
+}
+
+func (fake *FakeUserSqlRepo) UpdateActivasiUserArgsForCall(i int) (context.Context, *model.User) {
+	fake.updateActivasiUserMutex.RLock()
+	defer fake.updateActivasiUserMutex.RUnlock()
+	argsForCall := fake.updateActivasiUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeUserSqlRepo) UpdateActivasiUserReturns(result1 error) {
+	fake.updateActivasiUserMutex.Lock()
+	defer fake.updateActivasiUserMutex.Unlock()
+	fake.UpdateActivasiUserStub = nil
+	fake.updateActivasiUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeUserSqlRepo) UpdateActivasiUserReturnsOnCall(i int, result1 error) {
+	fake.updateActivasiUserMutex.Lock()
+	defer fake.updateActivasiUserMutex.Unlock()
+	fake.UpdateActivasiUserStub = nil
+	if fake.updateActivasiUserReturnsOnCall == nil {
+		fake.updateActivasiUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateActivasiUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeUserSqlRepo) UpdatePasswordUser(arg1 context.Context, arg2 *model.User) error {
+	fake.updatePasswordUserMutex.Lock()
+	ret, specificReturn := fake.updatePasswordUserReturnsOnCall[len(fake.updatePasswordUserArgsForCall)]
+	fake.updatePasswordUserArgsForCall = append(fake.updatePasswordUserArgsForCall, struct {
+		arg1 context.Context
+		arg2 *model.User
+	}{arg1, arg2})
+	stub := fake.UpdatePasswordUserStub
+	fakeReturns := fake.updatePasswordUserReturns
+	fake.recordInvocation("UpdatePasswordUser", []interface{}{arg1, arg2})
+	fake.updatePasswordUserMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeUserSqlRepo) UpdatePasswordUserCallCount() int {
+	fake.updatePasswordUserMutex.RLock()
+	defer fake.updatePasswordUserMutex.RUnlock()
+	return len(fake.updatePasswordUserArgsForCall)
+}
+
+func (fake *FakeUserSqlRepo) UpdatePasswordUserCalls(stub func(context.Context, *model.User) error) {
+	fake.updatePasswordUserMutex.Lock()
+	defer fake.updatePasswordUserMutex.Unlock()
+	fake.UpdatePasswordUserStub = stub
+}
+
+func (fake *FakeUserSqlRepo) UpdatePasswordUserArgsForCall(i int) (context.Context, *model.User) {
+	fake.updatePasswordUserMutex.RLock()
+	defer fake.updatePasswordUserMutex.RUnlock()
+	argsForCall := fake.updatePasswordUserArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeUserSqlRepo) UpdatePasswordUserReturns(result1 error) {
+	fake.updatePasswordUserMutex.Lock()
+	defer fake.updatePasswordUserMutex.Unlock()
+	fake.UpdatePasswordUserStub = nil
+	fake.updatePasswordUserReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeUserSqlRepo) UpdatePasswordUserReturnsOnCall(i int, result1 error) {
+	fake.updatePasswordUserMutex.Lock()
+	defer fake.updatePasswordUserMutex.Unlock()
+	fake.UpdatePasswordUserStub = nil
+	if fake.updatePasswordUserReturnsOnCall == nil {
+		fake.updatePasswordUserReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updatePasswordUserReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeUserSqlRepo) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -890,6 +1112,8 @@ func (fake *FakeUserSqlRepo) Invocations() map[string][][]interface{} {
 	defer fake.getTxMutex.RUnlock()
 	fake.getUserByEmailMutex.RLock()
 	defer fake.getUserByEmailMutex.RUnlock()
+	fake.getUserByEmailOrUsernameMutex.RLock()
+	defer fake.getUserByEmailOrUsernameMutex.RUnlock()
 	fake.getUserByIDMutex.RLock()
 	defer fake.getUserByIDMutex.RUnlock()
 	fake.getUserByUsernameMutex.RLock()
@@ -898,6 +1122,10 @@ func (fake *FakeUserSqlRepo) Invocations() map[string][][]interface{} {
 	defer fake.openConnMutex.RUnlock()
 	fake.startTxMutex.RLock()
 	defer fake.startTxMutex.RUnlock()
+	fake.updateActivasiUserMutex.RLock()
+	defer fake.updateActivasiUserMutex.RUnlock()
+	fake.updatePasswordUserMutex.RLock()
+	defer fake.updatePasswordUserMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

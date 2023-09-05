@@ -23,18 +23,18 @@ func NewSecuritySqlRepoImpl(
 	}
 }
 
-func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Token) (*model.Token, error) {
+func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Token) error {
 	query := `INSERT INTO m_tokens (id, user_id, app_id, token) VALUES ($1, $2, $3, $4)`
 
 	tx, err := s.GetTx()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
 		log.Err(err).Msg("failed to start prepared context")
-		return nil, err
+		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
@@ -51,10 +51,10 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 	)
 	if err != nil {
 		log.Err(err).Msg("failed to query row context prepared statement")
-		return nil, err
+		return err
 	}
 
-	return token, nil
+	return nil
 }
 
 func (s *SecuritySqlRepoImpl) GetTokenByIDAndUserID(

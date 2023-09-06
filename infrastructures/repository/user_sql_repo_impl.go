@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-	"github.com/rs/zerolog/log"
 )
 
 type UserRepoSqlImpl struct {
@@ -19,19 +21,19 @@ func NewUserRepoSqlImpl(uow repository.UnitOfWorkSqlRepo) repository.UserSqlRepo
 	}
 }
 
-func (u *UserRepoSqlImpl) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+func (u *UserRepoSqlImpl) CreateUser(ctx context.Context, user *model.User) error {
 	query := `INSERT INTO m_users (id, fullname, image, username, email, password, email_verified_at, created_at, created_by, updated_at) 
 					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 
 	tx, err := u.GetTx()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
 		log.Err(err).Msg("failed to start prepared context")
-		return nil, err
+		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
@@ -54,11 +56,66 @@ func (u *UserRepoSqlImpl) CreateUser(ctx context.Context, user *model.User) (*mo
 	)
 	if err != nil {
 		log.Err(err).Msg("failed to query row context prepared statement")
-		return nil, err
+		return err
 	}
 
-	user.Gender = "undefined"
-	return user, nil
+	return nil
+}
+
+func (u *UserRepoSqlImpl) UpdateActivasiUser(ctx context.Context, user *model.User) error {
+	query := `UPDATE m_users SET email_verified_at = $1, updated_at = $2, updated_by = $3 WHERE id = $4`
+
+	tx, err := u.GetTx()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		log.Err(err).Msg("failed open prepapred statement")
+		return err
+	}
+
+	_, err = stmt.ExecContext(
+		ctx,
+		user.EmailVerifiedAt,
+		user.UpdatedAt,
+		user.UpdatedBy,
+		user.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *UserRepoSqlImpl) UpdatePasswordUser(ctx context.Context, user *model.User) error {
+	query := `UPDATE m_users SET password = $1, updated_at = $2, updated_by = $3 WHERE id = $4`
+
+	tx, err := u.GetTx()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		log.Err(err).Msg("failed open prepapred statement")
+		return err
+	}
+
+	_, err = stmt.ExecContext(
+		ctx,
+		user.Password,
+		user.UpdatedAt,
+		user.UpdatedBy,
+		user.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (u *UserRepoSqlImpl) CheckUserByEmail(ctx context.Context, email string) (bool, error) {
@@ -94,6 +151,32 @@ func (u *UserRepoSqlImpl) CheckUserByEmail(ctx context.Context, email string) (b
 	}
 
 	return false, nil
+}
+
+func (u *UserRepoSqlImpl) CheckActivasiUserByID(ctx context.Context, id string) (bool, error) {
+	query := `SELECT email_verified_at FROM m_users WHERE id = $1`
+
+	conn, err := u.GetConn()
+	if err != nil {
+		return false, err
+	}
+
+	stmt, err := conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Err(err).Msg("failed to start prepared context")
+		return false, err
+	}
+
+	row := stmt.QueryRowContext(ctx, id)
+
+	var activasi bool
+	err = row.Scan(&activasi)
+	if err != nil {
+		log.Err(err).Msg("failed scan row query")
+		return false, err
+	}
+
+	return activasi, nil
 }
 
 func (u *UserRepoSqlImpl) CheckUserByUsername(ctx context.Context, username string) (bool, error) {
@@ -200,6 +283,32 @@ func (u *UserRepoSqlImpl) GetUserByUsername(ctx context.Context, username string
 	}
 
 	row := stmt.QueryRowContext(ctx, username)
+
+	user, err := u.scanRow(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *UserRepoSqlImpl) GetUserByEmailOrUsername(ctx context.Context, emailOrUsername string) (*model.User, error) {
+	query := `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
+       				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
+			  FROM m_users WHERE username = $1 OR email = $2`
+
+	conn, err := u.GetConn()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Err(err).Msg("failed to start prepared context")
+		return nil, err
+	}
+
+	row := stmt.QueryRowContext(ctx, emailOrUsername, emailOrUsername)
 
 	user, err := u.scanRow(row)
 	if err != nil {

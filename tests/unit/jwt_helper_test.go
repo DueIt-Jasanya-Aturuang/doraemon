@@ -2,14 +2,15 @@ package unit
 
 import (
 	"errors"
+	"testing"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
-	"github.com/golang-jwt/jwt/v5"
-	uuid "github.com/satori/go.uuid"
-	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestJwtHelper(t *testing.T) {
@@ -20,24 +21,23 @@ func TestJwtHelper(t *testing.T) {
 	var accessTokenFalse string
 	var refreshTokenFalse string
 	oldToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTM1OTE5ODIsInN1YiI6ImVhYzM5YjBmLTRjNzctNDZiZS1iMDEyLWU1ODYyMzhkOGMyMzpmYWxzZTpmb3Jnb3RfcGFzc3dvcmQifQ.02K96TTbMnDEsJbqinUEs-xpLIUytZryDwDJJA974h4"
+	userID := "123"
 	t.Run("SUCCESS_false", func(t *testing.T) {
-		tUUID := uuid.NewV4().String()
-
 		var jwtModel *model.Jwt
 
-		jwtModel = jwtModel.AccessTokenDefault(tUUID, false)
+		jwtModel = jwtModel.AccessTokenDefault(userID)
 		accessToken, err := helper.GenerateJwtHS256(jwtModel)
 		assert.NoError(t, err)
 		t.Log(accessToken)
 		accessTokenFalse = accessToken
 
-		jwtModel = jwtModel.RefreshTokenDefault(tUUID, false)
+		jwtModel = jwtModel.RefreshTokenDefault(userID, false)
 		refreshTokenRes, err := helper.GenerateJwtHS256(jwtModel)
 		assert.NoError(t, err)
 		refreshTokenFalse = refreshTokenRes
 		t.Log(refreshTokenRes)
 
-		jwtModel = jwtModel.ForgotPasswordTokenDefault(tUUID)
+		jwtModel = jwtModel.ForgotPasswordTokenDefault(userID)
 		forgotPasswordTokenRes, err := helper.GenerateJwtHS256(jwtModel)
 		assert.NoError(t, err)
 		t.Log(forgotPasswordToken)
@@ -45,17 +45,15 @@ func TestJwtHelper(t *testing.T) {
 	})
 
 	t.Run("SUCCESS_true", func(t *testing.T) {
-		tUUID := uuid.NewV4().String()
-
 		var jwtModel *model.Jwt
 
-		jwtModel = jwtModel.AccessTokenDefault(tUUID, true)
+		jwtModel = jwtModel.AccessTokenDefault(userID)
 		accessToken, err := helper.GenerateJwtHS256(jwtModel)
 		assert.NoError(t, err)
 		t.Log(accessToken)
 		accessTokenTrue = accessToken
 
-		jwtModel = jwtModel.RefreshTokenDefault(tUUID, true)
+		jwtModel = jwtModel.RefreshTokenDefault(userID, true)
 		refreshToken, err := helper.GenerateJwtHS256(jwtModel)
 		assert.NoError(t, err)
 		t.Log(refreshToken)
@@ -94,10 +92,11 @@ func TestJwtHelper(t *testing.T) {
 		assert.Error(t, err)
 		t.Log(err)
 
-		_, err = helper.ClaimsJwtHS256(oldToken, config.DefaultKey)
+		claim, err := helper.ClaimsJwtHS256(oldToken, config.DefaultKey)
 		assert.Error(t, err)
+		t.Log(err)
+		t.Log(claim)
 		con := errors.Is(err, jwt.ErrTokenExpired)
 		assert.Equal(t, true, con)
-		t.Log(err)
 	})
 }

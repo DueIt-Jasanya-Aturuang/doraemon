@@ -3,12 +3,14 @@ package unit
 import (
 	"context"
 	"database/sql"
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
-	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
 )
 
 func TestCreateAccess(t *testing.T) {
@@ -74,7 +76,7 @@ func TestGetAccessByUserIDAndAppID(t *testing.T) {
 			FROM m_access WHERE user_id = $1 AND app_id = $2`)
 
 	rows := sqlmock.NewRows([]string{
-		"ID", "AppId",
+		"ID", "AppID",
 		"UserId", "role_id",
 		"AccessEndpoint", "CreatedAt",
 		"CreatedBy", "UpdatedAt",

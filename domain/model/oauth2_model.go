@@ -1,8 +1,8 @@
 package model
 
 type GoogleOauth2Token struct {
-	AccessToken string
-	IDToken     string
+	AccessToken string `json:"access_token"`
+	IDToken     string `json:"id_token"`
 }
 
 type GoogleOauth2User struct {

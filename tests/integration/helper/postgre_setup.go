@@ -3,11 +3,12 @@ package helper
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/rs/zerolog/log"
-	"os"
-	"time"
 )
 
 func PostgresSetup(pool *dockertest.Pool) (*dockertest.Resource, *sql.DB, string) {

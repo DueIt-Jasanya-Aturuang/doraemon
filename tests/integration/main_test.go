@@ -1,11 +1,13 @@
 package integration
 
 import (
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/tests/integration/helper"
-	"github.com/ory/dockertest/v3"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/ory/dockertest/v3"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/tests/integration/helper"
 )
 
 func TestMain(m *testing.M) {

@@ -1,29 +1,26 @@
 package model
 
 import (
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"time"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 )
 
 type Jwt struct {
-	UUID       string
-	Type       string
-	RememberMe bool
-	Key        string
-	Exp        time.Duration
+	UserID string
+	Key    string
+	Exp    time.Duration
 }
 
-func (j *Jwt) AccessTokenDefault(uuid string, rememberMe bool) *Jwt {
+func (j *Jwt) AccessTokenDefault(userID string) *Jwt {
 	return &Jwt{
-		UUID:       uuid,
-		Type:       "access_token",
-		RememberMe: rememberMe,
-		Key:        config.AccessTokenKeyHS,
-		Exp:        config.AccessTokenKeyExpHS,
+		UserID: userID,
+		Key:    config.AccessTokenKeyHS,
+		Exp:    config.AccessTokenKeyExpHS,
 	}
 }
 
-func (j *Jwt) RefreshTokenDefault(uuid string, rememberMe bool) *Jwt {
+func (j *Jwt) RefreshTokenDefault(userID string, rememberMe bool) *Jwt {
 	var exp time.Duration
 	if rememberMe {
 		exp = config.RememberMeTokenExp
@@ -32,20 +29,16 @@ func (j *Jwt) RefreshTokenDefault(uuid string, rememberMe bool) *Jwt {
 	}
 
 	return &Jwt{
-		UUID:       uuid,
-		Type:       "refresh_token",
-		RememberMe: rememberMe,
-		Key:        config.RefreshTokenKeyHS,
-		Exp:        exp,
+		UserID: userID,
+		Key:    config.RefreshTokenKeyHS,
+		Exp:    exp,
 	}
 }
 
-func (j *Jwt) ForgotPasswordTokenDefault(uuid string) *Jwt {
+func (j *Jwt) ForgotPasswordTokenDefault(userID string) *Jwt {
 	return &Jwt{
-		UUID:       uuid,
-		Type:       "forgot_password",
-		RememberMe: false,
-		Key:        config.DefaultKey,
-		Exp:        config.ForgotPasswordTokenExp,
+		UserID: userID,
+		Key:    config.DefaultKey,
+		Exp:    config.ForgotPasswordTokenExp,
 	}
 }

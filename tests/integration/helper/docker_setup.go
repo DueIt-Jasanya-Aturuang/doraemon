@@ -1,9 +1,10 @@
 package helper
 
 import (
+	"os"
+
 	"github.com/ory/dockertest/v3"
 	"github.com/rs/zerolog/log"
-	"os"
 )
 
 func DockerSetup() *dockertest.Pool {

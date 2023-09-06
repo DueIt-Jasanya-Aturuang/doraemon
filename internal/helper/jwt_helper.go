@@ -2,22 +2,27 @@ package helper
 
 import (
 	"errors"
-	"fmt"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
-	"time"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 )
 
 func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {
 	timeNow := time.Now()
 	timeExp := timeNow.Add(jwtModel.Exp).Unix()
 
-	sub := fmt.Sprintf("%s:%t:%s", jwtModel.UUID, jwtModel.RememberMe, jwtModel.Type)
+	// sub := fmt.Sprintf("%s:%s:%s", jwtModel.TokenID, jwtModel.UserID, jwtModel.Type)
+	// subEncrypt, err := encryption.EncrypStringCFB(sub, config.AesCFB)
+	// if err != nil {
+	// 	return "", err
+	// }
 
 	tokenParse := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp": timeExp,
-		"sub": sub,
+		"sub": jwtModel.UserID,
 	})
 
 	tokenStr, err := tokenParse.SignedString([]byte(jwtModel.Key))
@@ -42,9 +47,7 @@ func ClaimsJwtHS256(tokenStr, key string) (map[string]any, error) {
 		return nil, err
 	}
 
-	if claims, ok := tokenParse.Claims.(jwt.MapClaims); ok && tokenParse.Valid {
-		return claims, nil
-	}
+	claims, _ := tokenParse.Claims.(jwt.MapClaims)
 
-	return nil, errors.New("invalid token")
+	return claims, nil
 }

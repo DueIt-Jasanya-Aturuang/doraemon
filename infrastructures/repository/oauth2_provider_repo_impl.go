@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/rs/zerolog/log"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 )
 
 type GoogleOauthRepoImpl struct {

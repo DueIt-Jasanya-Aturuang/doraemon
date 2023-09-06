@@ -53,10 +53,6 @@ func ResetForgottenPasswordValidation(req *dto.ResetForgottenPasswordReq) error 
 func ForgottenPasswordValidation(req *dto.ForgottenPasswordReq) error {
 	err400 := map[string][]string{}
 
-	if req.Token == "" {
-		err400["token"] = append(err400["token"], fmt.Sprintf(required, "token"))
-	}
-
 	if req.Email == "" {
 		err400["email"] = append(err400["email"], fmt.Sprintf(required, "email"))
 	}

@@ -113,12 +113,6 @@ func TestSecurityUsecaseJwtValidateAT(t *testing.T) {
 		securityRepo.OpenConnReturns(nil)
 		defer securityRepo.CloseConn()
 
-		_, _ = securityRepo.GetTokenByAT(context.TODO(), accessToken)
-		securityRepo.GetTokenByATReturns(tokenModel, nil)
-
-		_, _ = userRepo.CheckActivasiUserByID(context.TODO(), userID)
-		userRepo.CheckActivasiUserByIDReturns(false, nil)
-
 		req.Authorization = "invalid"
 		exp, err := securityUsecase.JwtValidateAT(context.TODO(), req, "/activasi-account")
 		assert.Error(t, err)
@@ -129,6 +123,7 @@ func TestSecurityUsecaseJwtValidateAT(t *testing.T) {
 	})
 
 	t.Run("ERROR_with-check-activasi", func(t *testing.T) {
+		req.Authorization = accessToken
 		_ = securityRepo.OpenConn(context.TODO())
 		securityRepo.OpenConnReturns(nil)
 		defer securityRepo.CloseConn()
@@ -321,7 +316,6 @@ func TestSecurityUsecaseJwtRegistredRTAT(t *testing.T) {
 		tokenResp, err := securityUsecase.JwtRegistredRTAT(context.TODO(), req)
 		assert.NoError(t, err)
 		assert.NotNil(t, tokenResp)
-		assert.Equal(t, tokenModel.RememberMe, tokenResp.RememberMe)
 	})
 
 }

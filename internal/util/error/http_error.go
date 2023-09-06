@@ -13,6 +13,13 @@ func Err400(msg map[string][]string) error {
 	}
 }
 
+func Err422(msg map[string][]string) error {
+	return &model.ErrResponseHTTP{
+		Code:    http.StatusUnprocessableEntity,
+		Message: msg,
+	}
+}
+
 func ErrStringDefault(code int) error {
 	var msg string
 

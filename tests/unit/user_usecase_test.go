@@ -278,9 +278,12 @@ func TestUserUsecaseResetForgottenPassword(t *testing.T) {
 		assert.Equal(t, 401, errHTTP.Code)
 		err = mock.ExpectationsWereMet()
 		assert.NoError(t, err)
+		mock.ClearExpect()
 	})
 
 	t.Run("ERROR_null-in-redis", func(t *testing.T) {
+		req.Token = forgotPasswordTokenRes
+		mock.ClearExpect()
 		_ = userRepo.OpenConn(context.TODO())
 		defer userRepo.CloseConn()
 
@@ -296,18 +299,13 @@ func TestUserUsecaseResetForgottenPassword(t *testing.T) {
 
 		mock.ExpectGet("forgot-password-link:" + req.Email).SetVal("")
 
-		userConv := conv.ResetPasswordReqToModel("passwordHash", "userID_1")
-
-		_ = userRepo.UpdatePasswordUser(context.TODO(), userConv)
-		userRepo.UpdatePasswordUserReturns(nil)
-
-		err := userUsecase.ResetForgottenPassword(context.TODO(), req)
+		err = userUsecase.ResetForgottenPassword(context.TODO(), req)
 		assert.Error(t, err)
 		var errHTTP *model.ErrResponseHTTP
 		assert.Equal(t, true, errors.As(err, &errHTTP))
 		assert.Equal(t, 401, errHTTP.Code)
-		err = mock.ExpectationsWereMet()
-		assert.NoError(t, err)
+		errMock := mock.ExpectationsWereMet()
+		assert.NoError(t, errMock)
 	})
 }
 

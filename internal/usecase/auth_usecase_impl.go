@@ -71,32 +71,32 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *dto.LoginReq) (userRes
 	return userResp, profileResp, nil
 }
 
-func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (userResp *dto.UserResp, profileResp *dto.ProfileResp, err error) {
+func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (userResp *dto.UserResp, err error) {
 	err = a.userRepo.OpenConn(ctx)
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer a.userRepo.CloseConn()
 
 	exists, err := a.userRepo.CheckUserByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
-		return nil, nil, _error.BadExistField("email", "email has been registered")
+		return nil, _error.BadExistField("email", "email has been registered")
 	}
 
 	exists, err = a.userRepo.CheckUserByUsername(ctx, req.Email)
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
-		return nil, nil, _error.BadExistField("username", "username has been registered")
+		return nil, _error.BadExistField("username", "username has been registered")
 	}
 
 	passwordHash, err := helper.BcryptPasswordHash(req.Password)
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	req.Password = passwordHash
 
@@ -105,14 +105,13 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 		ReadOnly:  false,
 	})
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	defer func() {
 		errEndTx := a.userRepo.EndTx(err)
 		if errEndTx != nil {
 			err = _error.ErrStringDefault(http.StatusInternalServerError)
 			userResp = nil
-			profileResp = nil
 		}
 	}()
 
@@ -121,12 +120,12 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 
 	err = a.userRepo.CreateUser(ctx, userConv)
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	_, err = a.accessRepo.CreateAccess(ctx, accessConv)
 	if err != nil {
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	profileReq := dto.ProfileReq{
@@ -135,17 +134,17 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 	profileJson, err := json.Marshal(profileReq)
 	if err != nil {
 		log.Err(err).Msg("failed marshal profile req")
-		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
-	profile, err := a.accountApi.CreateProfile(profileJson)
+	_, err = a.accountApi.CreateProfile(profileJson)
 	if err != nil {
 		log.Err(err).Msg("error account service")
-		return nil, nil, _error.ErrStringDefault(http.StatusBadGateway)
+		return nil, _error.ErrStringDefault(http.StatusBadGateway)
 	}
 
 	emailFormat := util.EmailFormat(userConv.Email)
-	userResp, profileResp = conv.RegisterModelToResp(userConv, profile, emailFormat)
+	userResp = conv.RegisterModelToResp(userConv, emailFormat)
 
-	return userResp, profileResp, nil
+	return userResp, nil
 }

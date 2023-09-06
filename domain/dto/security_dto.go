@@ -1,9 +1,5 @@
 package dto
 
-import (
-	"time"
-)
-
 type JwtTokenReq struct {
 	AppId         string
 	Authorization string
@@ -17,7 +13,5 @@ type JwtRegisteredTokenReq struct {
 }
 
 type JwtTokenResp struct {
-	RememberMe bool
-	Token      string
-	Exp        time.Duration
+	Token string
 }

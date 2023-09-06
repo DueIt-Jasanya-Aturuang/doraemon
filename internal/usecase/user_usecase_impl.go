@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
@@ -128,6 +130,7 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
+	log.Debug().Msg("getUserID")
 	getUserID, err := s.redis.Client.Get(ctx, "forgot-password-link:"+req.Email).Result()
 	if err != nil {
 		return _error.ErrStringDefault(http.StatusInternalServerError)

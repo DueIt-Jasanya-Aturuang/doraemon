@@ -67,6 +67,7 @@ func TestOTPUsecaseOTPGenerate(t *testing.T) {
 	})
 
 	t.Run("ERROR_activasi-account-is-true", func(t *testing.T) {
+		mock.ClearExpect()
 		req.Type = "activasi-account"
 		_ = userRepo.OpenConn(context.TODO())
 		defer userRepo.CloseConn()

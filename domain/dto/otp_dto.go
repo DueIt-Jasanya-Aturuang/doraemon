@@ -9,5 +9,5 @@ type OTPGenerateReq struct {
 type OTPValidationReq struct {
 	Email string `json:"email"`
 	OTP   string `json:"otp"`
-	Type  string // Type set in header
+	Type  string // Type set in handler
 }

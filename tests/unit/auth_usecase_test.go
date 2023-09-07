@@ -289,11 +289,9 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 		_, _ = accountApi.CreateProfile(profileJson)
 		accountApi.CreateProfileReturns(profile, nil)
 
-		userResp, profileResp, err := authUsecase.Register(context.TODO(), req)
+		userResp, err := authUsecase.Register(context.TODO(), req)
 		assert.NoError(t, err)
 		assert.NotNil(t, userResp)
-		assert.NotNil(t, profileResp)
-		assert.Equal(t, profile.ProfileID, profileResp.ProfileID)
 		assert.Equal(t, userResp.Email, req.Email)
 	})
 
@@ -335,10 +333,9 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 		_, _ = accountApi.CreateProfile(profileJson)
 		accountApi.CreateProfileReturns(profile, nil)
 
-		userResp, profileResp, err := authUsecase.Register(context.TODO(), req)
+		userResp, err := authUsecase.Register(context.TODO(), req)
 		assert.Error(t, err)
 		assert.Nil(t, userResp)
-		assert.Nil(t, profileResp)
 		var errHTTP *model.ErrResponseHTTP
 		assert.Equal(t, true, errors.As(err, &errHTTP))
 		assert.Equal(t, _error.BadExistField("email", "email has been registered"), errHTTP)
@@ -382,10 +379,9 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 		_, _ = accountApi.CreateProfile(profileJson)
 		accountApi.CreateProfileReturns(profile, nil)
 
-		userResp, profileResp, err := authUsecase.Register(context.TODO(), req)
+		userResp, err := authUsecase.Register(context.TODO(), req)
 		assert.Error(t, err)
 		assert.Nil(t, userResp)
-		assert.Nil(t, profileResp)
 		var errHTTP *model.ErrResponseHTTP
 		assert.Equal(t, true, errors.As(err, &errHTTP))
 		assert.Equal(t, _error.BadExistField("username", "username has been registered"), errHTTP)
@@ -429,10 +425,9 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 		_, _ = accountApi.CreateProfile(profileJson)
 		accountApi.CreateProfileReturns(nil, errors.New("bad gateway"))
 
-		userResp, profileResp, err := authUsecase.Register(context.TODO(), req)
+		userResp, err := authUsecase.Register(context.TODO(), req)
 		assert.Error(t, err)
 		assert.Nil(t, userResp)
-		assert.Nil(t, profileResp)
 		var errHTTP *model.ErrResponseHTTP
 		assert.Equal(t, true, errors.As(err, &errHTTP))
 		assert.Equal(t, 502, errHTTP.Code)

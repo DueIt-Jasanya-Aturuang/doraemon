@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
@@ -73,6 +74,7 @@ func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTok
 	}
 
 	if strings.Contains(endpoint, "/activasi-account") {
+		log.Debug().Msg("masuk")
 		activasi, err := s.userRepo.CheckActivasiUserByID(ctx, req.UserId)
 		if err != nil {
 			return false, _error.ErrStringDefault(http.StatusInternalServerError)
@@ -166,9 +168,7 @@ func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtT
 	}
 
 	tokenResp = &dto.JwtTokenResp{
-		RememberMe: getToken.RememberMe,
-		Token:      accessToken,
-		Exp:        config.AccessTokenKeyExpHS,
+		Token: accessToken,
 	}
 
 	return tokenResp, nil
@@ -222,9 +222,7 @@ func (s *SecurityUsecaseImpl) JwtRegistredRTAT(ctx context.Context, req *dto.Jwt
 	}
 
 	tokenResp = &dto.JwtTokenResp{
-		RememberMe: req.RememberMe,
-		Token:      accessToken,
-		Exp:        jwtModelAT.Exp,
+		Token: accessToken,
 	}
 
 	return tokenResp, nil

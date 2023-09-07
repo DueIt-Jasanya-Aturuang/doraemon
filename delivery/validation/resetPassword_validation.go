@@ -2,6 +2,7 @@ package validation
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
@@ -10,6 +11,10 @@ import (
 func ResetPasswordValidation(req *dto.ResetPasswordReq) error {
 	err400 := map[string][]string{}
 
+	if req.UserID == "" {
+		return _error.ErrStringDefault(http.StatusForbidden)
+	}
+	
 	if req.OldPassword == "" {
 		err400["old_password"] = append(err400["old_password"], fmt.Sprintf(required, "old_password"))
 	}

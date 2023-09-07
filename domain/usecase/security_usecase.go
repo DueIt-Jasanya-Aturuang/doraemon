@@ -6,6 +6,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 )
 
+//counterfeiter:generate -o ./../mocks . SecurityUsecase
 type SecurityUsecase interface {
 	JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, endpoint string) (bool, error)
 	JwtGenerateRTAT(ctx context.Context, req *dto.JwtTokenReq) (*dto.JwtTokenResp, error)

@@ -6,6 +6,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 )
 
+//counterfeiter:generate -o ./../mocks . UserUsecase
 type UserUsecase interface {
 	ResetPassword(ctx context.Context, req *dto.ResetPasswordReq) error
 	ForgottenPassword(ctx context.Context, req *dto.ForgottenPasswordReq) (string, error)

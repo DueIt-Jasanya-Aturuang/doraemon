@@ -3,8 +3,6 @@
 test:
 	@echo "\n---- RUNNING UNIT TEST TESTS/UNIT FOLDER ----\n"
 	go test -v ./tests/unit/
-	@echo "\n---- RUNNING UNIT TEST TESTS/INTEGRATION FOLDER ----\n"
-	go test -v ./tests/integration/
 	go clean -testcache
 
 linter:

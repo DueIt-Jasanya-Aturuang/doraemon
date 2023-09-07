@@ -46,6 +46,7 @@ func (h *OTPHandlerImpl) OTPGenerate(w http.ResponseWriter, r *http.Request) {
 		userID := r.Header.Get("User-ID")
 		if userID == "" {
 			mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
+			return
 		}
 
 		reqOTPGenerate.UserID = userID

@@ -31,30 +31,36 @@ func NewAuthHandlerImpl(
 }
 
 func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+
+	appID := r.Header.Get("App-ID")
+	if appID == "" {
+		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
+		return
+	}
+
+	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
+		AppID: appID,
+	})
+	if err != nil {
+		mapper.NewErrorResp(w, r, err)
+		return
+	}
+
 	var reqRegister dto.RegisterReq
 
-	err := mapper.DecodeJson(r, &reqRegister)
+	err = mapper.DecodeJson(r, &reqRegister)
 	if err != nil {
 		mapper.NewErrorResp(w, r, err)
 		return
 	}
 
 	reqRegister.Role = 1
-	reqRegister.AppID = r.Header.Get("App-ID")
+	reqRegister.AppID = appID
 	reqRegister.EmailVerifiedAt = false
 
 	err = validation.RegisterValidation(&reqRegister)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-	defer cancel()
-
-	err = h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: reqRegister.AppID,
-	})
 	if err != nil {
 		mapper.NewErrorResp(w, r, err)
 		return
@@ -101,13 +107,8 @@ func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
-	var reqLogin dto.LoginReq
-
-	err := mapper.DecodeJson(r, &reqLogin)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
 
 	appID := r.Header.Get("App-ID")
 	if appID == "" {
@@ -115,12 +116,23 @@ func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-	defer cancel()
-
-	err = h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
+	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
 		AppID: appID,
 	})
+	if err != nil {
+		mapper.NewErrorResp(w, r, err)
+		return
+	}
+
+	var reqLogin dto.LoginReq
+
+	err = mapper.DecodeJson(r, &reqLogin)
+	if err != nil {
+		mapper.NewErrorResp(w, r, err)
+		return
+	}
+
+	err = validation.LoginValidation(&reqLogin)
 	if err != nil {
 		mapper.NewErrorResp(w, r, err)
 		return

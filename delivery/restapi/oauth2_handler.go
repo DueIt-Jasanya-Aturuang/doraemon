@@ -2,12 +2,16 @@ package restapi
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/mapper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
@@ -72,6 +76,7 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 	}
 
 	if !userGoogle.ExistsUser {
+		log.Debug().Msg("registerd")
 		reqRegister := &dto.RegisterReq{
 			FullName:        userGoogle.Name,
 			Username:        userGoogle.GivenName,
@@ -84,8 +89,16 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 		}
 		_, err = h.authUsecase.Register(ctx, reqRegister)
 		if err != nil {
-			mapper.NewErrorResp(w, r, err)
-			return
+			var errHTTP *model.ErrResponseHTTP
+			ok := errors.As(err, &errHTTP)
+			if !ok {
+				mapper.NewErrorResp(w, r, err)
+				return
+			}
+			if errHTTP.Code == 500 || errHTTP.Code == 502 {
+				mapper.NewErrorResp(w, r, err)
+				return
+			}
 		}
 	}
 

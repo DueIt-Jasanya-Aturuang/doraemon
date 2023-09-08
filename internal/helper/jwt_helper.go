@@ -14,12 +14,6 @@ func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {
 	timeNow := time.Now()
 	timeExp := timeNow.Add(jwtModel.Exp).Unix()
 
-	// sub := fmt.Sprintf("%s:%s:%s", jwtModel.TokenID, jwtModel.UserID, jwtModel.Type)
-	// subEncrypt, err := encryption.EncrypStringCFB(sub, config.AesCFB)
-	// if err != nil {
-	// 	return "", err
-	// }
-
 	tokenParse := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp": timeExp,
 		"sub": jwtModel.UserID,

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
@@ -12,9 +14,10 @@ func ResetPasswordValidation(req *dto.ResetPasswordReq) error {
 	err400 := map[string][]string{}
 
 	if req.UserID == "" {
+		log.Warn().Msgf("user id header tidak tersedia")
 		return _error.ErrStringDefault(http.StatusForbidden)
 	}
-	
+
 	if req.OldPassword == "" {
 		err400["old_password"] = append(err400["old_password"], fmt.Sprintf(required, "old_password"))
 	}

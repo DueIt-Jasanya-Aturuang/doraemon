@@ -5,12 +5,15 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
 
 func OTPGenerateValidation(req *dto.OTPGenerateReq) error {
 	if req.Type != "activasi-account" && req.Type != "forgot-password" {
+		log.Warn().Msgf("invalid type otp %s", req.Type)
 		return _error.ErrStringDefault(http.StatusForbidden)
 	}
 
@@ -39,6 +42,7 @@ func OTPGenerateValidation(req *dto.OTPGenerateReq) error {
 func OTPValidation(req *dto.OTPValidationReq) error {
 
 	if req.Type != "activasi-account" && req.Type != "forgot-password" {
+		log.Warn().Msgf("invalid type otp %s", req.Type)
 		return _error.ErrStringDefault(http.StatusForbidden)
 	}
 

@@ -8,7 +8,7 @@ import (
 func BcryptPasswordHash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
-		log.Err(err).Msg("failed to generate password")
+		log.Warn().Msgf("failed to generate password | error : %v", err)
 	}
 
 	return string(bytes), err

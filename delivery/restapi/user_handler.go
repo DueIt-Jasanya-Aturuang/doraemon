@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/mapper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
@@ -70,6 +72,7 @@ func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Reque
 
 	appID := r.Header.Get("App-ID")
 	if appID == "" {
+		log.Warn().Msgf("app id header tidak tersedia")
 		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
 		return
 	}
@@ -104,18 +107,11 @@ func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Reque
 
 	var reqForgottenPassword dto.ForgottenPasswordReq
 	reqForgottenPassword.Email = reqOtpValidation.Email
-	err = validation.ForgottenPasswordValidation(&reqForgottenPassword)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
 
 	url, err := h.userUsecase.ForgottenPassword(ctx, &reqForgottenPassword)
 	if err != nil {
-		if err != nil {
-			mapper.NewErrorResp(w, r, err)
-			return
-		}
+		mapper.NewErrorResp(w, r, err)
+		return
 	}
 
 	resp := mapper.ResponseSuccess{
@@ -133,6 +129,7 @@ func (h *UserHandlerImpl) ResetForgottenPassword(w http.ResponseWriter, r *http.
 
 	appID := r.Header.Get("App-ID")
 	if appID == "" {
+		log.Warn().Msgf("app id header tidak tersedia")
 		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
 		return
 	}

@@ -100,7 +100,7 @@ func TestOTPUsecaseOTPValidation(t *testing.T) {
 
 	t.Run("SUCCESS", func(t *testing.T) {
 		mock.ExpectGet(req.Type + ":" + req.Email).SetVal("123456")
-
+		mock.ExpectDel(req.Type + ":" + req.Email).SetVal(1)
 		err := otpUsecase.OTPValidation(context.TODO(), req)
 		assert.NoError(t, err)
 

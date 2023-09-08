@@ -14,6 +14,7 @@ import (
 func DecryptStringCBC(text string, key string, iv string) (textResp string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
+			log.Err(errors.New("error decrypt")).Msgf("%v", r)
 			err = errors.New("invalid cbc")
 		}
 	}()
@@ -35,6 +36,7 @@ func DecryptStringCBC(text string, key string, iv string) (textResp string, err 
 	}
 
 	if len(cipherText) < aes.BlockSize {
+		log.Warn().Msg("ciphertext terlalu pendek dari blocksize")
 		return "", fmt.Errorf("%s", "cipher text is too short")
 	}
 

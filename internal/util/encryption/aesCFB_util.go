@@ -30,6 +30,7 @@ func DecryptStringCFB(text string, key string) (string, error) {
 	}
 
 	if len(cipherText) < aes.BlockSize {
+		log.Warn().Msgf("cipher text terlau pendek dari aes blocksize")
 		return "", fmt.Errorf("%s", "cipher text is too short")
 	}
 

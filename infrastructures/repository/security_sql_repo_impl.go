@@ -9,6 +9,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type SecuritySqlRepoImpl struct {
@@ -33,12 +34,12 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -51,7 +52,7 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 		token.RememberMe,
 	)
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		log.Err(err).Msg(_msg.LogErrExecContext)
 		return err
 	}
 
@@ -70,12 +71,12 @@ func (s *SecuritySqlRepoImpl) GetTokenByAT(
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -90,7 +91,7 @@ func (s *SecuritySqlRepoImpl) GetTokenByAT(
 	)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			log.Err(err).Msg("cannot scan query row context")
+			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
 		}
 		return nil, err
 	}
@@ -108,12 +109,12 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshTo
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -124,7 +125,7 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshTo
 		id,
 	)
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		log.Err(err).Msg(_msg.LogErrExecContext)
 		return err
 	}
 
@@ -141,12 +142,12 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID st
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -156,7 +157,7 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID st
 		userID,
 	)
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		log.Err(err).Msg(_msg.LogErrExecContext)
 		return err
 	}
 
@@ -173,12 +174,12 @@ func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -187,7 +188,7 @@ func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID
 		userID,
 	)
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		log.Err(err).Msg(_msg.LogErrExecContext)
 		return err
 	}
 

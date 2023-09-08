@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/mapper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
@@ -36,6 +38,7 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 	token := r.Header.Get("Authorization")
 
 	if appID == "" || userID == "" || token == "" {
+		log.Warn().Msgf("app id / user id / authorization header tidak tersedia")
 		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusUnauthorized))
 		return
 	}
@@ -69,6 +72,7 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 	}
 
 	if newAT != nil {
+		log.Info().Msgf("set token baru for user %s", validateAccessReq.UserId)
 		w.Header().Set("Authorization", newAT.Token)
 	}
 
@@ -87,6 +91,7 @@ func (h *SecurityHandlerImpl) Logout(w http.ResponseWriter, r *http.Request) {
 		Message: "anda berhasil logout",
 	}
 	if userID == "" || token == "" {
+		log.Warn().Msgf("user id / authorization header tidak tersedia")
 		mapper.NewSuccessResp(w, r, resp, 200)
 		return
 	}

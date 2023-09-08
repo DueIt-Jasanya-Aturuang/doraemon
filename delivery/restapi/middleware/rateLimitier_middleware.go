@@ -30,14 +30,12 @@ func DeletedClient(typeReq []string) {
 				if typeReq[0] == "activasi-account" {
 					if time.Since(client.lastSeen) > 1*time.Hour {
 						delete(clients, key)
-						log.Info().Msg("deleted ip")
-						log.Info().Msgf("%v", clients[key])
+						log.Info().Msgf("deleted key %s", key)
 					}
 				} else {
 					if time.Since(client.lastSeen) > 6*time.Hour {
 						delete(clients, key)
-						log.Info().Msg("deleted ip")
-						log.Info().Msgf("%v", clients[key])
+						log.Info().Msgf("deleted key %s", key)
 					}
 				}
 
@@ -48,6 +46,7 @@ func DeletedClient(typeReq []string) {
 }
 
 func DeletedClientHelper(key string) {
+	log.Info().Msgf("Deleted otp %s", key)
 	delete(clients, key)
 }
 
@@ -56,7 +55,7 @@ func RateLimiterOTP(req *dto.OTPGenerateReq) error {
 	_, found := clients[key]
 
 	if !found {
-		log.Info().Msg("set limiter")
+		log.Info().Msgf("set limiter %s", key)
 		clients[key] = &client{
 			limit: 1,
 		}

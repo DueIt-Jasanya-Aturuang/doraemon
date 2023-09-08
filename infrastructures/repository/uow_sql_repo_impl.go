@@ -37,8 +37,8 @@ func (u *UnitOfWorkSqlRepoImpl) OpenConn(ctx context.Context) error {
 
 func (u *UnitOfWorkSqlRepoImpl) GetConn() (*sql.Conn, error) {
 	if u.conn == nil {
-		err := fmt.Errorf("no connection available")
-		log.Err(err).Msg("no connection available")
+		err := fmt.Errorf("no connection database available")
+		log.Warn().Msg("no connection database available")
 		return nil, err
 	}
 
@@ -55,7 +55,7 @@ func (u *UnitOfWorkSqlRepoImpl) CloseConn() {
 func (u *UnitOfWorkSqlRepoImpl) StartTx(ctx context.Context, opts *sql.TxOptions) error {
 	if u.conn == nil {
 		err := fmt.Errorf("no connection available")
-		log.Err(err).Msg(err.Error())
+		log.Warn().Msg(err.Error())
 		return err
 	}
 	tx, err := u.conn.BeginTx(ctx, opts)
@@ -72,12 +72,12 @@ func (u *UnitOfWorkSqlRepoImpl) StartTx(ctx context.Context, opts *sql.TxOptions
 func (u *UnitOfWorkSqlRepoImpl) EndTx(err error) error {
 	if err != nil && !errors.Is(err, sql.ErrTxDone) {
 		if errRollback := u.tx.Rollback(); errRollback != nil {
-			log.Err(errRollback).Msgf("cannot rollback transaction from error : %v", err)
+			log.Warn().Msgf("cannot rollback transaction | error : %v | err rolback : %v", err, errRollback)
 			return errRollback
 		}
 	} else {
 		if errCommit := u.tx.Commit(); errCommit != nil {
-			log.Err(errCommit).Msg("cannot commit transaction")
+			log.Warn().Msgf("cannot commit transaction | error : %v | err commit : %v", err, errCommit)
 			return errCommit
 		}
 	}
@@ -88,7 +88,7 @@ func (u *UnitOfWorkSqlRepoImpl) EndTx(err error) error {
 func (u *UnitOfWorkSqlRepoImpl) GetTx() (*sql.Tx, error) {
 	if u.tx == nil {
 		err := fmt.Errorf("no transaction available")
-		log.Err(err).Msg("no transaction available")
+		log.Warn().Msg("no transaction available")
 		return nil, err
 	}
 

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
@@ -45,6 +46,7 @@ func (s *UserUsecaseImpl) ResetPassword(ctx context.Context, req *dto.ResetPassw
 	user, err := s.userRepo.GetUserByID(ctx, req.UserID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Warn().Msgf("request header user id tidak terdaftar di db")
 			return _error.ErrStringDefault(http.StatusUnauthorized)
 		}
 		return _error.ErrStringDefault(http.StatusInternalServerError)
@@ -52,6 +54,7 @@ func (s *UserUsecaseImpl) ResetPassword(ctx context.Context, req *dto.ResetPassw
 
 	checkPassword := helper.BcryptPasswordCompare(req.OldPassword, user.Password)
 	if !checkPassword {
+		log.Warn().Msgf("password lama user salah")
 		return _error.Err400(map[string][]string{
 			"old_password": {
 				"password lama anda salah",
@@ -97,6 +100,7 @@ func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.Forgot
 	user, err := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Warn().Msgf("user tidak di temukan di database")
 			return "", _error.ErrString("USER TIDAK DI TEMUKAN", http.StatusNotFound)
 		}
 		return "", _error.ErrStringDefault(http.StatusInternalServerError)
@@ -112,6 +116,7 @@ func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.Forgot
 
 	err = s.redis.Client.Set(ctx, "forgot-password-link:"+req.Email, user.ID, jwtModelFPT.Exp).Err()
 	if err != nil {
+		log.Err(err).Msg("failed set data in redis")
 		return "", _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
@@ -122,21 +127,27 @@ func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.Forgot
 func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.ResetForgottenPasswordReq) (err error) {
 	claims, err := helper.ClaimsJwtHS256(req.Token, config.DefaultKey)
 	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			log.Err(err).Msg("token user ketika di claim suda expired")
+		}
+		log.Err(err).Msg("failed claim token user")
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
 	userID, ok := claims["sub"].(string)
 	if !ok {
+		log.Warn().Msgf("gagal type assertion pada sub token")
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
-	log.Debug().Msg("getUserID")
 	getUserID, err := s.redis.Client.Get(ctx, "forgot-password-link:"+req.Email).Result()
 	if err != nil {
+		log.Err(err).Msg("failed get data in redis")
 		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	if userID != getUserID {
+		log.Warn().Msgf("userid di redis sama userid di token tidak sama")
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 	}
 
@@ -185,11 +196,14 @@ func (s *UserUsecaseImpl) ActivasiAccount(ctx context.Context, email string) (re
 	user, err := s.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Warn().Msgf("ketika user mau aktivasi email nya tidak ditemukan di database")
 			return nil, _error.ErrString("USER TIDAK DITEMUKAN", 404)
 		}
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	if user.EmailVerifiedAt {
+		log.Warn().Msgf("user sudah melakukan activasi akun tapi mencoba aktivasi kembali")
 		return nil, _error.Err400(map[string][]string{
 			"email": {
 				"permintaan anda tidak dapat di proses, email anda sudah di aktivasi silahkan login",

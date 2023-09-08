@@ -36,7 +36,7 @@ func (a *AppUsecaseImpl) CheckAppByID(ctx context.Context, req *dto.AppReq) (err
 		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if !exists {
-		log.Warn().Msgf("app id is not registered: %s", req.AppID)
+		log.Info().Msgf("app id is not registered: %s", req.AppID)
 		return _error.ErrStringDefault(http.StatusForbidden)
 	}
 

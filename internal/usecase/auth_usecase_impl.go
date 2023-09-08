@@ -47,6 +47,7 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *dto.LoginReq) (userRes
 	user, err := a.userRepo.GetUserByEmailOrUsername(ctx, req.EmailOrUsername)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Info().Msgf("user login tapi email or username nya tidak tersedia")
 			return nil, nil, _error.BadLogin()
 		}
 		return nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
@@ -55,13 +56,13 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *dto.LoginReq) (userRes
 	if !req.Oauth2 {
 		checkPassword := helper.BcryptPasswordCompare(req.Password, user.Password)
 		if !checkPassword {
+			log.Info().Msgf("password user tidak sama dengan yang ada di database")
 			return nil, nil, _error.BadLogin()
 		}
 	}
 
 	profile, err := a.accountApi.GetProfileByUserID(user.ID)
 	if err != nil {
-		log.Err(err).Msg("error account service")
 		return nil, nil, _error.ErrStringDefault(http.StatusBadGateway)
 	}
 
@@ -83,6 +84,7 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
+		log.Info().Msgf("user register tapi email sudah terdaftar")
 		return nil, _error.BadExistField("email", "email has been registered")
 	}
 
@@ -91,6 +93,7 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 	if exists {
+		log.Info().Msgf("user register tapi username sudah terdaftar")
 		return nil, _error.BadExistField("username", "username has been registered")
 	}
 
@@ -139,7 +142,6 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *dto.RegisterReq) (u
 
 	_, err = a.accountApi.CreateProfile(profileJson)
 	if err != nil {
-		log.Err(err).Msg("error account service")
 		return nil, _error.ErrStringDefault(http.StatusBadGateway)
 	}
 

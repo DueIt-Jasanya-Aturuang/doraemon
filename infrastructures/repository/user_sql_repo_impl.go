@@ -9,6 +9,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type UserRepoSqlImpl struct {
@@ -32,12 +33,12 @@ func (u *UserRepoSqlImpl) CreateUser(ctx context.Context, user *model.User) erro
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -55,7 +56,7 @@ func (u *UserRepoSqlImpl) CreateUser(ctx context.Context, user *model.User) erro
 		user.UpdatedAt,
 	)
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		log.Err(err).Msg(_msg.LogErrExecContext)
 		return err
 	}
 
@@ -72,9 +73,14 @@ func (u *UserRepoSqlImpl) UpdateActivasiUser(ctx context.Context, user *model.Us
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed open prepapred statement")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	_, err = stmt.ExecContext(
 		ctx,
@@ -100,9 +106,14 @@ func (u *UserRepoSqlImpl) UpdatePasswordUser(ctx context.Context, user *model.Us
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed open prepapred statement")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	_, err = stmt.ExecContext(
 		ctx,
@@ -128,12 +139,12 @@ func (u *UserRepoSqlImpl) CheckUserByEmail(ctx context.Context, email string) (b
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return false, err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -141,7 +152,7 @@ func (u *UserRepoSqlImpl) CheckUserByEmail(ctx context.Context, email string) (b
 	err = stmt.QueryRowContext(ctx, email).Scan(&exists)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			log.Err(err).Msg("cannot scan query row context")
+			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
 		}
 		return false, err
 	}
@@ -163,16 +174,23 @@ func (u *UserRepoSqlImpl) CheckActivasiUserByID(ctx context.Context, id string) 
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return false, err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	row := stmt.QueryRowContext(ctx, id)
 
 	var activasi bool
 	err = row.Scan(&activasi)
 	if err != nil {
-		log.Err(err).Msg("failed scan row query")
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
+		}
 		return false, err
 	}
 
@@ -189,12 +207,12 @@ func (u *UserRepoSqlImpl) CheckUserByUsername(ctx context.Context, username stri
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return false, err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -226,9 +244,14 @@ func (u *UserRepoSqlImpl) GetUserByID(ctx context.Context, id string) (*model.Us
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	row := stmt.QueryRowContext(ctx, id)
 
@@ -252,9 +275,14 @@ func (u *UserRepoSqlImpl) GetUserByEmail(ctx context.Context, email string) (*mo
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	row := stmt.QueryRowContext(ctx, email)
 
@@ -278,9 +306,14 @@ func (u *UserRepoSqlImpl) GetUserByUsername(ctx context.Context, username string
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	row := stmt.QueryRowContext(ctx, username)
 
@@ -304,9 +337,14 @@ func (u *UserRepoSqlImpl) GetUserByEmailOrUsername(ctx context.Context, emailOrU
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
+	defer func() {
+		if errStmt := stmt.Close(); errStmt != nil {
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		}
+	}()
 
 	row := stmt.QueryRowContext(ctx, emailOrUsername, emailOrUsername)
 
@@ -340,7 +378,7 @@ func (u *UserRepoSqlImpl) scanRow(row *sql.Row) (*model.User, error) {
 	)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			log.Err(err).Msg("cannot scan query row context")
+			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
 		}
 		return nil, err
 	}

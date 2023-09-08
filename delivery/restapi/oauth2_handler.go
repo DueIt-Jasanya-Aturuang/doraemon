@@ -43,6 +43,7 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 
 	appID := r.Header.Get("App-ID")
 	if appID == "" {
+		log.Warn().Msg("tidak ada header appid")
 		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
 		return
 	}
@@ -76,7 +77,6 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 	}
 
 	if !userGoogle.ExistsUser {
-		log.Debug().Msg("registerd")
 		reqRegister := &dto.RegisterReq{
 			FullName:        userGoogle.Name,
 			Username:        userGoogle.GivenName,

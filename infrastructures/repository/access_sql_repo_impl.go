@@ -9,6 +9,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type AccessRepoSqlImpl struct {
@@ -32,12 +33,12 @@ func (a *AccessRepoSqlImpl) CreateAccess(ctx context.Context, access *model.Acce
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared statement")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -52,7 +53,7 @@ func (a *AccessRepoSqlImpl) CreateAccess(ctx context.Context, access *model.Acce
 	)
 
 	if err != nil {
-		log.Err(err).Msg("failed to query row context prepared statement")
+		log.Err(err).Msg(_msg.LogErrExecContext)
 		return nil, err
 	}
 
@@ -71,12 +72,12 @@ func (a *AccessRepoSqlImpl) GetAccessByUserIDAndAppID(ctx context.Context, userI
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepare context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return nil, err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(errStmt).Msg("failed to close prepared statement")
+			log.Err(errStmt).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -97,7 +98,7 @@ func (a *AccessRepoSqlImpl) GetAccessByUserIDAndAppID(ctx context.Context, userI
 
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			log.Err(err).Msg("cannot scan query row context")
+			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
 		}
 		return nil, err
 	}

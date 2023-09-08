@@ -44,7 +44,7 @@ func (o *Oauth2UsecaseImpl) GoogleClaimUser(ctx context.Context, req *dto.LoginG
 
 		err = json.Unmarshal([]byte(googleToken), &googleOauthToken)
 		if err != nil {
-
+			log.Err(err).Msg("failed unmarshal google token")
 			return nil, _error.ErrStringDefault(http.StatusForbidden)
 		}
 	} else {

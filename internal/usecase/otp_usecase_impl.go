@@ -17,6 +17,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type OTPUsecaseImpl struct {
@@ -47,9 +48,11 @@ func (o *OTPUsecaseImpl) OTPGenerate(ctx context.Context, req *dto.OTPGenerateRe
 			if errors.Is(err, sql.ErrNoRows) {
 				return _error.ErrStringDefault(http.StatusNotFound)
 			}
+			return _error.ErrStringDefault(http.StatusInternalServerError)
 		}
 
 		if exist {
+			log.Warn().Msg("user sudah melakukan activasi tetapi malah ngirim minta code activasi lgi")
 			return _error.Err400(map[string][]string{
 				"email": {
 					"permintaan anda tidak dapat di proses, email anda sudah di aktivasi silahkan login",
@@ -66,17 +69,20 @@ func (o *OTPUsecaseImpl) OTPGenerate(ctx context.Context, req *dto.OTPGenerateRe
 
 	checkOtp, err := o.redis.Client.Exists(ctx, req.Type+":"+req.Email).Result()
 	if err != nil {
+		log.Err(err).Msg(_msg.LogErrExistsRedisClient)
 		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	if checkOtp == 1 {
 		err = o.redis.Client.Expire(ctx, req.Type+":"+req.Email, expOtp).Err()
 		if err != nil {
+			log.Err(err).Msg(_msg.LogErrExpireRedisClient)
 			return _error.ErrStringDefault(http.StatusInternalServerError)
 		}
 	} else {
 		err = o.redis.Client.Set(ctx, req.Type+":"+req.Email, otp, expOtp).Err()
 		if err != nil {
+			log.Err(err).Msg(_msg.LogErrSetRedisClient)
 			return _error.ErrStringDefault(http.StatusInternalServerError)
 		}
 	}
@@ -118,15 +124,23 @@ func (o *OTPUsecaseImpl) OTPGenerate(ctx context.Context, req *dto.OTPGenerateRe
 func (o *OTPUsecaseImpl) OTPValidation(ctx context.Context, req *dto.OTPValidationReq) (err error) {
 	getOtp, err := o.redis.Client.Get(ctx, req.Type+":"+req.Email).Result()
 	if err != nil {
+		log.Err(err).Msg(_msg.LogErrGetRedisClient)
 		return _error.ErrStringDefault(http.StatusNotFound)
 	}
 
 	if getOtp != req.OTP {
+		log.Warn().Msg("otp in redis and request not the same")
 		return _error.Err400(map[string][]string{
 			"otp": {
 				"kode otp anda tidak valid",
 			},
 		})
+	}
+
+	err = o.redis.Client.Del(ctx, req.Type+":"+req.Email).Err()
+	if err != nil {
+		log.Err(err).Msg(_msg.LogErrDelRedisClient)
+		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
 	return nil

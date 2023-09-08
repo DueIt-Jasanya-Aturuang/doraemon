@@ -28,6 +28,7 @@ func charseByte(length int, charset string) ([]byte, error) {
 func RandomChar(length int) (string, error) {
 	randomByte, err := charseByte(length, charset)
 	if err != nil {
+		log.Err(err).Msg("failed generate random character")
 		return "", err
 	}
 

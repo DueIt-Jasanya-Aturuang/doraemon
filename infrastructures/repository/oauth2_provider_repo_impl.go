@@ -14,6 +14,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type GoogleOauthRepoImpl struct {
@@ -49,7 +50,7 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOau
 
 	req, err := http.NewRequest("POST", uri, queryBuffer)
 	if err != nil {
-		log.Err(err).Msg("failed request to oauth token")
+		log.Err(err).Msg(_msg.LogErrHttpNewRequest)
 		return nil, err
 	}
 
@@ -61,12 +62,12 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOau
 
 	response, err := client.Do(req)
 	if err != nil {
-		log.Err(err).Msg("failed to load response from request post")
+		log.Err(err).Msg(_msg.LogErrHttpClientDo)
 		return nil, err
 	}
 	defer func() {
 		if errBody := response.Body.Close(); errBody != nil {
-			log.Err(errBody).Msg("failed close response body")
+			log.Err(errBody).Msg(_msg.LogErrResponseBodyClose)
 		}
 	}()
 
@@ -103,7 +104,7 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauth2Token)
 
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		log.Err(err).Msg("failed request to google apis method get")
+		log.Err(err).Msg(_msg.LogErrHttpNewRequest)
 		return nil, err
 	}
 
@@ -115,12 +116,12 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauth2Token)
 
 	response, err := client.Do(req)
 	if err != nil {
-		log.Err(err).Msg("failed receive response from request")
+		log.Err(err).Msg(_msg.LogErrHttpClientDo)
 		return nil, err
 	}
 	defer func() {
 		if errBody := response.Body.Close(); errBody != nil {
-			log.Err(errBody).Msg("failed close response body")
+			log.Err(errBody).Msg(_msg.LogErrResponseBodyClose)
 		}
 	}()
 

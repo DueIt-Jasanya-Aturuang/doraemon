@@ -54,6 +54,8 @@ func TestSecurityUsecaseJwtValidateAT(t *testing.T) {
 		_, _ = securityRepo.GetTokenByAT(context.TODO(), accessToken)
 		securityRepo.GetTokenByATReturns(tokenModel, nil)
 
+		userRepo.CheckActivasiUserByID(context.TODO(), "id")
+		userRepo.CheckActivasiUserByIDReturns(true, nil)
 		exp, err := securityUsecase.JwtValidateAT(context.TODO(), req, "not activasi")
 		assert.NoError(t, err)
 		assert.Equal(t, false, exp)
@@ -134,7 +136,7 @@ func TestSecurityUsecaseJwtValidateAT(t *testing.T) {
 		_, _ = userRepo.CheckActivasiUserByID(context.TODO(), userID)
 		userRepo.CheckActivasiUserByIDReturns(false, nil)
 
-		exp, err := securityUsecase.JwtValidateAT(context.TODO(), req, "/activasi-account")
+		exp, err := securityUsecase.JwtValidateAT(context.TODO(), req, "/activasi-accunt")
 		assert.Error(t, err)
 		assert.Equal(t, false, exp)
 		var errHTTP *model.ErrResponseHTTP

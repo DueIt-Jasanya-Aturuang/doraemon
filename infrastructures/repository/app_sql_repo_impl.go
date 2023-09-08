@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type AppRepoSqlImpl struct {
@@ -29,12 +30,12 @@ func (a *AppRepoSqlImpl) CheckAppByID(ctx context.Context, id string) (bool, err
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg("failed to start prepared context")
+		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
 		return false, err
 	}
 	defer func() {
 		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg("failed to close prepared context")
+			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
 		}
 	}()
 
@@ -42,7 +43,7 @@ func (a *AppRepoSqlImpl) CheckAppByID(ctx context.Context, id string) (bool, err
 	err = stmt.QueryRowContext(ctx, id).Scan(&exists)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			log.Err(err).Msg("cannot scan query row context")
+			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
 		}
 		return false, err
 	}

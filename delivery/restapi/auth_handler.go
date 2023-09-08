@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/mapper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
@@ -36,6 +38,7 @@ func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
 
 	appID := r.Header.Get("App-ID")
 	if appID == "" {
+		log.Warn().Msg("tidak ada header appid")
 		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
 		return
 	}
@@ -112,6 +115,7 @@ func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
 
 	appID := r.Header.Get("App-ID")
 	if appID == "" {
+		log.Warn().Msg("tidak ada header appid")
 		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
 		return
 	}

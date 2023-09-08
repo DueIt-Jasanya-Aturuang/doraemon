@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/mapper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
@@ -52,8 +53,15 @@ func (h *OTPHandlerImpl) OTPGenerate(w http.ResponseWriter, r *http.Request) {
 		reqOTPGenerate.UserID = userID
 	}
 
+	err = middleware.RateLimiterOTP(&reqOTPGenerate)
+	if err != nil {
+		mapper.NewErrorResp(w, r, err)
+		return
+	}
+
 	err = h.otpUsecase.OTPGenerate(ctx, &reqOTPGenerate)
 	if err != nil {
+		middleware.DeletedClientHelper(reqOTPGenerate.Email + ":" + reqOTPGenerate.Type)
 		mapper.NewErrorResp(w, r, err)
 		return
 	}

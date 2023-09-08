@@ -34,7 +34,8 @@ func ErrStringDefault(code int) error {
 		msg = "FORBIDDEN"
 	case 401:
 		msg = "UNAUTHORIZATION"
-
+	case 429:
+		msg = "Limited request"
 	}
 
 	return &model.ErrResponseHTTP{

@@ -16,7 +16,7 @@ func EnvInit() {
 		os.Exit(1)
 	}
 
-	// AppPort = os.Getenv("APPLICATION_PORT")
+	AppPort = os.Getenv("APPLICATION_PORT")
 	// AppStatus = os.Getenv("APPLICATION_STATUS")
 	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
 	AppAuthApi = os.Getenv("APPLICATION_AUTH_API")
@@ -83,7 +83,7 @@ func EnvInit() {
 }
 
 var (
-	// AppPort       string
+	AppPort string
 	// AppStatus     string
 
 	AppAccountApi string

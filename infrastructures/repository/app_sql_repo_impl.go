@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/rs/zerolog/log"
-	
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 )
 
@@ -21,8 +21,7 @@ func NewAppRepoSqlImpl(repo repository.UnitOfWorkSqlRepo) repository.AppSqlRepo 
 }
 
 func (a *AppRepoSqlImpl) CheckAppByID(ctx context.Context, id string) (bool, error) {
-	query := `SELECT id FROM m_app WHERE id = $1`
-
+	query := `SELECT EXISTS(SELECT 1 FROM m_apps WHERE id = $1 AND deleted_at IS NULL)`
 	conn, err := a.GetConn()
 	if err != nil {
 		return false, err

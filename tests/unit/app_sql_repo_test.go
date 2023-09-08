@@ -20,7 +20,7 @@ func TestCheckAppByID(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	query := regexp.QuoteMeta(`SELECT id FROM m_app WHERE id = $1`)
+	query := regexp.QuoteMeta(`SELECT EXISTS(SELECT 1 FROM m_apps WHERE id = $1 AND deleted_at IS NULL)`)
 	rows := sqlmock.NewRows([]string{
 		"exists",
 	})

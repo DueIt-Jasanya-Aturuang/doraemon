@@ -10,6 +10,6 @@ CREATE TABLE m_apps (
    deleted_by VARCHAR(64)
 );
 
-INSERT INTO auth.m_apps
+INSERT INTO m_apps
 (id, "name", description, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by)
 VALUES('5410801c-faaf-4776-95be-56472e044820', 'kakeibo', 'aplikasi manajemen keuangan', 1684768516, NULL, 1684768516, NULL, NULL, NULL);

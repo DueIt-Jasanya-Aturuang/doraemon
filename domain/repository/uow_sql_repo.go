@@ -5,7 +5,8 @@ import (
 	"database/sql"
 )
 
-type UnitOfWorkRepo interface {
+//counterfeiter:generate -o ./../mocks . UnitOfWorkSqlRepo
+type UnitOfWorkSqlRepo interface {
 	OpenConn(ctx context.Context) error
 	GetConn() (*sql.Conn, error)
 	CloseConn()

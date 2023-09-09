@@ -1,9 +1,9 @@
-create type gender_enum as enum('male', 'female', 'undefinied');
+create type gender_enum as enum('male', 'female', 'undefined');
 
 CREATE TABLE m_users (
    id VARCHAR(64) NOT NULL UNIQUE PRIMARY KEY,
    fullname VARCHAR(32) NOT NULL,
-   gender gender_enum default 'undefinied',
+   gender gender_enum default 'undefined',
    image VARCHAR(255) default 'default-male.png',
    email VARCHAR(55) NOT NULL,
    username VARCHAR(22) NOT NULL UNIQUE,

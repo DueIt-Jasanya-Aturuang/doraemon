@@ -1,1 +1,19 @@
-version: '3'
+version: '3.3'
+
+services:
+  account-svc:
+    container_name: dueit_svc_auth
+    image: imageid
+    ports:
+      - '7002:7002'
+    volumes:
+      - type: bind
+        source: ./.env
+        target: /app/.env
+        read_only: true
+    networks:
+      - dueit_network
+
+networks:
+  dueit_network:
+    external: true

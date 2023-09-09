@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	_ "github.com/lib/pq"
+	"github.com/rs/zerolog/log"
 )
 
 func NewPgConn() *sql.DB {

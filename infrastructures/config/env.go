@@ -1,10 +1,12 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 )
 
 func EnvInit() {
@@ -15,7 +17,9 @@ func EnvInit() {
 	}
 
 	AppPort = os.Getenv("APPLICATION_PORT")
-	AppStatus = os.Getenv("APPLICATION_STATUS")
+	// AppStatus = os.Getenv("APPLICATION_STATUS")
+	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
+	AppAuthApi = os.Getenv("APPLICATION_AUTH_API")
 
 	PgHost = os.Getenv("DB_POSTGRESQL_HOST")
 	PgPort = os.Getenv("DB_POSTGRESQL_PORT")
@@ -34,20 +38,44 @@ func EnvInit() {
 	RedisDB = dbInt
 	RedisPass = os.Getenv("REDIS_PASS")
 
-	KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
+	// KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
 	KafkaBroker = os.Getenv("KAFKA_BROKER")
 	KafkaTopic = os.Getenv("KAFKA_TOPIC")
+	KafkaUser = os.Getenv("KAFKA_USER")
+	KafkaPassword = os.Getenv("KAFKA_PASS")
 
 	DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
-	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
+	// AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
 	AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
 	AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
 
 	DefaultKey = os.Getenv("AUTH_DEFAULT_KEY_TOKEN")
+
 	AccessTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_KEY")
-	AccessTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_EXPIRED")
+	accessTokenKeyExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_HS_ACCESS_TOKEN_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	AccessTokenKeyExpHS = accessTokenKeyExp
+
 	RefreshTokenKeyHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_KEY")
-	RefreshTokenKeyExpHS = os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_EXPIRED")
+	refreshTokenKeyExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_HS_REFRESH_TOKEN_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	RefreshTokenKeyExpHS = refreshTokenKeyExp
+
+	rememberMeExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_REMEMBER_ME_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	RememberMeTokenExp = rememberMeExp
+
+	forgotPasswordTokenExp, err := time.ParseDuration(os.Getenv("AUTH_JWT_TOKEN_FORGOT_PASSWORD_EXPIRED"))
+	if err != nil {
+		panic(err)
+	}
+	ForgotPasswordTokenExp = forgotPasswordTokenExp
 
 	OauthClientId = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_ID")
 	OauthClientSecret = os.Getenv("AUTH_OAUTH_GOOGLE_WEB_CLIENT_SECRET")
@@ -57,8 +85,11 @@ func EnvInit() {
 }
 
 var (
-	AppPort   string
-	AppStatus string
+	AppPort string
+	// AppStatus     string
+
+	AppAccountApi string
+	AppAuthApi    string
 
 	PgHost   string
 	PgPort   string
@@ -73,21 +104,25 @@ var (
 	RedisDB   int
 	RedisPass string
 
-	KafkaProtocol string
 	KafkaBroker   string
 	KafkaTopic    string
+	KafkaUser     string
+	KafkaPassword string
 
 	DefaultImage string
 
-	AesCFB   string
+	// AesCFB   string
+
 	AesCBC   string
 	AesCBCIV string
 
-	DefaultKey           string
-	AccessTokenKeyHS     string
-	AccessTokenKeyExpHS  string
-	RefreshTokenKeyHS    string
-	RefreshTokenKeyExpHS string
+	DefaultKey             string
+	AccessTokenKeyHS       string
+	AccessTokenKeyExpHS    time.Duration
+	RefreshTokenKeyHS      string
+	RefreshTokenKeyExpHS   time.Duration
+	RememberMeTokenExp     time.Duration
+	ForgotPasswordTokenExp time.Duration
 
 	OauthClientId          string
 	OauthClientSecret      string

@@ -3,7 +3,7 @@ version: '3.3'
 services:
   account-svc:
     container_name: dueit_svc_auth
-    image: imageid
+    build: .
     ports:
       - '7002:7002'
     volumes:

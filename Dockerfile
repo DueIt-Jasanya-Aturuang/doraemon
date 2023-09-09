@@ -1,7 +1,7 @@
 FROM golang:1.20 AS builder
 
-ENV GO11MODULE=on \
-    CGO_ENABLE=0 \
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64
 
@@ -21,4 +21,4 @@ WORKDIR /app
 
 EXPOSE 7002
 
-CMD ./app
+CMD ./auth

@@ -25,7 +25,7 @@ func NewAccountApiRepoImpl(endPoint string) repository.AccountApiRepo {
 }
 
 func (a *AccountApiRepoImpl) CreateProfile(data []byte) (*model.Profile, error) {
-	endPoint := fmt.Sprintf("%s/profile", a.endPoint)
+	endPoint := fmt.Sprintf("%s/account/profile", a.endPoint)
 
 	dataReq := bytes.NewReader(data)
 	req, err := http.NewRequest("POST", endPoint, dataReq)
@@ -81,7 +81,7 @@ func (a *AccountApiRepoImpl) CreateProfile(data []byte) (*model.Profile, error) 
 }
 
 func (a *AccountApiRepoImpl) GetProfileByUserID(userID string) (*model.Profile, error) {
-	endPoint := fmt.Sprintf("%s/profile", a.endPoint)
+	endPoint := fmt.Sprintf("%s/account/profile", a.endPoint)
 
 	req, err := http.NewRequest("GET", endPoint, nil)
 	if err != nil {

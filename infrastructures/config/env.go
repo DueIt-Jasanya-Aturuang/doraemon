@@ -41,9 +41,11 @@ func EnvInit() {
 	// KafkaProtocol = os.Getenv("KAFKA_PROTOCOL")
 	KafkaBroker = os.Getenv("KAFKA_BROKER")
 	KafkaTopic = os.Getenv("KAFKA_TOPIC")
+	KafkaUser = os.Getenv("KAFKA_USER")
+	KafkaPassword = os.Getenv("KAFKA_PASS")
 
 	DefaultImage = os.Getenv("DEFAULT_DEFAULT_IMAGE")
-	AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
+	// AesCFB = os.Getenv("DEFAULT_AES_CFB_KEY")
 	AesCBC = os.Getenv("DEFAULT_AES_CBC_KEY")
 	AesCBCIV = os.Getenv("DEFAULT_AES_CBC_IV_KEY")
 
@@ -102,12 +104,15 @@ var (
 	RedisDB   int
 	RedisPass string
 
-	KafkaBroker string
-	KafkaTopic  string
+	KafkaBroker   string
+	KafkaTopic    string
+	KafkaUser     string
+	KafkaPassword string
 
 	DefaultImage string
 
-	AesCFB   string
+	// AesCFB   string
+
 	AesCBC   string
 	AesCBCIV string
 

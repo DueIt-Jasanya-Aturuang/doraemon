@@ -2,12 +2,14 @@ package helper
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
 )
 
 func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {
@@ -44,4 +46,29 @@ func ClaimsJwtHS256(tokenStr, key string) (map[string]any, error) {
 	claims, _ := tokenParse.Claims.(jwt.MapClaims)
 
 	return claims, nil
+}
+
+func GenerateRTAT(userID string, appID string, rememberMe bool) (*model.Token, error) {
+	var jwtModel *model.Jwt
+
+	jwtModelAT := jwtModel.AccessTokenDefault(userID)
+	accessToken, err := GenerateJwtHS256(jwtModelAT)
+	if err != nil {
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+
+	jwtModelRT := jwtModel.RefreshTokenDefault(userID, rememberMe)
+	refreshToken, err := GenerateJwtHS256(jwtModelRT)
+	if err != nil {
+		return nil, _error.ErrStringDefault(http.StatusInternalServerError)
+	}
+
+	resp := &model.Token{
+		UserID:       userID,
+		AppID:        appID,
+		RememberMe:   rememberMe,
+		AcceesToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+	return resp, nil
 }

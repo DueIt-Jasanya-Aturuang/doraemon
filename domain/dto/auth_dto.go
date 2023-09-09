@@ -16,6 +16,7 @@ type LoginReq struct {
 	Password        string `json:"password"`
 	RememberMe      bool   `json:"remember_me"`
 	Oauth2          bool   // Oauth2 set in handler
+	AppID           string // AppID set in handlr
 }
 
 type LogoutReq struct {

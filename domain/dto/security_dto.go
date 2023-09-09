@@ -13,5 +13,5 @@ type JwtRegisteredTokenReq struct {
 }
 
 type JwtTokenResp struct {
-	Token string
+	Token string `json:"token"`
 }

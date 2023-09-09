@@ -41,7 +41,7 @@ func main() {
 
 	userHandler := restapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
 	oauth2Handler := restapi.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, securityUsecase, appUsecase)
-	authHandler := restapi.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase)
+	authHandler := restapi.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase, otpUsecase)
 	otpHandler := restapi.NewOTPHandlerImpl(otpUsecase)
 	securityHandler := restapi.NewSecurityHandlerImpl(securityUsecase, appUsecase)
 

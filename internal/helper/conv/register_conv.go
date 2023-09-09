@@ -46,7 +46,7 @@ func RegisterReqToModel(req *dto.RegisterReq, id string) (*model.User, *model.Ac
 	return user, access
 }
 
-func RegisterModelToResp(user *model.User, emailFormat string) *dto.UserResp {
+func RegisterModelToResp(user *model.User, profile *model.Profile, emailFormat string) (*dto.UserResp, *dto.ProfileResp) {
 	phoneNumber := "null"
 	if user.PhoneNumber.Valid {
 		phoneNumber = user.PhoneNumber.String
@@ -64,5 +64,10 @@ func RegisterModelToResp(user *model.User, emailFormat string) *dto.UserResp {
 		EmailVerifiedAt: user.EmailVerifiedAt,
 	}
 
-	return userResp
+	profileResp := &dto.ProfileResp{
+		ProfileID: profile.ProfileID,
+		Quote:     profile.Quote,
+		Profesi:   profile.Profesi,
+	}
+	return userResp, profileResp
 }

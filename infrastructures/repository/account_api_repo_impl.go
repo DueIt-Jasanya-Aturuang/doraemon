@@ -3,7 +3,6 @@ package repository
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -41,8 +40,11 @@ func (a *AccountApiRepoImpl) CreateProfile(data []byte) (*model.Profile, error) 
 	}
 	response, err := client.Do(req)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrHttpClientDo)
-		return nil, err
+		var errHTTP = &model.ErrResponseHTTP{
+			Code:    502,
+			Message: "bad gateway",
+		}
+		return nil, errHTTP
 	}
 	defer func() {
 		if errBody := response.Body.Close(); errBody != nil {
@@ -51,23 +53,31 @@ func (a *AccountApiRepoImpl) CreateProfile(data []byte) (*model.Profile, error) 
 	}()
 
 	if response.StatusCode == 201 {
-		var profile model.Profile
-		err = json.NewDecoder(response.Body).Decode(&profile)
+		var profileRespMap map[string]json.RawMessage
+		err = json.NewDecoder(response.Body).Decode(&profileRespMap)
 		if err != nil {
 			log.Err(err).Msg(_msg.LogErrJsonNewDecoderDecode)
 			return nil, err
 		}
 
-		profile.Code = response.StatusCode
+		var profile model.Profile
+		err = json.Unmarshal(profileRespMap["data"], &profile)
+		if err != nil {
+			log.Err(err).Msg(_msg.LogErrJsonNewDecoderDecode)
+			return nil, err
+		}
 
 		return &profile, nil
 	} else {
 		resp := map[string]any{}
 		err = json.NewDecoder(response.Body).Decode(&resp)
-		log.Warn().Msgf("ERROR ACCOUNT SERVICE | %v", resp)
+		var errHTTP = &model.ErrResponseHTTP{
+			Code:    response.StatusCode,
+			Message: resp["errors"],
+		}
+		return nil, errHTTP
 	}
 
-	return nil, errors.New("BAD GATEWAY")
 }
 
 func (a *AccountApiRepoImpl) GetProfileByUserID(userID string) (*model.Profile, error) {
@@ -86,8 +96,11 @@ func (a *AccountApiRepoImpl) GetProfileByUserID(userID string) (*model.Profile, 
 	}
 	response, err := client.Do(req)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrHttpClientDo)
-		return nil, err
+		var errHTTP = &model.ErrResponseHTTP{
+			Code:    502,
+			Message: "bad gateway",
+		}
+		return nil, errHTTP
 	}
 	defer func() {
 		if errBody := response.Body.Close(); errBody != nil {
@@ -96,22 +109,28 @@ func (a *AccountApiRepoImpl) GetProfileByUserID(userID string) (*model.Profile, 
 	}()
 
 	if response.StatusCode == 200 {
-		var profile model.Profile
-		err = json.NewDecoder(response.Body).Decode(&profile)
-		log.Debug().Msg("process decoder response body")
+		var profileRespMap map[string]json.RawMessage
+		err = json.NewDecoder(response.Body).Decode(&profileRespMap)
 		if err != nil {
 			log.Err(err).Msg(_msg.LogErrJsonNewDecoderDecode)
 			return nil, err
 		}
 
-		profile.Code = response.StatusCode
+		var profile model.Profile
+		err = json.Unmarshal(profileRespMap["data"], &profile)
+		if err != nil {
+			log.Err(err).Msg(_msg.LogErrJsonNewDecoderDecode)
+			return nil, err
+		}
 
 		return &profile, nil
 	} else {
 		resp := map[string]any{}
 		err = json.NewDecoder(response.Body).Decode(&resp)
-		log.Warn().Msgf("ERROR ACCOUNT SERVICE | %v", resp)
+		var errHTTP = &model.ErrResponseHTTP{
+			Code:    response.StatusCode,
+			Message: resp["errors"],
+		}
+		return nil, errHTTP
 	}
-
-	return nil, errors.New("BAD GATEWAY")
 }

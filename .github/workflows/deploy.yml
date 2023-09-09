@@ -30,6 +30,5 @@ jobs:
 
       - name: build and push
         run: |
-          cd deploy
-          docker build --tag ghcr.io/dueit-jasanya-aturuang/doraemon-service:1.0
+          docker build -f deploy/Dockerfile . --tag ghcr.io/dueit-jasanya-aturuang/doraemon-service:1.0
           docker push ghcr.io/dueit-jasanya-aturuang/doraemon-service:1.0

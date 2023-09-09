@@ -34,6 +34,7 @@ func NewAuthHandlerImpl(
 
 func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
+	// testing in 4.776681149s
 	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 	defer cancel()
 
@@ -132,7 +133,7 @@ func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
 		mapper.NewErrorResp(w, r, err)
 		return
 	}
-
+	reqLogin.AppID = appID
 	// validasi request
 	err = validation.LoginValidation(&reqLogin)
 	if err != nil {

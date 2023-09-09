@@ -48,7 +48,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
 
-	r.Post("/auth/reset-password", userHandler.ResetPassword)
+	r.Put("/auth/reset-password", userHandler.ResetPassword)
 	r.Put("/auth/activasi-account", userHandler.ActivasiAccount)
 	r.Post("/auth/forgot-password", userHandler.ForgottenPassword)
 	r.Put("/auth/forgot-password", userHandler.ResetForgottenPassword)
@@ -57,7 +57,7 @@ func main() {
 	r.Post("/auth/login", authHandler.Login)
 	r.Post("/auth/register", authHandler.Register)
 
-	r.Post("/auth/authorization", securityHandler.ValidateAccess)
+	r.Post("/auth/otorisasi", securityHandler.ValidateAccess)
 	r.Post("/auth/logout", securityHandler.Logout)
 
 	r.Group(func(r chi.Router) {

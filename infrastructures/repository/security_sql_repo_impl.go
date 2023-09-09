@@ -133,7 +133,7 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshTo
 }
 
 func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID string) error {
-	query := `DELETE m_tokens WHERE id = $1 AND user_id = $2`
+	query := `DELETE FROM m_tokens WHERE id = $1 AND user_id = $2`
 
 	tx, err := s.GetTx()
 	if err != nil {
@@ -165,7 +165,7 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID st
 }
 
 func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID string) error {
-	query := `DELETE m_tokens WHERE user_id = $1`
+	query := `DELETE FROM m_tokens WHERE user_id = $1`
 
 	tx, err := s.GetTx()
 	if err != nil {

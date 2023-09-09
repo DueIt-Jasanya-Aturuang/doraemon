@@ -32,7 +32,7 @@ func NewOTPHandlerImpl(
 
 func (h *OTPHandlerImpl) OTPGenerate(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// get header App-ID

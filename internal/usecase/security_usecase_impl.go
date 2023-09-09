@@ -75,9 +75,23 @@ func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTok
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Warn().Msg("user mencoba untuk request menggunakan token yang lama, kita delete semua tokennya")
 			// process delete all token by user id, jika terjadi error maka akan return 500
+			// start trasaction for deleted data
+			err = s.securityRepo.StartTx(ctx, &sql.TxOptions{
+				Isolation: sql.LevelReadCommitted,
+				ReadOnly:  false,
+			})
+			if err != nil {
+				return false, _error.ErrStringDefault(http.StatusInternalServerError)
+			}
+
 			if err := s.securityRepo.DeleteAllTokenByUserID(ctx, req.UserId); err != nil {
 				return false, _error.ErrStringDefault(http.StatusInternalServerError)
 			}
+			errEndTx := s.securityRepo.EndTx(err)
+			if errEndTx != nil {
+				return false, _error.ErrStringDefault(http.StatusInternalServerError)
+			}
+
 			return false, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)
 		}
 		return false, _error.ErrStringDefault(http.StatusInternalServerError)
@@ -130,7 +144,20 @@ func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtT
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Warn().Msg("user mencoba untuk request menggunakan token yang lama, kita delete semua tokennya")
 			// process delete all token by user id, jika terjadi error maka akan return 500
+			// start trasaction for deleted data
+			err = s.securityRepo.StartTx(ctx, &sql.TxOptions{
+				Isolation: sql.LevelReadCommitted,
+				ReadOnly:  false,
+			})
+			if err != nil {
+				return nil, _error.ErrStringDefault(http.StatusInternalServerError)
+			}
+
 			if err := s.securityRepo.DeleteAllTokenByUserID(ctx, req.UserId); err != nil {
+				return nil, _error.ErrStringDefault(http.StatusInternalServerError)
+			}
+			errEndTx := s.securityRepo.EndTx(err)
+			if errEndTx != nil {
 				return nil, _error.ErrStringDefault(http.StatusInternalServerError)
 			}
 			return nil, _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)

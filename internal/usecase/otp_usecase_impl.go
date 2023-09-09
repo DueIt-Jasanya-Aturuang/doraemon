@@ -51,6 +51,7 @@ func (o *OTPUsecaseImpl) OTPGenerate(ctx context.Context, req *dto.OTPGenerateRe
 		exist, err := o.userRepo.CheckActivasiUserByID(ctx, req.UserID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
+				log.Info().Msgf(req.UserID)
 				return _error.ErrStringDefault(http.StatusNotFound)
 			}
 			return _error.ErrStringDefault(http.StatusInternalServerError)
@@ -123,6 +124,7 @@ func (o *OTPUsecaseImpl) OTPGenerate(ctx context.Context, req *dto.OTPGenerateRe
 	// kita menggunakan util untuk serialize ke dalam bentu byte
 	// dan melakukan publish ke kafka WriteMessages
 	msg, err := util.SerializeMsgKafka(otp, req.Email, req.Type)
+	log.Info().Msgf("otp : %s", otp)
 	if err != nil {
 		log.Err(err).Msg("failed marshal msg activasi account")
 		return _error.ErrStringDefault(http.StatusInternalServerError)
@@ -143,7 +145,14 @@ func (o *OTPUsecaseImpl) OTPValidation(ctx context.Context, req *dto.OTPValidati
 	getOtp, err := o.redis.Client.Get(ctx, req.Type+":"+req.Email).Result()
 	if err != nil {
 		log.Err(err).Msg(_msg.LogErrGetRedisClient)
-		return _error.ErrStringDefault(http.StatusNotFound)
+		return _error.Err400(map[string][]string{
+			"otp": {
+				"invalid your otp or email",
+			},
+			"email": {
+				"invalid your otp or email",
+			},
+		})
 	}
 
 	// validasi apakah request otp dan otp didalam redis match atau gak

@@ -18,6 +18,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper/conv"
 	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
+	_msg "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/msg"
 )
 
 type UserUsecaseImpl struct {
@@ -159,8 +160,8 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 	// get userid yang sudah di redis
 	getUserID, err := s.redis.Client.Get(ctx, "forgot-password-link:"+req.Email).Result()
 	if err != nil {
-		log.Err(err).Msg("failed get data in redis")
-		return _error.ErrStringDefault(http.StatusInternalServerError)
+		log.Err(err).Msg("user mencoba untuk get data di redis")
+		return _error.ErrStringDefault(http.StatusUnauthorized)
 	}
 
 	// jika userid di sub token dengan userid di redis tidak match maka akan return 401
@@ -207,6 +208,11 @@ func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.R
 		return _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
+	err = s.redis.Client.Del(ctx, "forgot-password-link:"+req.Email).Err()
+	if err != nil {
+		log.Err(err).Msg(_msg.LogErrDelRedisClient)
+		return _error.ErrStringDefault(http.StatusInternalServerError)
+	}
 	return nil
 }
 

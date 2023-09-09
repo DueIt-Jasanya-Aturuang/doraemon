@@ -76,7 +76,7 @@ func (a *AuthUsecaseImpl) Login(
 	}
 
 	// helper untuk generate refrest token dan access token
-	rtat, err := helper.GenerateRTAT(user.ID, req.AppID, false)
+	rtat, err := helper.GenerateRTAT(user.ID, req.AppID, req.RememberMe)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -191,6 +191,7 @@ func (a *AuthUsecaseImpl) Register(
 		return nil, nil, nil, _error.ErrStringDefault(http.StatusInternalServerError)
 	}
 
+	log.Info().Msgf(req.AppID)
 	// GenerateRTAT helper untuk generate refrest token dan access token
 	rtat, err := helper.GenerateRTAT(userConv.ID, req.AppID, false)
 	if err != nil {

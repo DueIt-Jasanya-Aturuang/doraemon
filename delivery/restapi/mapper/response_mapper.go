@@ -46,7 +46,6 @@ func NewErrorResp(w http.ResponseWriter, _ *http.Request, err error) {
 		err = _error.ErrString("Request Timeout", http.StatusRequestTimeout)
 	}
 
-	log.Err(err).Msgf("err")
 	ok := errors.As(err, &errHTTP)
 	if !ok {
 		err = _error.ErrStringDefault(http.StatusInternalServerError)

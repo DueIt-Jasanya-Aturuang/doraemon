@@ -34,7 +34,7 @@ func NewUserHandlerImpl(
 
 func (h *UserHandlerImpl) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
 	// decode request body kedalam dto

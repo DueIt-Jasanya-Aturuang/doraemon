@@ -1,0 +1,6 @@
+{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/log.go:21","time":1694233482,"message":"Logger initialization successfully"}
+{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/env.go:84","time":1694233482,"message":"config initialization successfully"}
+{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/postgres.go:42","time":1694233482,"message":"connection postgres successfully : dueit_db"}
+{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/redis.go:31","time":1694233483,"message":"connection to redis : PONG"}
+{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/main.go:68","time":1694233483,"message":"Server is running on port :7002"}
+{"level":"error","error":"redis: nil","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/internal/usecase/otp_usecase_impl.go:147","time":1694233513,"message":"failed get data in redis"}

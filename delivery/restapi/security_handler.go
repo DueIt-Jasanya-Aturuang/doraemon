@@ -103,7 +103,7 @@ func (h *SecurityHandlerImpl) Logout(w http.ResponseWriter, r *http.Request) {
 	resp := mapper.ResponseSuccess{
 		Message: "anda berhasil logout",
 	}
-	if userID == "" || token == "" {
+	if userID == "" && token == "" {
 		log.Warn().Msgf("user id / authorization header tidak tersedia")
 		mapper.NewSuccessResp(w, r, resp, 200)
 		return

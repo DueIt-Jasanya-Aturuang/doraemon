@@ -33,16 +33,16 @@ func main() {
 	oauth2Repo := repository.NewGoogleOauthRepoImpl(config.OauthClientId, config.OauthClientSecret, config.OauthClientRedirectURI)
 
 	userUsecase := usecase.NewUserUsecaseImpl(userRepo, redisConn)
-	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountRepo)
+	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountRepo, securityRepo)
 	appUsecase := usecase.NewAppUsecaseImpl(appRepo)
 	oauth2Usecase := usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
 	otpUsecase := usecase.NewOTPUsecaseImpl(userRepo, redisConn)
 	securityUsecase := usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
 	userHandler := restapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
-	oauth2Handler := restapi.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, securityUsecase, appUsecase)
-	authHandler := restapi.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase, otpUsecase)
-	otpHandler := restapi.NewOTPHandlerImpl(otpUsecase)
+	oauth2Handler := restapi.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, appUsecase)
+	authHandler := restapi.NewAuthHandlerImpl(authUsecase, appUsecase, otpUsecase)
+	otpHandler := restapi.NewOTPHandlerImpl(otpUsecase, appUsecase)
 	securityHandler := restapi.NewSecurityHandlerImpl(securityUsecase, appUsecase)
 
 	r := chi.NewRouter()

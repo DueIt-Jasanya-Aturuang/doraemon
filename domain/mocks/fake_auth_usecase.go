@@ -10,7 +10,7 @@ import (
 )
 
 type FakeAuthUsecase struct {
-	LoginStub        func(context.Context, *dto.LoginReq) (*dto.UserResp, *dto.ProfileResp, error)
+	LoginStub        func(context.Context, *dto.LoginReq) (*dto.UserResp, *dto.ProfileResp, *dto.JwtTokenResp, error)
 	loginMutex       sync.RWMutex
 	loginArgsForCall []struct {
 		arg1 context.Context
@@ -19,14 +19,16 @@ type FakeAuthUsecase struct {
 	loginReturns struct {
 		result1 *dto.UserResp
 		result2 *dto.ProfileResp
-		result3 error
+		result3 *dto.JwtTokenResp
+		result4 error
 	}
 	loginReturnsOnCall map[int]struct {
 		result1 *dto.UserResp
 		result2 *dto.ProfileResp
-		result3 error
+		result3 *dto.JwtTokenResp
+		result4 error
 	}
-	RegisterStub        func(context.Context, *dto.RegisterReq) (*dto.UserResp, error)
+	RegisterStub        func(context.Context, *dto.RegisterReq) (*dto.UserResp, *dto.ProfileResp, *dto.JwtTokenResp, error)
 	registerMutex       sync.RWMutex
 	registerArgsForCall []struct {
 		arg1 context.Context
@@ -34,17 +36,21 @@ type FakeAuthUsecase struct {
 	}
 	registerReturns struct {
 		result1 *dto.UserResp
-		result2 error
+		result2 *dto.ProfileResp
+		result3 *dto.JwtTokenResp
+		result4 error
 	}
 	registerReturnsOnCall map[int]struct {
 		result1 *dto.UserResp
-		result2 error
+		result2 *dto.ProfileResp
+		result3 *dto.JwtTokenResp
+		result4 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeAuthUsecase) Login(arg1 context.Context, arg2 *dto.LoginReq) (*dto.UserResp, *dto.ProfileResp, error) {
+func (fake *FakeAuthUsecase) Login(arg1 context.Context, arg2 *dto.LoginReq) (*dto.UserResp, *dto.ProfileResp, *dto.JwtTokenResp, error) {
 	fake.loginMutex.Lock()
 	ret, specificReturn := fake.loginReturnsOnCall[len(fake.loginArgsForCall)]
 	fake.loginArgsForCall = append(fake.loginArgsForCall, struct {
@@ -59,9 +65,9 @@ func (fake *FakeAuthUsecase) Login(arg1 context.Context, arg2 *dto.LoginReq) (*d
 		return stub(arg1, arg2)
 	}
 	if specificReturn {
-		return ret.result1, ret.result2, ret.result3
+		return ret.result1, ret.result2, ret.result3, ret.result4
 	}
-	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3, fakeReturns.result4
 }
 
 func (fake *FakeAuthUsecase) LoginCallCount() int {
@@ -70,7 +76,7 @@ func (fake *FakeAuthUsecase) LoginCallCount() int {
 	return len(fake.loginArgsForCall)
 }
 
-func (fake *FakeAuthUsecase) LoginCalls(stub func(context.Context, *dto.LoginReq) (*dto.UserResp, *dto.ProfileResp, error)) {
+func (fake *FakeAuthUsecase) LoginCalls(stub func(context.Context, *dto.LoginReq) (*dto.UserResp, *dto.ProfileResp, *dto.JwtTokenResp, error)) {
 	fake.loginMutex.Lock()
 	defer fake.loginMutex.Unlock()
 	fake.LoginStub = stub
@@ -83,18 +89,19 @@ func (fake *FakeAuthUsecase) LoginArgsForCall(i int) (context.Context, *dto.Logi
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeAuthUsecase) LoginReturns(result1 *dto.UserResp, result2 *dto.ProfileResp, result3 error) {
+func (fake *FakeAuthUsecase) LoginReturns(result1 *dto.UserResp, result2 *dto.ProfileResp, result3 *dto.JwtTokenResp, result4 error) {
 	fake.loginMutex.Lock()
 	defer fake.loginMutex.Unlock()
 	fake.LoginStub = nil
 	fake.loginReturns = struct {
 		result1 *dto.UserResp
 		result2 *dto.ProfileResp
-		result3 error
-	}{result1, result2, result3}
+		result3 *dto.JwtTokenResp
+		result4 error
+	}{result1, result2, result3, result4}
 }
 
-func (fake *FakeAuthUsecase) LoginReturnsOnCall(i int, result1 *dto.UserResp, result2 *dto.ProfileResp, result3 error) {
+func (fake *FakeAuthUsecase) LoginReturnsOnCall(i int, result1 *dto.UserResp, result2 *dto.ProfileResp, result3 *dto.JwtTokenResp, result4 error) {
 	fake.loginMutex.Lock()
 	defer fake.loginMutex.Unlock()
 	fake.LoginStub = nil
@@ -102,17 +109,19 @@ func (fake *FakeAuthUsecase) LoginReturnsOnCall(i int, result1 *dto.UserResp, re
 		fake.loginReturnsOnCall = make(map[int]struct {
 			result1 *dto.UserResp
 			result2 *dto.ProfileResp
-			result3 error
+			result3 *dto.JwtTokenResp
+			result4 error
 		})
 	}
 	fake.loginReturnsOnCall[i] = struct {
 		result1 *dto.UserResp
 		result2 *dto.ProfileResp
-		result3 error
-	}{result1, result2, result3}
+		result3 *dto.JwtTokenResp
+		result4 error
+	}{result1, result2, result3, result4}
 }
 
-func (fake *FakeAuthUsecase) Register(arg1 context.Context, arg2 *dto.RegisterReq) (*dto.UserResp, error) {
+func (fake *FakeAuthUsecase) Register(arg1 context.Context, arg2 *dto.RegisterReq) (*dto.UserResp, *dto.ProfileResp, *dto.JwtTokenResp, error) {
 	fake.registerMutex.Lock()
 	ret, specificReturn := fake.registerReturnsOnCall[len(fake.registerArgsForCall)]
 	fake.registerArgsForCall = append(fake.registerArgsForCall, struct {
@@ -127,9 +136,9 @@ func (fake *FakeAuthUsecase) Register(arg1 context.Context, arg2 *dto.RegisterRe
 		return stub(arg1, arg2)
 	}
 	if specificReturn {
-		return ret.result1, ret.result2
+		return ret.result1, ret.result2, ret.result3, ret.result4
 	}
-	return fakeReturns.result1, fakeReturns.result2
+	return fakeReturns.result1, fakeReturns.result2, fakeReturns.result3, fakeReturns.result4
 }
 
 func (fake *FakeAuthUsecase) RegisterCallCount() int {
@@ -138,7 +147,7 @@ func (fake *FakeAuthUsecase) RegisterCallCount() int {
 	return len(fake.registerArgsForCall)
 }
 
-func (fake *FakeAuthUsecase) RegisterCalls(stub func(context.Context, *dto.RegisterReq) (*dto.UserResp, error)) {
+func (fake *FakeAuthUsecase) RegisterCalls(stub func(context.Context, *dto.RegisterReq) (*dto.UserResp, *dto.ProfileResp, *dto.JwtTokenResp, error)) {
 	fake.registerMutex.Lock()
 	defer fake.registerMutex.Unlock()
 	fake.RegisterStub = stub
@@ -151,30 +160,36 @@ func (fake *FakeAuthUsecase) RegisterArgsForCall(i int) (context.Context, *dto.R
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeAuthUsecase) RegisterReturns(result1 *dto.UserResp, result2 error) {
+func (fake *FakeAuthUsecase) RegisterReturns(result1 *dto.UserResp, result2 *dto.ProfileResp, result3 *dto.JwtTokenResp, result4 error) {
 	fake.registerMutex.Lock()
 	defer fake.registerMutex.Unlock()
 	fake.RegisterStub = nil
 	fake.registerReturns = struct {
 		result1 *dto.UserResp
-		result2 error
-	}{result1, result2}
+		result2 *dto.ProfileResp
+		result3 *dto.JwtTokenResp
+		result4 error
+	}{result1, result2, result3, result4}
 }
 
-func (fake *FakeAuthUsecase) RegisterReturnsOnCall(i int, result1 *dto.UserResp, result2 error) {
+func (fake *FakeAuthUsecase) RegisterReturnsOnCall(i int, result1 *dto.UserResp, result2 *dto.ProfileResp, result3 *dto.JwtTokenResp, result4 error) {
 	fake.registerMutex.Lock()
 	defer fake.registerMutex.Unlock()
 	fake.RegisterStub = nil
 	if fake.registerReturnsOnCall == nil {
 		fake.registerReturnsOnCall = make(map[int]struct {
 			result1 *dto.UserResp
-			result2 error
+			result2 *dto.ProfileResp
+			result3 *dto.JwtTokenResp
+			result4 error
 		})
 	}
 	fake.registerReturnsOnCall[i] = struct {
 		result1 *dto.UserResp
-		result2 error
-	}{result1, result2}
+		result2 *dto.ProfileResp
+		result3 *dto.JwtTokenResp
+		result4 error
+	}{result1, result2, result3, result4}
 }
 
 func (fake *FakeAuthUsecase) Invocations() map[string][][]interface{} {

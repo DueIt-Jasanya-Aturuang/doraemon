@@ -24,20 +24,6 @@ type FakeSecurityUsecase struct {
 		result1 *dto.JwtTokenResp
 		result2 error
 	}
-	JwtRegistredRTATStub        func(context.Context, *dto.JwtRegisteredTokenReq) (*dto.JwtTokenResp, error)
-	jwtRegistredRTATMutex       sync.RWMutex
-	jwtRegistredRTATArgsForCall []struct {
-		arg1 context.Context
-		arg2 *dto.JwtRegisteredTokenReq
-	}
-	jwtRegistredRTATReturns struct {
-		result1 *dto.JwtTokenResp
-		result2 error
-	}
-	jwtRegistredRTATReturnsOnCall map[int]struct {
-		result1 *dto.JwtTokenResp
-		result2 error
-	}
 	JwtValidateATStub        func(context.Context, *dto.JwtTokenReq, string) (bool, error)
 	jwtValidateATMutex       sync.RWMutex
 	jwtValidateATArgsForCall []struct {
@@ -129,71 +115,6 @@ func (fake *FakeSecurityUsecase) JwtGenerateRTATReturnsOnCall(i int, result1 *dt
 		})
 	}
 	fake.jwtGenerateRTATReturnsOnCall[i] = struct {
-		result1 *dto.JwtTokenResp
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeSecurityUsecase) JwtRegistredRTAT(arg1 context.Context, arg2 *dto.JwtRegisteredTokenReq) (*dto.JwtTokenResp, error) {
-	fake.jwtRegistredRTATMutex.Lock()
-	ret, specificReturn := fake.jwtRegistredRTATReturnsOnCall[len(fake.jwtRegistredRTATArgsForCall)]
-	fake.jwtRegistredRTATArgsForCall = append(fake.jwtRegistredRTATArgsForCall, struct {
-		arg1 context.Context
-		arg2 *dto.JwtRegisteredTokenReq
-	}{arg1, arg2})
-	stub := fake.JwtRegistredRTATStub
-	fakeReturns := fake.jwtRegistredRTATReturns
-	fake.recordInvocation("JwtRegistredRTAT", []interface{}{arg1, arg2})
-	fake.jwtRegistredRTATMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeSecurityUsecase) JwtRegistredRTATCallCount() int {
-	fake.jwtRegistredRTATMutex.RLock()
-	defer fake.jwtRegistredRTATMutex.RUnlock()
-	return len(fake.jwtRegistredRTATArgsForCall)
-}
-
-func (fake *FakeSecurityUsecase) JwtRegistredRTATCalls(stub func(context.Context, *dto.JwtRegisteredTokenReq) (*dto.JwtTokenResp, error)) {
-	fake.jwtRegistredRTATMutex.Lock()
-	defer fake.jwtRegistredRTATMutex.Unlock()
-	fake.JwtRegistredRTATStub = stub
-}
-
-func (fake *FakeSecurityUsecase) JwtRegistredRTATArgsForCall(i int) (context.Context, *dto.JwtRegisteredTokenReq) {
-	fake.jwtRegistredRTATMutex.RLock()
-	defer fake.jwtRegistredRTATMutex.RUnlock()
-	argsForCall := fake.jwtRegistredRTATArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeSecurityUsecase) JwtRegistredRTATReturns(result1 *dto.JwtTokenResp, result2 error) {
-	fake.jwtRegistredRTATMutex.Lock()
-	defer fake.jwtRegistredRTATMutex.Unlock()
-	fake.JwtRegistredRTATStub = nil
-	fake.jwtRegistredRTATReturns = struct {
-		result1 *dto.JwtTokenResp
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeSecurityUsecase) JwtRegistredRTATReturnsOnCall(i int, result1 *dto.JwtTokenResp, result2 error) {
-	fake.jwtRegistredRTATMutex.Lock()
-	defer fake.jwtRegistredRTATMutex.Unlock()
-	fake.JwtRegistredRTATStub = nil
-	if fake.jwtRegistredRTATReturnsOnCall == nil {
-		fake.jwtRegistredRTATReturnsOnCall = make(map[int]struct {
-			result1 *dto.JwtTokenResp
-			result2 error
-		})
-	}
-	fake.jwtRegistredRTATReturnsOnCall[i] = struct {
 		result1 *dto.JwtTokenResp
 		result2 error
 	}{result1, result2}
@@ -332,8 +253,6 @@ func (fake *FakeSecurityUsecase) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.jwtGenerateRTATMutex.RLock()
 	defer fake.jwtGenerateRTATMutex.RUnlock()
-	fake.jwtRegistredRTATMutex.RLock()
-	defer fake.jwtRegistredRTATMutex.RUnlock()
 	fake.jwtValidateATMutex.RLock()
 	defer fake.jwtValidateATMutex.RUnlock()
 	fake.logoutMutex.RLock()

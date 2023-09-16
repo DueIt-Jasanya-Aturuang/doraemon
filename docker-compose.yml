@@ -5,7 +5,7 @@ services:
     container_name: dueit_svc_auth
     build: .
     ports:
-      - '7002:7002'
+      - '7002:9090'
     volumes:
       - type: bind
         source: ./.env

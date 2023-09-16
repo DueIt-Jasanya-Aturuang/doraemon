@@ -32,7 +32,7 @@ func NewSecurityUsecaseImpl(
 	}
 }
 
-func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, endpoint string) (bool, error) {
+func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, activasiHeader string) (bool, error) {
 	// claim jwt access token, jika expired maka akan return true menandakan harus generate ulang token
 	// selain error itu akan return 401
 	claims, err := helper.ClaimsJwtHS256(req.Authorization, config.AccessTokenKeyHS)
@@ -105,23 +105,23 @@ func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTok
 
 	// check apakah ini dari endpoint activasi account
 	// jika tidak maka akan check apakah user aktif atau gak
-	// if !strings.Contains(endpoint, "/activasi-account") {
-	// 	activasi, err := s.userRepo.CheckActivasiUserByID(ctx, req.UserId)
-	// 	if err != nil {
-	// 		// jika data tidak tersedia, maka akan return 404 dan message bahwa akun tidak terdaftar
-	// 		// selain error itu akan return 500
-	// 		if errors.Is(err, sql.ErrNoRows) {
-	// 			return false, _error.ErrString("akun anda tidak terdaftar, silahkan register", http.StatusNotFound)
-	// 		}
-	// 		return false, _error.ErrStringDefault(http.StatusInternalServerError)
-	// 	}
-	//
-	// 	// check apakah user tidak aktif, jika tidak maka akan return 403, yang menandakan user belum aktivasi account
-	// 	if !activasi {
-	// 		log.Warn().Msg("user belum melakukan activasi tetapi mencoba request ke endpoint lain")
-	// 		return false, _error.ErrString("akun anda tidak aktif, silahkan aktifkan akun anda", http.StatusForbidden)
-	// 	}
-	// }
+	if activasiHeader != "true" {
+		activasi, err := s.userRepo.CheckActivasiUserByID(ctx, req.UserId)
+		if err != nil {
+			// jika data tidak tersedia, maka akan return 404 dan message bahwa akun tidak terdaftar
+			// selain error itu akan return 500
+			if errors.Is(err, sql.ErrNoRows) {
+				return false, _error.ErrString("akun anda tidak terdaftar, silahkan register", http.StatusNotFound)
+			}
+			return false, _error.ErrStringDefault(http.StatusInternalServerError)
+		}
+
+		// check apakah user tidak aktif, jika tidak maka akan return 403, yang menandakan user belum aktivasi account
+		if !activasi {
+			log.Warn().Msg("user belum melakukan activasi tetapi mencoba request ke endpoint lain")
+			return false, _error.ErrString("akun anda tidak aktif, silahkan aktifkan akun anda", http.StatusForbidden)
+		}
+	}
 
 	return false, nil
 }

@@ -64,8 +64,8 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 
 	// get url path nya
 	// validasi apakah access token valid atau gak
-	path := r.URL.Path
-	expAT, err := h.securityUsecase.JwtValidateAT(ctx, &validateAccessReq, path)
+	activasiHeader := r.Header.Get("Activasi")
+	expAT, err := h.securityUsecase.JwtValidateAT(ctx, &validateAccessReq, activasiHeader)
 	if err != nil {
 		mapper.NewErrorResp(w, r, err)
 		return

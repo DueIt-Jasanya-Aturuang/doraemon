@@ -30,7 +30,7 @@ func NewSecurityHandlerImpl(
 
 func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// set variable request, and header
@@ -90,7 +90,7 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 
 func (h *SecurityHandlerImpl) Logout(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// declare variable dan get header user id dan authorization

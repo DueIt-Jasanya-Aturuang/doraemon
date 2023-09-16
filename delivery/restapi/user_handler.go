@@ -34,7 +34,7 @@ func NewUserHandlerImpl(
 
 func (h *UserHandlerImpl) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// decode request body kedalam dto
@@ -73,7 +73,7 @@ func (h *UserHandlerImpl) ResetPassword(w http.ResponseWriter, r *http.Request) 
 
 func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// get header App-ID
@@ -141,7 +141,7 @@ func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Reque
 
 func (h *UserHandlerImpl) ResetForgottenPassword(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// get header App-ID
@@ -200,7 +200,7 @@ func (h *UserHandlerImpl) ResetForgottenPassword(w http.ResponseWriter, r *http.
 
 func (h *UserHandlerImpl) ActivasiAccount(w http.ResponseWriter, r *http.Request) {
 	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 	defer cancel()
 
 	// decod request ke dalam dto

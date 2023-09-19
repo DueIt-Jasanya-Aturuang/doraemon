@@ -180,7 +180,7 @@ func (a *AuthUsecaseImpl) Register(
 	id := uuid.NewV4().String()
 	userConv, accessConv := conv2.RegisterReqToModel(req, id)
 
-	// CreateUser melakukan insert user ke db menggunakan hasil convert yang tadi
+	// Create melakukan insert user ke db menggunakan hasil convert yang tadi
 	err = a.userRepo.CreateUser(ctx, userConv)
 	if err != nil {
 		return nil, nil, nil, _error2.ErrStringDefault(http.StatusInternalServerError)

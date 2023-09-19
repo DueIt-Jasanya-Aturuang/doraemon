@@ -1,6 +1,8 @@
 module github.com/DueIt-Jasanya-Aturuang/doraemon
 
-go 1.20
+go 1.21
+
+toolchain go1.21.1
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -37,6 +39,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/jasanya-tech/jasanya-response-backend-golang v0.0.0-20230917112949-86b2c609b719 // indirect
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect

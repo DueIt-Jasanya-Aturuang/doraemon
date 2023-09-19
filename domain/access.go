@@ -8,7 +8,7 @@ import (
 
 //counterfeiter:generate -o ./../mocks . AccessSqlRepo
 type AccessRepository interface {
-	Create(ctx context.Context, access *Access) (*Access, error)
+	Create(ctx context.Context, access *Access) error
 	GetByUserIDAndAppID(ctx context.Context, userID string, appID string) (*Access, error)
 	UnitOfWorkRepository
 }

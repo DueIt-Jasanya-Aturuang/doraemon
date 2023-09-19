@@ -7,16 +7,11 @@ import (
 
 //counterfeiter:generate -o ./../mocks . UserSqlRepo
 type UserRepository interface {
-	CreateUser(ctx context.Context, user *User) error
-	UpdateActivasiUser(ctx context.Context, user *User) error
-	UpdatePasswordUser(ctx context.Context, user *User) error
-	CheckActivasiUserByID(ctx context.Context, id string) (bool, error)
-	CheckUserByEmail(ctx context.Context, email string) (bool, error)
-	CheckUserByUsername(ctx context.Context, username string) (bool, error)
-	GetUserByID(ctx context.Context, id string) (*User, error)
-	GetUserByEmail(ctx context.Context, email string) (*User, error)
-	GetUserByUsername(ctx context.Context, username string) (*User, error)
-	GetUserByEmailOrUsername(ctx context.Context, emailOrUsername string) (*User, error)
+	Create(ctx context.Context, user *User) error
+	UpdateActivasi(ctx context.Context, user *User) error
+	UpdatePassword(ctx context.Context, user *User) error
+	Check(ctx context.Context, urgss UserRepositoryGetSqlSelect) (bool, error)
+	Get(ctx context.Context, urgss UserRepositoryGetSqlSelect) (*User, error)
 	UnitOfWorkRepository
 }
 
@@ -73,4 +68,55 @@ type RequestResetForgottenPassword struct {
 	Token      string // Token get in query param
 	Password   string `json:"password"`
 	RePassword string `json:"re_password"`
+}
+
+// UserRepositoryGetSqlSelect masukin string yang mau di query select nya
+// example SELECT id FROM m_users WHERE id = $1
+// nah itu masukin value $1 nya
+type UserRepositoryGetSqlSelect string
+
+var CheckActivasiUserByID UserRepositoryGetSqlSelect
+var CheckUserByEmail UserRepositoryGetSqlSelect
+var CheckUserByUsername UserRepositoryGetSqlSelect
+var GetUserByID UserRepositoryGetSqlSelect
+var GetUserByEmail UserRepositoryGetSqlSelect
+var GetUserByUsername UserRepositoryGetSqlSelect
+var GetUserByEmailOrUsername UserRepositoryGetSqlSelect
+
+// func NewUserRepositoryGet(urgss UserRepositoryGetSqlSelect) string {
+// 	switch urgss {
+// 	case GetUserByID:
+// 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at,
+//        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
+// 			  FROM m_users WHERE id = $1`
+// 	case GetUserByEmail:
+// 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at,
+//        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
+// 			  FROM m_users WHERE email = $1`
+// 	case GetUserByUsername:
+// 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at,
+//        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
+// 			  FROM m_users WHERE username = $1`
+// 	case GetUserByEmailOrUsername:
+// 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at,
+//        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
+// 			  FROM m_users WHERE username = $1 OR email = $2`
+// 	}
+//
+// 	return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at,
+//        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by
+// 			  FROM m_users WHERE id = $1`
+// }
+
+func NewUserRepositoryCheck(urgss UserRepositoryGetSqlSelect) string {
+	switch urgss {
+	case CheckActivasiUserByID:
+		return "SELECT email_verified_at FROM m_users WHERE id = $1"
+	case CheckUserByEmail:
+		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE email = $1 AND deleted_at IS NULL)"
+	case CheckUserByUsername:
+		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE username = $1 AND deleted_at IS NULL)"
+	}
+
+	return ""
 }

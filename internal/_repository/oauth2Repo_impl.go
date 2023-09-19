@@ -3,55 +3,54 @@ package _repository
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 	"github.com/rs/zerolog/log"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/msg"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
-type GoogleOauthRepoImpl struct {
+type Oauth2RepositoryImpl struct {
 	clientID    string
 	secretID    string
 	redirectURI string
 }
 
-func NewGoogleOauthRepoImpl(
+func NewOauth2RepositoryImpl(
 	clientID string,
 	secretID string,
 	redirectURI string,
-) repository.Oauth2ProviderRepo {
-	return &GoogleOauthRepoImpl{
+) domain.Oauth2Repository {
+	return &Oauth2RepositoryImpl{
 		clientID:    clientID,
 		secretID:    secretID,
 		redirectURI: redirectURI,
 	}
 }
 
-func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOauth2Token, error) {
+func (o *Oauth2RepositoryImpl) GetGoogleToken(code string) (*domain.Oauth2GoogleToken, error) {
 	const uri = "https://oauth2.googleapis.com/token"
 
 	value := url.Values{}
 	value.Add("grant_type", "authorization_code")
 	value.Add("code", code)
-	value.Add("client_id", g.clientID)
-	value.Add("secret_id", g.secretID)
-	value.Add("redirect_uri", g.redirectURI)
+	value.Add("client_id", o.clientID)
+	value.Add("secret_id", o.secretID)
+	value.Add("redirect_uri", o.redirectURI)
 
 	query := value.Encode()
 	queryBuffer := bytes.NewBufferString(query)
 
 	req, err := http.NewRequest("POST", uri, queryBuffer)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrHttpNewRequest)
+		log.Warn().Msgf(util.LogErrHttpNewRequest, err)
 		return nil, err
 	}
 
@@ -61,26 +60,25 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOau
 		Timeout: 2 * time.Second,
 	}
 
-	response, err := client.Do(req)
+	responseReq, err := client.Do(req)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrHttpClientDo)
+		log.Warn().Msgf(util.LogErrClientDo, err)
 		return nil, err
 	}
 	defer func() {
-		if errBody := response.Body.Close(); errBody != nil {
-			log.Err(errBody).Msg(_msg.LogErrResponseBodyClose)
+		if errBody := responseReq.Body.Close(); errBody != nil {
+			log.Warn().Msgf(util.LogErrClientDoClose, err)
 		}
 	}()
 
-	log.Debug().Msg(response.Status)
-	if response.StatusCode != http.StatusOK {
-		return nil, errors.New("could not retrieve token")
+	if responseReq.StatusCode != http.StatusOK {
+		return nil, _error.HttpErrString("invalid token", response.CM05)
 	}
 
 	var respBody bytes.Buffer
-	_, err = io.Copy(&respBody, response.Body)
+	_, err = io.Copy(&respBody, responseReq.Body)
 	if err != nil {
-		log.Err(err).Msg("failed copy response body to bytes buffer")
+		log.Err(err).Msgf("failed copy responseReq body to bytes buffer | dst : %v | src : %v", respBody, responseReq.Body)
 		return nil, err
 	}
 
@@ -88,11 +86,11 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOau
 
 	err = json.Unmarshal(respBody.Bytes(), &googleOauth2TokenMap)
 	if err != nil {
-		log.Err(err).Msg("failed unmarshal response body bytes buffer to map")
+		log.Warn().Msgf(util.LogErrUnmarshal, respBody.Bytes(), err)
 		return nil, err
 	}
 
-	googleOauthToken := model.GoogleOauth2Token{
+	googleOauthToken := domain.Oauth2GoogleToken{
 		AccessToken: googleOauth2TokenMap["access_token"].(string),
 		IDToken:     googleOauth2TokenMap["id_token"].(string),
 	}
@@ -100,12 +98,12 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthToken(code string) (*model.GoogleOau
 	return &googleOauthToken, nil
 }
 
-func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauth2Token) (*model.GoogleOauth2User, error) {
+func (o *Oauth2RepositoryImpl) GetGoogleUser(token *domain.Oauth2GoogleToken) (*domain.Oauth2GoogleUser, error) {
 	uri := fmt.Sprintf("https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=%s", token.AccessToken)
 
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrHttpNewRequest)
+		log.Warn().Msgf(util.LogErrHttpNewRequest, err)
 		return nil, err
 	}
 
@@ -115,26 +113,26 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauth2Token)
 		Timeout: 2 * time.Second,
 	}
 
-	response, err := client.Do(req)
+	responseReq, err := client.Do(req)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrHttpClientDo)
+		log.Warn().Msgf(util.LogErrClientDo, err)
 		return nil, err
 	}
 	defer func() {
-		if errBody := response.Body.Close(); errBody != nil {
-			log.Err(errBody).Msg(_msg.LogErrResponseBodyClose)
+		if errBody := responseReq.Body.Close(); errBody != nil {
+			log.Warn().Msgf(util.LogErrClientDoClose, err)
 		}
 	}()
 
-	if response.StatusCode != http.StatusOK {
-		log.Warn().Msg("status code not 200")
-		return nil, errors.New("could not retrieve user")
+	if responseReq.StatusCode != http.StatusOK {
+		log.Warn().Msgf("failed recive user | responseReq : %v", responseReq)
+		return nil, _error.HttpErrString("invalid token", response.CM05)
 	}
 
 	var respBody bytes.Buffer
-	_, err = io.Copy(&respBody, response.Body)
+	_, err = io.Copy(&respBody, responseReq.Body)
 	if err != nil {
-		log.Err(err).Msg("failed copy response body to bytes buffer")
+		log.Err(err).Msgf("failed copy responseReq body to bytes buffer | dst : %v | src : %v", respBody, responseReq.Body)
 		return nil, err
 	}
 
@@ -142,11 +140,11 @@ func (g *GoogleOauthRepoImpl) GetGoogleOauthUser(token *model.GoogleOauth2Token)
 
 	err = json.Unmarshal(respBody.Bytes(), &googleOauth2UserMap)
 	if err != nil {
-		log.Err(err).Msg("failed unmarshal response body bytes buffer to map")
+		log.Warn().Msgf(util.LogErrUnmarshal, respBody.Bytes(), err)
 		return nil, err
 	}
 
-	userBody := &model.GoogleOauth2User{
+	userBody := &domain.Oauth2GoogleUser{
 		ID:            googleOauth2UserMap["id"].(string),
 		Email:         googleOauth2UserMap["email"].(string),
 		VerifiedEmail: googleOauth2UserMap["verified_email"].(bool),

@@ -8,11 +8,11 @@ import (
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/delivery/restapi/middleware"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/repository"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
 )
 
 func main() {
@@ -24,26 +24,26 @@ func main() {
 	redisConn := config.NewRedisConnection()
 	// redisConn := &config.RedisImpl{}
 
-	uow := repository.NewUnitOfWorkRepoSqlImpl(pgConn)
-	userRepo := repository.NewUserRepoSqlImpl(uow)
-	accessRepo := repository.NewAccessRepoSqlImpl(uow)
-	appRepo := repository.NewAppRepoSqlImpl(uow)
-	accountRepo := repository.NewAccountApiRepoImpl(config.AppAccountApi)
-	securityRepo := repository.NewSecuritySqlRepoImpl(uow)
-	oauth2Repo := repository.NewGoogleOauthRepoImpl(config.OauthClientId, config.OauthClientSecret, config.OauthClientRedirectURI)
+	uow := repository2.NewUnitOfWorkRepoSqlImpl(pgConn)
+	userRepo := repository2.NewUserRepoSqlImpl(uow)
+	accessRepo := repository2.NewAccessRepoSqlImpl(uow)
+	appRepo := repository2.NewAppRepoSqlImpl(uow)
+	accountRepo := repository2.NewAccountApiRepoImpl(config.AppAccountApi)
+	securityRepo := repository2.NewSecuritySqlRepoImpl(uow)
+	oauth2Repo := repository2.NewGoogleOauthRepoImpl(config.OauthClientId, config.OauthClientSecret, config.OauthClientRedirectURI)
 
-	userUsecase := usecase.NewUserUsecaseImpl(userRepo, redisConn)
-	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountRepo, securityRepo)
-	appUsecase := usecase.NewAppUsecaseImpl(appRepo)
-	oauth2Usecase := usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
-	otpUsecase := usecase.NewOTPUsecaseImpl(userRepo, redisConn)
-	securityUsecase := usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisConn)
+	authUsecase := _usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountRepo, securityRepo)
+	appUsecase := _usecase.NewAppUsecaseImpl(appRepo)
+	oauth2Usecase := _usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
+	otpUsecase := _usecase.NewOTPUsecaseImpl(userRepo, redisConn)
+	securityUsecase := _usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
-	userHandler := restapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
-	oauth2Handler := restapi.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, appUsecase)
-	authHandler := restapi.NewAuthHandlerImpl(authUsecase, appUsecase, otpUsecase)
-	otpHandler := restapi.NewOTPHandlerImpl(otpUsecase, appUsecase)
-	securityHandler := restapi.NewSecurityHandlerImpl(securityUsecase, appUsecase)
+	userHandler := rest.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
+	oauth2Handler := rest.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, appUsecase)
+	authHandler := rest.NewAuthHandlerImpl(authUsecase, appUsecase, otpUsecase)
+	otpHandler := rest.NewOTPHandlerImpl(otpUsecase, appUsecase)
+	securityHandler := rest.NewSecurityHandlerImpl(securityUsecase, appUsecase)
 
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)

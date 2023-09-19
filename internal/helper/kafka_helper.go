@@ -4,7 +4,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infrastructures/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
 )
 
 func KafkaWriter() *kafka.Writer {
@@ -18,6 +18,6 @@ func KafkaWriter() *kafka.Writer {
 			},
 		},
 	}
-	
+
 	return w
 }

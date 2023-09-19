@@ -1,5 +1,0 @@
-{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/log.go:21","time":1694846407,"message":"Logger initialization successfully"}
-{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/env.go:84","time":1694846407,"message":"config initialization successfully"}
-{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/postgres.go:42","time":1694846407,"message":"connection postgres successfully : dueit_db"}
-{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/infrastructures/config/redis.go:31","time":1694846407,"message":"connection to redis : PONG"}
-{"level":"info","caller":"/home/ibanrama/Documents/developments/golang/jasanya-tech/jasanya-auth/main.go:68","time":1694846407,"message":"Server is running on port :9090"}

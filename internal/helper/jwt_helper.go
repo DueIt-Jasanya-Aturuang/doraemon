@@ -9,7 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	_error "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/util/error"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
 )
 
 func GenerateJwtHS256(jwtModel *model.Jwt) (string, error) {

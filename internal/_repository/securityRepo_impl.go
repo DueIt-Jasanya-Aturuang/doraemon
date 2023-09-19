@@ -7,25 +7,23 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/msg"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
-type SecuritySqlRepoImpl struct {
-	repository.UnitOfWorkSqlRepo
+type SecurityRepositoryImpl struct {
+	domain.UnitOfWorkRepository
 }
 
-func NewSecuritySqlRepoImpl(
-	uow repository.UnitOfWorkSqlRepo,
-) repository.SecuritySqlRepo {
-	return &SecuritySqlRepoImpl{
-		UnitOfWorkSqlRepo: uow,
+func NewSecurityRepositoryImpl(
+	uow domain.UnitOfWorkRepository,
+) domain.SecurityRepository {
+	return &SecurityRepositoryImpl{
+		UnitOfWorkRepository: uow,
 	}
 }
 
-func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Token) error {
+func (s *SecurityRepositoryImpl) Create(ctx context.Context, token *domain.Token) error {
 	query := `INSERT INTO m_tokens (user_id, app_id, access_token, refresh_token, remember_me) VALUES ($1, $2, $3, $4, $5)`
 
 	tx, err := s.GetTx()
@@ -35,12 +33,12 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return err
 	}
 	defer func() {
-		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
 		}
 	}()
 
@@ -53,16 +51,14 @@ func (s *SecuritySqlRepoImpl) CreateToken(ctx context.Context, token *model.Toke
 		token.RememberMe,
 	)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrExecContext)
+		log.Warn().Msgf(util.LogErrExecContext, err)
 		return err
 	}
 
 	return nil
 }
 
-func (s *SecuritySqlRepoImpl) GetTokenByAT(
-	ctx context.Context, token string,
-) (*model.Token, error) {
+func (s *SecurityRepositoryImpl) GetByAccessToken(ctx context.Context, token string) (*domain.Token, error) {
 	query := `SELECT id, refresh_token, app_id, remember_me FROM m_tokens WHERE access_token = $1`
 
 	conn, err := s.GetConn()
@@ -72,18 +68,18 @@ func (s *SecuritySqlRepoImpl) GetTokenByAT(
 
 	stmt, err := conn.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return nil, err
 	}
 	defer func() {
-		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
 		}
 	}()
 
 	row := stmt.QueryRowContext(ctx, token)
 
-	var tokenModel model.Token
+	var tokenModel domain.Token
 	err = row.Scan(
 		&tokenModel.ID,
 		&tokenModel.RefreshToken,
@@ -92,7 +88,7 @@ func (s *SecuritySqlRepoImpl) GetTokenByAT(
 	)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			log.Err(err).Msg(_msg.LogErrQueryRowContextScan)
+			log.Warn().Msgf(util.LogErrQueryRowContextScan, err)
 		}
 		return nil, err
 	}
@@ -100,7 +96,7 @@ func (s *SecuritySqlRepoImpl) GetTokenByAT(
 	return &tokenModel, nil
 }
 
-func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshToken string, accessToken string) error {
+func (s *SecurityRepositoryImpl) Update(ctx context.Context, id int, refreshToken string, accessToken string) error {
 	query := `UPDATE m_tokens SET refresh_token = $1, access_token = $2 WHERE id = $3`
 
 	tx, err := s.GetTx()
@@ -110,12 +106,12 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshTo
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return err
 	}
 	defer func() {
-		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
 		}
 	}()
 
@@ -126,14 +122,14 @@ func (s *SecuritySqlRepoImpl) UpdateToken(ctx context.Context, id int, refreshTo
 		id,
 	)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrExecContext)
+		log.Warn().Msgf(util.LogErrExecContext, err)
 		return err
 	}
 
 	return nil
 }
 
-func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID string) error {
+func (s *SecurityRepositoryImpl) Delete(ctx context.Context, id int, userID string) error {
 	query := `DELETE FROM m_tokens WHERE id = $1 AND user_id = $2`
 
 	tx, err := s.GetTx()
@@ -143,12 +139,12 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID st
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return err
 	}
 	defer func() {
-		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
 		}
 	}()
 
@@ -158,14 +154,14 @@ func (s *SecuritySqlRepoImpl) DeleteToken(ctx context.Context, id int, userID st
 		userID,
 	)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrExecContext)
+		log.Warn().Msgf(util.LogErrExecContext, err)
 		return err
 	}
 
 	return nil
 }
 
-func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID string) error {
+func (s *SecurityRepositoryImpl) DeleteAllByUserID(ctx context.Context, userID string) error {
 	query := `DELETE FROM m_tokens WHERE user_id = $1`
 
 	tx, err := s.GetTx()
@@ -175,12 +171,12 @@ func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrStartPrepareContext)
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return err
 	}
 	defer func() {
-		if errStmt := stmt.Close(); errStmt != nil {
-			log.Err(err).Msg(_msg.LogErrClosePrepareContext)
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
 		}
 	}()
 
@@ -189,7 +185,7 @@ func (s *SecuritySqlRepoImpl) DeleteAllTokenByUserID(ctx context.Context, userID
 		userID,
 	)
 	if err != nil {
-		log.Err(err).Msg(_msg.LogErrExecContext)
+		log.Warn().Msgf(util.LogErrExecContext, err)
 		return err
 	}
 

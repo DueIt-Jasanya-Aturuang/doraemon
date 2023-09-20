@@ -59,7 +59,7 @@ func ErrorResponseEncode(w http.ResponseWriter, err error) {
 }
 
 func SuccessResponseEncode(w http.ResponseWriter, data any, message string) {
-	resp := response.Success(data, response.CM00)
+	resp := response.Success(data, response.CM00, message)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(resp.Code)
 

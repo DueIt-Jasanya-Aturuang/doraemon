@@ -15,21 +15,19 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/converter"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/msg"
 )
 
 type UserUsecaseImpl struct {
 	userRepo repository.UserSqlRepo
-	redis    *config.RedisImpl
+	redis    *infra.RedisImpl
 }
 
 func NewUserUsecaseImpl(
 	userRepo repository.UserSqlRepo,
-	redis *config.RedisImpl,
+	redis *infra.RedisImpl,
 ) usecase.UserUsecase {
 	return &UserUsecaseImpl{
 		userRepo: userRepo,
@@ -138,14 +136,14 @@ func (s *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *dto.Forgot
 
 	// akan return link yang berguna untuk melakukan reset password menggunakan method post
 	// example : http://example.com/forgot-password?email=ibanrama29@gmail.com&token=tokenrama
-	link := fmt.Sprintf("%s/forgot-password?email=%s&token=%s", config.AppAuthApi, req.Email, forgotPasswordToken)
+	link := fmt.Sprintf("%s/forgot-password?email=%s&token=%s", infra.AppAuthApi, req.Email, forgotPasswordToken)
 	return link, nil
 }
 
 func (s *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *dto.ResetForgottenPasswordReq) (err error) {
 	// claim token user untuk melakukan reset password
 	// jika error makan akan return 401
-	claims, err := helper.ClaimsJwtHS256(req.Token, config.DefaultKey)
+	claims, err := helper.ClaimsJwtHS256(req.Token, infra.DefaultKey)
 	if err != nil {
 		log.Err(err).Msg("failed claim token user")
 		return _error.ErrString("INVALID YOUR TOKEN", http.StatusUnauthorized)

@@ -10,27 +10,27 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_repository"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
 )
 
 func main() {
-	config.LogInit()
-	config.EnvInit()
+	infra.LogInit()
+	infra.EnvInit()
 
-	pgConn := config.NewPgConn()
+	pgConn := infra.NewPgConn()
 	// pgConn := &sql.DB{}
-	redisConn := config.NewRedisConnection()
+	redisConn := infra.NewRedisConnection()
 	// redisConn := &config.RedisImpl{}
 
 	uow := repository2.NewUnitOfWorkRepoSqlImpl(pgConn)
 	userRepo := repository2.NewUserRepoSqlImpl(uow)
 	accessRepo := repository2.NewAccessRepoSqlImpl(uow)
 	appRepo := repository2.NewAppRepoSqlImpl(uow)
-	accountRepo := repository2.NewAccountApiRepoImpl(config.AppAccountApi)
+	accountRepo := repository2.NewAccountApiRepoImpl(infra.AppAccountApi)
 	securityRepo := repository2.NewSecuritySqlRepoImpl(uow)
-	oauth2Repo := repository2.NewGoogleOauthRepoImpl(config.OauthClientId, config.OauthClientSecret, config.OauthClientRedirectURI)
+	oauth2Repo := repository2.NewGoogleOauthRepoImpl(infra.OauthClientId, infra.OauthClientSecret, infra.OauthClientRedirectURI)
 
 	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisConn)
 	authUsecase := _usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountRepo, securityRepo)
@@ -65,8 +65,8 @@ func main() {
 
 		r.Post("/auth/otp", otpHandler.OTPGenerate)
 	})
-	log.Info().Msgf("Server is running on port %s", config.AppPort)
-	err := http.ListenAndServe(config.AppPort, r)
+	log.Info().Msgf("Server is running on port %s", infra.AppPort)
+	err := http.ListenAndServe(infra.AppPort, r)
 	if err != nil {
 		log.Err(err).Msg("failed run server")
 		os.Exit(1)

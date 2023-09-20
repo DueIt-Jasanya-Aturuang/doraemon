@@ -130,8 +130,8 @@ func (u *UserRepositoryImpl) UpdatePassword(ctx context.Context, user *domain.Us
 	return nil
 }
 
-func (u *UserRepositoryImpl) Check(ctx context.Context, urgss domain.UserRepositoryGetSqlSelect) (bool, error) {
-	query := u.queryCheck(urgss)
+func (u *UserRepositoryImpl) CheckActivasiUser(ctx context.Context, id string) (bool, error) {
+	query := "SELECT email_verified_at FROM m_users WHERE id = $1 AND deleted_at IS NULL"
 
 	conn, err := u.GetConn()
 	if err != nil {
@@ -150,7 +150,7 @@ func (u *UserRepositoryImpl) Check(ctx context.Context, urgss domain.UserReposit
 	}()
 
 	var exist bool
-	err = stmt.QueryRowContext(ctx, string(urgss)).Scan(&exist)
+	err = stmt.QueryRowContext(ctx, id).Scan(&exist)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			log.Warn().Msgf(util.LogErrQueryRowContextScan, err)
@@ -161,8 +161,10 @@ func (u *UserRepositoryImpl) Check(ctx context.Context, urgss domain.UserReposit
 	return exist, nil
 }
 
-func (u *UserRepositoryImpl) Get(ctx context.Context, urgss domain.UserRepositoryGetSqlSelect) (*domain.User, error) {
-	query := u.queryGet(urgss)
+func (u *UserRepositoryImpl) GetByEmailOrUsername(ctx context.Context, s string) (*domain.User, error) {
+	query := `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
+       				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
+			  FROM m_users WHERE username = $1 OR email = $2 AND deleted_at IS NULL`
 
 	conn, err := u.GetConn()
 	if err != nil {
@@ -181,7 +183,7 @@ func (u *UserRepositoryImpl) Get(ctx context.Context, urgss domain.UserRepositor
 	}()
 
 	var user domain.User
-	if err = stmt.QueryRowContext(ctx, string(urgss), string(urgss)).Scan(
+	if err = stmt.QueryRowContext(ctx, s, s).Scan(
 		&user.ID,
 		&user.FullName,
 		&user.Gender,
@@ -207,33 +209,104 @@ func (u *UserRepositoryImpl) Get(ctx context.Context, urgss domain.UserRepositor
 	return &user, nil
 }
 
-func (u *UserRepositoryImpl) queryGet(urgss domain.UserRepositoryGetSqlSelect) string {
-	switch urgss {
+func (u *UserRepositoryImpl) Check(ctx context.Context, s string) (bool, error) {
+	query := u.queryCheck(s)
+
+	conn, err := u.GetConn()
+	if err != nil {
+		return false, err
+	}
+
+	stmt, err := conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
+		return false, err
+	}
+	defer func() {
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
+		}
+	}()
+
+	var exist bool
+	err = stmt.QueryRowContext(ctx, s).Scan(&exist)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Warn().Msgf(util.LogErrQueryRowContextScan, err)
+		}
+		return false, err
+	}
+
+	return exist, nil
+}
+
+func (u *UserRepositoryImpl) Get(ctx context.Context, s string) (*domain.User, error) {
+	query := u.queryGet(s)
+
+	conn, err := u.GetConn()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := conn.PrepareContext(ctx, query)
+	if err != nil {
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
+		return nil, err
+	}
+	defer func() {
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
+		}
+	}()
+
+	var user domain.User
+	if err = stmt.QueryRowContext(ctx, s).Scan(
+		&user.ID,
+		&user.FullName,
+		&user.Gender,
+		&user.Image,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.PhoneNumber,
+		&user.EmailVerifiedAt,
+		&user.CreatedAt,
+		&user.CreatedBy,
+		&user.UpdatedAt,
+		&user.UpdatedBy,
+		&user.DeletedAt,
+		&user.DeletedBy,
+	); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			log.Warn().Msgf(util.LogErrQueryRowContextScan, err)
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (u *UserRepositoryImpl) queryGet(s string) string {
+	switch s {
 	case domain.GetUserByID:
 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
-			  FROM m_users WHERE id = $1`
+			  FROM m_users WHERE id = $1 AND deleted_at IS NULL`
 	case domain.GetUserByEmail:
 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
-			  FROM m_users WHERE email = $1`
+			  FROM m_users WHERE email = $1 AND deleted_at IS NULL`
 	case domain.GetUserByUsername:
 		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
        				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
-			  FROM m_users WHERE username = $1`
-	case domain.GetUserByEmailOrUsername:
-		return `SELECT id, fullname, gender, image, username, email, password, phone_number, email_verified_at, 
-       				 created_at, created_by, updated_at, updated_by, deleted_at, deleted_by 
-			  FROM m_users WHERE username = $1 OR email = $2`
+			  FROM m_users WHERE username = $1 AND deleted_at IS NULL`
 	}
 
 	return ""
 }
 
-func (u *UserRepositoryImpl) queryCheck(urgss domain.UserRepositoryGetSqlSelect) string {
-	switch urgss {
-	case domain.CheckActivasiUserByID:
-		return "SELECT email_verified_at FROM m_users WHERE id = $1"
+func (u *UserRepositoryImpl) queryCheck(s string) string {
+	switch s {
 	case domain.CheckUserByEmail:
 		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE email = $1 AND deleted_at IS NULL)"
 	case domain.CheckUserByUsername:

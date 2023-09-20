@@ -13,9 +13,8 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
 )
 
 type SecurityUsecaseImpl struct {
@@ -36,7 +35,7 @@ func NewSecurityUsecaseImpl(
 func (s *SecurityUsecaseImpl) JwtValidateAT(ctx context.Context, req *dto.JwtTokenReq, activasiHeader string) (bool, error) {
 	// claim jwt access token, jika expired maka akan return true menandakan harus generate ulang token
 	// selain error itu akan return 401
-	claims, err := helper.ClaimsJwtHS256(req.Authorization, config.AccessTokenKeyHS)
+	claims, err := helper.ClaimsJwtHS256(req.Authorization, infra.AccessTokenKeyHS)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return true, nil
@@ -175,7 +174,7 @@ func (s *SecurityUsecaseImpl) JwtGenerateRTAT(ctx context.Context, req *dto.JwtT
 	}
 
 	// claim refresh token tadi
-	_, err = helper.ClaimsJwtHS256(getToken.RefreshToken, config.RefreshTokenKeyHS)
+	_, err = helper.ClaimsJwtHS256(getToken.RefreshToken, infra.RefreshTokenKeyHS)
 	if err != nil {
 		// jika error baik itu expired atau yang lainnya maka akan melakukan delete token
 		err = s.securityRepo.DeleteToken(ctx, getToken.ID, req.UserId)

@@ -1,20 +1,18 @@
-package helper
+package infra
 
 import (
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
 )
 
 func KafkaWriter() *kafka.Writer {
 	w := &kafka.Writer{
-		Addr:  kafka.TCP(config.KafkaBroker),
-		Topic: config.KafkaTopic,
+		Addr:  kafka.TCP(KafkaBroker),
+		Topic: KafkaTopic,
 		Transport: &kafka.Transport{
 			SASL: plain.Mechanism{
-				Username: config.KafkaUser,
-				Password: config.KafkaPassword,
+				Username: KafkaUser,
+				Password: KafkaPassword,
 			},
 		},
 	}

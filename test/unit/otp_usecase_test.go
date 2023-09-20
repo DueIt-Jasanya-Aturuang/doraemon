@@ -13,14 +13,14 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
 )
 
 func TestOTPUsecaseOTPGenerate(t *testing.T) {
 	userRepo := &mocks.FakeUserSqlRepo{}
 	redisClient, mock := redismock.NewClientMock()
-	redisImpl := &config.RedisImpl{Client: redisClient}
+	redisImpl := &infra.RedisImpl{Client: redisClient}
 
 	otpUsecase := _usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
 	userID := "userID_1"
@@ -89,7 +89,7 @@ func TestOTPUsecaseOTPGenerate(t *testing.T) {
 func TestOTPUsecaseOTPValidation(t *testing.T) {
 	userRepo := &mocks.FakeUserSqlRepo{}
 	redisClient, mock := redismock.NewClientMock()
-	redisImpl := &config.RedisImpl{Client: redisClient}
+	redisImpl := &infra.RedisImpl{Client: redisClient}
 
 	otpUsecase := _usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
 

@@ -1,12 +1,11 @@
 package converter
 
 import (
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
 )
 
-func GoogleClaimModelToResp(g *model.GoogleOauth2User, exist bool) *dto.LoginGoogleResp {
-	return &dto.LoginGoogleResp{
+func GoogleClaimModelToResp(g *domain.Oauth2GoogleUser, exist bool) *domain.ResponseLoginWithGoogle {
+	return &domain.ResponseLoginWithGoogle{
 		ID:            g.ID,
 		Email:         g.Email,
 		VerifiedEmail: g.VerifiedEmail,

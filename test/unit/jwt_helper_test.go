@@ -10,12 +10,12 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 )
 
 func TestJwtHelper(t *testing.T) {
-	config.EnvInit()
+	infra.EnvInit()
 	var accessTokenTrue string
 	var refreshTokenTrue string
 	var forgotPasswordToken string
@@ -63,23 +63,23 @@ func TestJwtHelper(t *testing.T) {
 	})
 
 	t.Run("SUCCESS_CLAIM", func(t *testing.T) {
-		atClaims, err := helper.ClaimsJwtHS256(accessTokenTrue, config.AccessTokenKeyHS)
+		atClaims, err := helper.ClaimsJwtHS256(accessTokenTrue, infra.AccessTokenKeyHS)
 		assert.NoError(t, err)
 		t.Log(atClaims)
 
-		rtClaims, err := helper.ClaimsJwtHS256(refreshTokenTrue, config.RefreshTokenKeyHS)
+		rtClaims, err := helper.ClaimsJwtHS256(refreshTokenTrue, infra.RefreshTokenKeyHS)
 		assert.NoError(t, err)
 		t.Log(rtClaims)
 
-		atClaimsFalse, err := helper.ClaimsJwtHS256(accessTokenFalse, config.AccessTokenKeyHS)
+		atClaimsFalse, err := helper.ClaimsJwtHS256(accessTokenFalse, infra.AccessTokenKeyHS)
 		assert.NoError(t, err)
 		t.Log(atClaimsFalse)
 
-		rtClaimFalse, err := helper.ClaimsJwtHS256(refreshTokenFalse, config.RefreshTokenKeyHS)
+		rtClaimFalse, err := helper.ClaimsJwtHS256(refreshTokenFalse, infra.RefreshTokenKeyHS)
 		assert.NoError(t, err)
 		t.Log(rtClaimFalse)
 
-		fpClaim, err := helper.ClaimsJwtHS256(forgotPasswordToken, config.DefaultKey)
+		fpClaim, err := helper.ClaimsJwtHS256(forgotPasswordToken, infra.DefaultKey)
 		assert.NoError(t, err)
 		t.Log(fpClaim)
 
@@ -89,11 +89,11 @@ func TestJwtHelper(t *testing.T) {
 	})
 
 	t.Run("ERROR_CLAIM", func(t *testing.T) {
-		_, err := helper.ClaimsJwtHS256(accessTokenTrue, config.RefreshTokenKeyHS)
+		_, err := helper.ClaimsJwtHS256(accessTokenTrue, infra.RefreshTokenKeyHS)
 		assert.Error(t, err)
 		t.Log(err)
 
-		claim, err := helper.ClaimsJwtHS256(oldToken, config.DefaultKey)
+		claim, err := helper.ClaimsJwtHS256(oldToken, infra.DefaultKey)
 		assert.Error(t, err)
 		t.Log(err)
 		t.Log(claim)

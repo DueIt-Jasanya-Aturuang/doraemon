@@ -14,21 +14,19 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/repository"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
 	util2 "github.com/DueIt-Jasanya-Aturuang/doraemon/util"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/msg"
 )
 
 type OTPUsecaseImpl struct {
 	userRepo repository.UserSqlRepo
-	redis    *config.RedisImpl
+	redis    *infra.RedisImpl
 }
 
 func NewOTPUsecaseImpl(
 	userRepo repository.UserSqlRepo,
-	redis *config.RedisImpl,
+	redis *infra.RedisImpl,
 ) usecase.OTPUsecase {
 	return &OTPUsecaseImpl{
 		userRepo: userRepo,

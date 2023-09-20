@@ -10,8 +10,10 @@ type UserRepository interface {
 	Create(ctx context.Context, user *User) error
 	UpdateActivasi(ctx context.Context, user *User) error
 	UpdatePassword(ctx context.Context, user *User) error
-	Check(ctx context.Context, urgss UserRepositoryGetSqlSelect) (bool, error)
-	Get(ctx context.Context, urgss UserRepositoryGetSqlSelect) (*User, error)
+	CheckActivasiUser(ctx context.Context, id string) (bool, error)
+	GetByEmailOrUsername(ctx context.Context, s string) (*User, error)
+	Check(ctx context.Context, s string) (bool, error)
+	Get(ctx context.Context, s string) (*User, error)
 	UnitOfWorkRepository
 }
 
@@ -37,15 +39,15 @@ type User struct {
 }
 
 type ResponseUser struct {
-	ID              string `json:"id"`
-	FullName        string `json:"full_name"`
-	Gender          string `json:"gender"`
-	Image           string `json:"image"`
-	Username        string `json:"username"`
-	Email           string `json:"email"`
-	EmailFormat     string `json:"email_format"`
-	PhoneNumber     string `json:"phone_number"`
-	EmailVerifiedAt bool   `json:"activited"`
+	ID              string  `json:"id"`
+	FullName        string  `json:"full_name"`
+	Gender          string  `json:"gender"`
+	Image           string  `json:"image"`
+	Username        string  `json:"username"`
+	Email           string  `json:"email"`
+	EmailFormat     string  `json:"email_format"`
+	PhoneNumber     *string `json:"phone_number"`
+	EmailVerifiedAt bool    `json:"activited"`
 }
 
 type ResponseActivasiAccount struct {
@@ -70,18 +72,11 @@ type RequestResetForgottenPassword struct {
 	RePassword string `json:"re_password"`
 }
 
-// UserRepositoryGetSqlSelect masukin string yang mau di query select nya
-// example SELECT id FROM m_users WHERE id = $1
-// nah itu masukin value $1 nya
-type UserRepositoryGetSqlSelect string
-
-var CheckActivasiUserByID UserRepositoryGetSqlSelect
-var CheckUserByEmail UserRepositoryGetSqlSelect
-var CheckUserByUsername UserRepositoryGetSqlSelect
-var GetUserByID UserRepositoryGetSqlSelect
-var GetUserByEmail UserRepositoryGetSqlSelect
-var GetUserByUsername UserRepositoryGetSqlSelect
-var GetUserByEmailOrUsername UserRepositoryGetSqlSelect
+var CheckUserByEmail string
+var CheckUserByUsername string
+var GetUserByID string
+var GetUserByEmail string
+var GetUserByUsername string
 
 // func NewUserRepositoryGet(urgss UserRepositoryGetSqlSelect) string {
 // 	switch urgss {
@@ -108,15 +103,15 @@ var GetUserByEmailOrUsername UserRepositoryGetSqlSelect
 // 			  FROM m_users WHERE id = $1`
 // }
 
-func NewUserRepositoryCheck(urgss UserRepositoryGetSqlSelect) string {
-	switch urgss {
-	case CheckActivasiUserByID:
-		return "SELECT email_verified_at FROM m_users WHERE id = $1"
-	case CheckUserByEmail:
-		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE email = $1 AND deleted_at IS NULL)"
-	case CheckUserByUsername:
-		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE username = $1 AND deleted_at IS NULL)"
-	}
-
-	return ""
-}
+// func NewUserRepositoryCheck(urgss UserRepositoryGetSqlSelect) string {
+// 	switch urgss {
+// 	case CheckActivasiUserByID:
+// 		return "SELECT email_verified_at FROM m_users WHERE id = $1"
+// 	case CheckUserByEmail:
+// 		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE email = $1 AND deleted_at IS NULL)"
+// 	case CheckUserByUsername:
+// 		return "SELECT EXISTS(SELECT 1 FROM m_users WHERE username = $1 AND deleted_at IS NULL)"
+// 	}
+//
+// 	return ""
+// }

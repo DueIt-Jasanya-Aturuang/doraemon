@@ -14,10 +14,9 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/converter"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
 )
 
 func TestAuthUsecaseLogin(t *testing.T) {
@@ -226,7 +225,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 }
 
 func TestAuthUsecaseRegiser(t *testing.T) {
-	config.EnvInit()
+	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	accessRepo := &mocks.FakeAccessSqlRepo{}
 

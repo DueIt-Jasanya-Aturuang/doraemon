@@ -11,12 +11,12 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
 )
 
 func TestOauth2UsecaseGoogleClaimUser(t *testing.T) {
-	config.EnvInit()
+	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	oauth2Repo := &mocks.FakeOauth2ProviderRepo{}
 

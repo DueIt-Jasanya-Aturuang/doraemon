@@ -14,7 +14,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra/config"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/converter"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
@@ -23,7 +23,7 @@ import (
 func TestUserUsecaseResetPassword(t *testing.T) {
 	userRepo := &mocks.FakeUserSqlRepo{}
 	redisClient, _ := redismock.NewClientMock()
-	redisImpl := &config.RedisImpl{Client: redisClient}
+	redisImpl := &infra.RedisImpl{Client: redisClient}
 
 	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisImpl)
 
@@ -122,10 +122,10 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 }
 
 func TestUserUsecaseForgottenPassword(t *testing.T) {
-	config.EnvInit()
+	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	redisClient, mock := redismock.NewClientMock()
-	redisImpl := &config.RedisImpl{Client: redisClient}
+	redisImpl := &infra.RedisImpl{Client: redisClient}
 
 	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisImpl)
 
@@ -188,10 +188,10 @@ func TestUserUsecaseForgottenPassword(t *testing.T) {
 }
 
 func TestUserUsecaseResetForgottenPassword(t *testing.T) {
-	config.EnvInit()
+	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	redisClient, mock := redismock.NewClientMock()
-	redisImpl := &config.RedisImpl{Client: redisClient}
+	redisImpl := &infra.RedisImpl{Client: redisClient}
 
 	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisImpl)
 
@@ -311,10 +311,10 @@ func TestUserUsecaseResetForgottenPassword(t *testing.T) {
 }
 
 func TestUserUsecaseActivasiAccount(t *testing.T) {
-	config.EnvInit()
+	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	redisClient, mock := redismock.NewClientMock()
-	redisImpl := &config.RedisImpl{Client: redisClient}
+	redisImpl := &infra.RedisImpl{Client: redisClient}
 
 	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisImpl)
 

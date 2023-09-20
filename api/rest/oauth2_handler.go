@@ -12,7 +12,6 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
 )
 
 type Oauth2HandlerImpl struct {
@@ -66,7 +65,7 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 	}
 
 	// validasi request
-	err = validation.Oauth2LoginValidation(&reqLogin)
+	err = validation.Oauth2LoginWithGoogleValidation(&reqLogin)
 	if err != nil {
 		mapper.NewErrorResp(w, r, err)
 		return

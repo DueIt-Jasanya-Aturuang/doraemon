@@ -1,21 +1,20 @@
 package validation
 
 import (
-	"net/http"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
 )
 
-func Oauth2LoginValidation(req *dto.LoginGoogleReq) error {
+func Oauth2LoginWithGoogleValidation(req *domain.RequestLoginWithGoogle) error {
 
 	if req.Token == "" {
-		return _error.ErrStringDefault(http.StatusForbidden)
+		return _error.HttpErrString("invalid token", response.CM05)
 	}
 
 	if req.Device != "web" && req.Device != "mobile" {
-		return _error.ErrStringDefault(http.StatusForbidden)
+		return _error.HttpErrString("invalid device", response.CM05)
 	}
 
 	return nil

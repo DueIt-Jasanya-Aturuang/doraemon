@@ -12,7 +12,6 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
 )
 
 type UserHandlerImpl struct {

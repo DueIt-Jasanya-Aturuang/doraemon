@@ -33,7 +33,7 @@ func (s *SecurityUsecaseImpl) JwtValidation(ctx context.Context, req *domain.Req
 	claims, err := helper.ClaimsJwtHS256(req.Authorization, infra.AccessTokenKeyHS)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return true, TokenExpired
+			return true, nil
 		}
 		log.Warn().Msgf(util.LogErrFailedClaimJwt, err, req.Authorization)
 		return false, InvalidToken

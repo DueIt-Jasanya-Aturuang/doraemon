@@ -31,7 +31,7 @@ func NewUserUsecaseImpl(
 	}
 }
 
-func (u *UserUsecaseImpl) ResetPassword(ctx context.Context, req *domain.RequestResetPassword) error {
+func (u *UserUsecaseImpl) ResetPassword(ctx context.Context, req *domain.RequestChangePassword) error {
 	if err := u.userRepo.OpenConn(ctx); err != nil {
 		return err
 	}

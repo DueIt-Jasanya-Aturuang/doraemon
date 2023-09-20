@@ -1,106 +1,89 @@
 package rest
 
 import (
-	"context"
+	"errors"
 	"net/http"
-	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/google/uuid"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type OTPHandlerImpl struct {
-	otpUsecase usecase.OTPUsecase
-	appUsecase usecase.AppUsecase
+	otpUsecase domain.OTPUsecase
 }
 
 func NewOTPHandlerImpl(
-	otpUsecase usecase.OTPUsecase,
-	appUsecase usecase.AppUsecase,
+	otpUsecase domain.OTPUsecase,
 ) *OTPHandlerImpl {
 	return &OTPHandlerImpl{
 		otpUsecase: otpUsecase,
-		appUsecase: appUsecase,
 	}
 }
 
-func (h *OTPHandlerImpl) OTPGenerate(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	// get header App-ID
-	// jika gak ada akan return forbidden
-	appID := r.Header.Get("App-ID")
-	if appID == "" {
-		log.Warn().Msg("tidak ada header appid")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
-		return
-	}
-
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
+func (h *OTPHandlerImpl) GenerateOTP(w http.ResponseWriter, r *http.Request) {
+	req := new(domain.RequestGenerateOTP)
+	err := helper.DecodeJson(r, req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
-
-	// decod request ke dalam dto
-	// and set type dari header type
-	var reqOTPGenerate dto.OTPGenerateReq
-	err = mapper.DecodeJson(r, &reqOTPGenerate)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-	reqOTPGenerate.Type = r.Header.Get("Type")
+	req.Type = r.Header.Get(util.TypeHeader)
 
 	// validasi request
-	err = validation.GenerateOTPValidation(&reqOTPGenerate)
+	err = validation.GenerateOTPValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	// check apakan type nya activasi atau tidak
-	// jika activasi maka akan get userid di header, jika tidak ada maka akan return fobidden
-	if reqOTPGenerate.Type == "activasi-account" {
+	if req.Type == util.ActivasiAccount {
 		userID := r.Header.Get("User-ID")
-		if userID == "" {
-			mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
+		if _, err := uuid.Parse(userID); err != nil {
+			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
 			return
 		}
 
-		reqOTPGenerate.UserID = userID
+		req.UserID = userID
 	}
 
 	// generate otp
-	err = h.otpUsecase.OTPGenerate(ctx, &reqOTPGenerate)
+	err = h.otpUsecase.Generate(r.Context(), req)
 	if err != nil {
-		middleware.DeletedClientHelper(reqOTPGenerate.Email + ":" + reqOTPGenerate.Type)
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidUserID) {
+			err = _error.HttpErrString("invalid user id", response.CM05)
+		}
+		if errors.Is(err, _usecase.InvalidEmail) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email": {
+					"email tidak terdaftar",
+				},
+			}, response.CM06)
+		}
+		if errors.Is(err, _usecase.EmailIsActivited) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email": {
+					"permintaan anda tidak dapat di proses, email anda sudah di aktivasi silahkan login",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// set limiter
-	err = middleware.RateLimiterOTP(&reqOTPGenerate)
+	err = middleware.RateLimiterOTP(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	resp := mapper.ResponseSuccess{
-		Message: "kode otp telah berhasil dikirim, silahkan cek gmail anda",
-	}
-
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, nil, "kode otp telah berhasil dikirim, silahkan cek gmail anda")
 }

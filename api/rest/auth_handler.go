@@ -1,161 +1,117 @@
 package rest
 
 import (
-	"context"
+	"errors"
 	"net/http"
-	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type AuthHandlerImpl struct {
-	authUsecase usecase.AuthUsecase
-	appUsecase  usecase.AppUsecase
-	otpUsecase  usecase.OTPUsecase
+	authUsecase domain.AuthUsecase
+	otpUsecase  domain.OTPUsecase
 }
 
 func NewAuthHandlerImpl(
-	authUsecase usecase.AuthUsecase,
-	appUsecase usecase.AppUsecase,
-	otpUsecase usecase.OTPUsecase,
+	authUsecase domain.AuthUsecase,
+	otpUsecase domain.OTPUsecase,
 ) *AuthHandlerImpl {
 	return &AuthHandlerImpl{
 		authUsecase: authUsecase,
-		appUsecase:  appUsecase,
 		otpUsecase:  otpUsecase,
 	}
 }
 
 func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	// testing in 4.776681149s
-	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
-	defer cancel()
-
-	// get header App-ID
-	// jika gak ada akan return forbidden
-	appID := r.Header.Get("App-ID")
-	if appID == "" {
-		log.Warn().Msg("tidak ada header appid")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
-		return
-	}
-
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
+	// with app middleware
 
 	// decod request ke dalam dto
-	var reqRegister dto.RegisterReq
-	err = mapper.DecodeJson(r, &reqRegister)
+	req := new(domain.RequestRegister)
+	err := helper.DecodeJson(r, &req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	// set role, appid, dan email verified
-	reqRegister.Role = 1
-	reqRegister.AppID = appID
-	reqRegister.EmailVerifiedAt = false
+	req.Role = 1
+	req.AppID = r.Header.Get(util.AppIDHeader)
+	req.EmailVerifiedAt = false
 
-	// validasi request
-	err = validation.RegisterValidation(&reqRegister)
+	err = validation.RegisterValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// register user
-	userResp, profileResp, token, err := h.authUsecase.Register(ctx, &reqRegister)
+	resp, err := h.authUsecase.Register(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.EmailIsExist) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email": {
+					"email sudah terdaftar",
+				},
+			}, response.CM06)
+		}
+		if errors.Is(err, _usecase.UsernameIsExist) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"username": {
+					"username sudah tersedia",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// mencoba untuk push otp langsung, ga peduli error atau tidak
-	_ = h.otpUsecase.OTPGenerate(ctx, &dto.OTPGenerateReq{
-		Email:  reqRegister.Email,
-		Type:   "activasi-account",
-		UserID: userResp.ID,
+	_ = h.otpUsecase.Generate(r.Context(), &domain.RequestGenerateOTP{
+		Email:  req.Email,
+		Type:   util.ActivasiAccount,
+		UserID: resp.ID,
 	})
 
-	respSuccess := mapper.ResponseSuccess{
-		Data: map[string]any{
-			"user":    userResp,
-			"profile": profileResp,
-			"token":   token,
-		},
-	}
-
-	mapper.NewSuccessResp(w, r, respSuccess, 200)
+	helper.SuccessResponseEncode(w, req, "register successfully")
 }
 
 func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
 
-	// get header App-ID
-	// jika gak ada akan return forbidden
-	appID := r.Header.Get("App-ID")
-	if appID == "" {
-		log.Warn().Msg("tidak ada header appid")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
-		return
-	}
-
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
+	req := new(domain.RequestLogin)
+	err := helper.DecodeJson(r, &req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
+	req.AppID = r.Header.Get(util.AppIDHeader)
 
-	// decod request ke dalam dto
-	var reqLogin dto.LoginReq
-	err = mapper.DecodeJson(r, &reqLogin)
+	err = validation.LoginValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
-	reqLogin.AppID = appID
-	// validasi request
-	err = validation.LoginValidation(&reqLogin)
+
+	resp, err := h.authUsecase.Login(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidEmailOrUsernameOrPassword) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email_or_username": {
+					"invalid email atau password",
+				},
+				"password": {
+					"invalid email atau password",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	// login user
-	userResp, profileResp, token, err := h.authUsecase.Login(ctx, &reqLogin)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-
-	resp := mapper.ResponseSuccess{
-		Data: map[string]any{
-			"user":    userResp,
-			"profile": profileResp,
-			"token":   token,
-		},
-	}
-
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, resp, "login successfully")
 }

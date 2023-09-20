@@ -14,7 +14,6 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
 )
 
 func TestOTPHandlerOTPGenerate(t *testing.T) {
@@ -37,7 +36,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "activasi-account")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 200, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -57,7 +56,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "forgot-password")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 200, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -82,7 +81,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "activasi-account")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 400, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -102,7 +101,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "activasi-account")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 403, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -123,7 +122,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "activasi-account")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 404, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -143,7 +142,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "forgot-password")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 404, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -160,7 +159,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "forgt-password")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 403, httpResp.Code)
 		t.Log(httpResp.Body)
@@ -177,7 +176,7 @@ func TestOTPHandlerOTPGenerate(t *testing.T) {
 		httpreq.Header.Set("Type", "activasi-accounts")
 		httpResp := httptest.NewRecorder()
 
-		otpHandler.OTPGenerate(httpResp, httpreq)
+		otpHandler.GenerateOTP(httpResp, httpreq)
 
 		assert.Equal(t, 403, httpResp.Code)
 		t.Log(httpResp.Body)

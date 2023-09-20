@@ -19,7 +19,7 @@ type UserRepository interface {
 
 //counterfeiter:generate -o ./../mocks . UserUsecase
 type UserUsecase interface {
-	ResetPassword(ctx context.Context, req *RequestResetPassword) error
+	ResetPassword(ctx context.Context, req *RequestChangePassword) error
 	ForgottenPassword(ctx context.Context, req *RequestForgottenPassword) (string, error)
 	ResetForgottenPassword(ctx context.Context, req *RequestResetForgottenPassword) error
 	ActivasiAccount(c context.Context, email string) (resp *ResponseActivasiAccount, err error)
@@ -54,7 +54,7 @@ type ResponseActivasiAccount struct {
 	EmailVerifiedAt bool `json:"activited"`
 }
 
-type RequestResetPassword struct {
+type RequestChangePassword struct {
 	OldPassword string `json:"old_password"`
 	Password    string `json:"password"`
 	RePassword  string `json:"re_password"`

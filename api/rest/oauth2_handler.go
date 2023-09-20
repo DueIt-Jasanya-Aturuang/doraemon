@@ -1,87 +1,62 @@
 package rest
 
 import (
-	"context"
+	"errors"
 	"net/http"
-	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type Oauth2HandlerImpl struct {
-	oauth2Usecase usecase.Oauth2Usecase
-	authUsecase   usecase.AuthUsecase
-	appUsecase    usecase.AppUsecase
+	oauth2Usecase domain.Oauth2Usecase
+	authUsecase   domain.AuthUsecase
 }
 
 func NewOauth2HandlerImpl(
-	oauth2Usecase usecase.Oauth2Usecase,
-	authUsecase usecase.AuthUsecase,
-	appUsecase usecase.AppUsecase,
+	oauth2Usecase domain.Oauth2Usecase,
+	authUsecase domain.AuthUsecase,
 ) *Oauth2HandlerImpl {
 	return &Oauth2HandlerImpl{
 		oauth2Usecase: oauth2Usecase,
 		authUsecase:   authUsecase,
-		appUsecase:    appUsecase,
 	}
 }
 
 func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	// get header App-ID
-	// jika gak ada akan return forbidden
-	appID := r.Header.Get("App-ID")
-	if appID == "" {
-		log.Warn().Msg("tidak ada header appid")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
+	req := new(domain.RequestLoginWithGoogle)
+	err := helper.DecodeJson(r, req)
+	if err != nil {
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
+	err = validation.Oauth2LoginWithGoogleValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	// decod request ke dalam dto
-	var reqLogin dto.LoginGoogleReq
-	err = mapper.DecodeJson(r, &reqLogin)
+	userGoogle, err := h.oauth2Usecase.GoogleClaimUser(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-
-	// validasi request
-	err = validation.Oauth2LoginWithGoogleValidation(&reqLogin)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-
-	// claim google user
-	userGoogle, err := h.oauth2Usecase.GoogleClaimUser(ctx, &reqLogin)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidTokenOauth) {
+			err = _error.HttpErrString("invalid token", response.CM05)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// jika user tidak ada maka akan register -> login -> return
+	appID := r.Header.Get(util.AppIDHeader)
 	if !userGoogle.ExistsUser {
 		// register request
-		reqRegister := &dto.RegisterReq{
+		reqRegister := &domain.RequestRegister{
 			FullName:        userGoogle.Name,
 			Username:        userGoogle.GivenName,
 			Email:           userGoogle.Email,
@@ -93,44 +68,41 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 		}
 
 		// register process
-		userResp, profileResp, token, err := h.authUsecase.Register(ctx, reqRegister)
+		resp, err := h.authUsecase.Register(r.Context(), reqRegister)
 		if err != nil {
-			mapper.NewErrorResp(w, r, err)
+			if errors.Is(err, _usecase.EmailIsExist) {
+				err = _error.HttpErrMapOfSlices(map[string][]string{
+					"email": {
+						"email sudah terdaftar",
+					},
+				}, response.CM06)
+			}
+			if errors.Is(err, _usecase.UsernameIsExist) {
+				err = _error.HttpErrMapOfSlices(map[string][]string{
+					"username": {
+						"username sudah tersedia",
+					},
+				}, response.CM06)
+			}
+			helper.ErrorResponseEncode(w, err)
 			return
 		}
 
-		// response
-		resp := mapper.ResponseSuccess{
-			Data: map[string]any{
-				"user":    userResp,
-				"profile": profileResp,
-				"token":   token,
-			},
-		}
-
-		mapper.NewSuccessResp(w, r, resp, 200)
+		helper.SuccessResponseEncode(w, resp, "login successfully")
 		return
 	}
 
 	// jika ada maka langsung login
-	userResp, profileResp, token, err := h.authUsecase.Login(ctx, &dto.LoginReq{
+	resp, err := h.authUsecase.Login(r.Context(), &domain.RequestLogin{
 		EmailOrUsername: userGoogle.Email,
 		Password:        userGoogle.ID,
 		RememberMe:      true,
 		Oauth2:          true,
 	})
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	resp := mapper.ResponseSuccess{
-		Data: map[string]any{
-			"user":    userResp,
-			"profile": profileResp,
-			"token":   token,
-		},
-	}
-
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, resp, "login successfully")
 }

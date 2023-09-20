@@ -50,7 +50,7 @@ func ResetForgottenPasswordValidation(req *domain.RequestResetForgottenPassword)
 
 }
 
-func ResetPasswordValidation(req *domain.RequestResetPassword) error {
+func ResetPasswordValidation(req *domain.RequestChangePassword) error {
 	if _, err := uuid.Parse(req.UserID); err != nil {
 		return _error.HttpErrString(response.CodeCompanyName[response.CM04], response.CM04)
 	}

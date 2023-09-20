@@ -35,7 +35,7 @@ func TestUserHandlerResetPassword(t *testing.T) {
 		httpreq, err := http.NewRequest("POST", "/reset-password", bytes.NewReader(reqByte))
 		httpresp := httptest.NewRecorder()
 
-		userHandler.ResetPassword(httpresp, httpreq)
+		userHandler.ChangePassword(httpresp, httpreq)
 	})
 }
 

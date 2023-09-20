@@ -1,242 +1,213 @@
 package rest
 
 import (
-	"context"
+	"errors"
 	"net/http"
-	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type UserHandlerImpl struct {
-	userUsecase usecase.UserUsecase
-	appUsecase  usecase.AppUsecase
-	otpUsecase  usecase.OTPUsecase
+	userUsecase domain.UserUsecase
+	otpUsecase  domain.OTPUsecase
 }
 
 func NewUserHandlerImpl(
-	userUsecase usecase.UserUsecase,
-	appUsecase usecase.AppUsecase,
-	otpUsecase usecase.OTPUsecase,
+	userUsecase domain.UserUsecase,
+	otpUsecase domain.OTPUsecase,
 ) *UserHandlerImpl {
 	return &UserHandlerImpl{
 		userUsecase: userUsecase,
-		appUsecase:  appUsecase,
 		otpUsecase:  otpUsecase,
 	}
 }
 
-func (h *UserHandlerImpl) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	// decode request body kedalam dto
-	var reqResetPassword dto.ResetPasswordReq
-	err := mapper.DecodeJson(r, &reqResetPassword)
+func (h *UserHandlerImpl) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	req := new(domain.RequestChangePassword)
+	err := helper.DecodeJson(r, req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	// get request userid di header
-	userID := r.Header.Get("User-ID")
-	reqResetPassword.UserID = userID
+	userID := r.Header.Get(util.UserIDHeader)
+	req.UserID = userID
 
-	// validasi request
-	err = validation.ResetPasswordValidation(&reqResetPassword)
+	err = validation.ResetPasswordValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// reset password process
-	err = h.userUsecase.ResetPassword(ctx, &reqResetPassword)
+	err = h.userUsecase.ResetPassword(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidUserID) {
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
+		}
+		if errors.Is(err, _usecase.InvalidOldPassword) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"old_password": {
+					"password lama tidak sesuai",
+				},
+			}, response.CM06)
+
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	resp := mapper.ResponseSuccess{
-		Message: "password anda telah berhasil dirubah",
-	}
-
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, nil, "password anda telah berhasil dirubah")
 
 }
 
 func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	// get header App-ID
-	// jika gak ada akan return forbidden
-	appID := r.Header.Get("App-ID")
-	if appID == "" {
-		log.Warn().Msgf("app id header tidak tersedia")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
-		return
-	}
-
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
+	req := new(domain.RequestValidationOTP)
+	err := helper.DecodeJson(r, req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
-
-	// decod request ke dalam dto
-	// dan set request otp type nya forgot-password
-	var reqOtpValidation dto.OTPValidationReq
-	err = mapper.DecodeJson(r, &reqOtpValidation)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-	reqOtpValidation.Type = "forgot-password"
+	req.Type = util.ForgotPassword
 
 	// validasi request
-	err = validation.OTPValidation(&reqOtpValidation)
+	err = validation.OTPValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// process validasi otp
-	err = h.otpUsecase.OTPValidation(ctx, &reqOtpValidation)
+	err = h.otpUsecase.Validation(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidEmailOrOTP) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email": {
+					"invalid email or otp",
+				},
+				"otp": {
+					"invalid email or otp",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// declare request forgotten password
-	var reqForgottenPassword dto.ForgottenPasswordReq
-	reqForgottenPassword.Email = reqOtpValidation.Email
+	reqFP := new(domain.RequestForgottenPassword)
+	reqFP.Email = req.Email
 
 	// process forgotten password
-	url, err := h.userUsecase.ForgottenPassword(ctx, &reqForgottenPassword)
+	url, err := h.userUsecase.ForgottenPassword(r.Context(), reqFP)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidUserID) {
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	resp := mapper.ResponseSuccess{
-		Data: map[string]string{
-			"url_forgot_password": url,
-		},
+	data := map[string]string{
+		"url_forgot_password": url,
 	}
 
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, data, "link forgot password")
 }
 
 func (h *UserHandlerImpl) ResetForgottenPassword(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	// get header App-ID
-	// jika gak ada akan return forbidden
-	appID := r.Header.Get("App-ID")
-	if appID == "" {
-		log.Warn().Msgf("app id header tidak tersedia")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusForbidden))
-		return
-	}
-
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
+	req := new(domain.RequestResetForgottenPassword)
+	err := helper.DecodeJson(r, req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
-	}
-
-	// decode request user
-	var reqResetForgottenPassword dto.ResetForgottenPasswordReq
-	err = mapper.DecodeJson(r, &reqResetForgottenPassword)
-	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// declare variable from url query param
 	email := r.URL.Query().Get("email")
 	token := r.URL.Query().Get("token")
-	reqResetForgottenPassword.Email = email
-	reqResetForgottenPassword.Token = token
+	req.Email = email
+	req.Token = token
 
 	// validasi request
-	err = validation.ResetForgottenPasswordValidation(&reqResetForgottenPassword)
+	err = validation.ResetForgottenPasswordValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// process reset forgotten password
-	err = h.userUsecase.ResetForgottenPassword(ctx, &reqResetForgottenPassword)
+	err = h.userUsecase.ResetForgottenPassword(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidToken) {
+			err = _error.HttpErrString("invalid token", response.CM04)
+		}
+		if errors.Is(err, _usecase.TokenExpired) {
+			err = _error.HttpErrString("token anda sudah expired", response.CM05)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	resp := mapper.ResponseSuccess{
-		Message: "password anda telah berhasil diubah",
-	}
-
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, nil, "password anda telah berhasil diubah")
 }
 
 func (h *UserHandlerImpl) ActivasiAccount(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
-
-	// decod request ke dalam dto
-	// dan set type otp
-	var reqValidationOtp dto.OTPValidationReq
-	err := mapper.DecodeJson(r, &reqValidationOtp)
+	req := new(domain.RequestValidationOTP)
+	err := helper.DecodeJson(r, req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
-	reqValidationOtp.Type = "activasi-account"
+	req.Type = util.ActivasiAccount
 
 	// validasi request otp
-	err = validation.OTPValidation(&reqValidationOtp)
+	err = validation.OTPValidation(req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// validasi otp
-	err = h.otpUsecase.OTPValidation(ctx, &reqValidationOtp)
+	err = h.otpUsecase.Validation(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidEmailOrOTP) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email": {
+					"invalid email or otp",
+				},
+				"otp": {
+					"invalid email or otp",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// process activasi account
-	activasi, err := h.userUsecase.ActivasiAccount(ctx, reqValidationOtp.Email)
+	activasi, err := h.userUsecase.ActivasiAccount(r.Context(), req.Email)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidUserID) {
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
+		}
+		if errors.Is(err, _usecase.EmailIsActivited) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"email": {
+					"email anda sudah aktif silangkah login",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	resp := mapper.ResponseSuccess{
-		Data: activasi,
-	}
-
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, activasi, "activasi berhasil")
 }

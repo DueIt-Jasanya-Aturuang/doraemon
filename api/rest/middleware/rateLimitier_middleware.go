@@ -1,15 +1,14 @@
 package middleware
 
 import (
-	"net/http"
 	"sync"
 	"time"
 
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 	"github.com/rs/zerolog/log"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
 )
 
 type client struct {
@@ -51,7 +50,7 @@ func DeletedClientHelper(key string) {
 	delete(clients, key)
 }
 
-func RateLimiterOTP(req *dto.OTPGenerateReq) error {
+func RateLimiterOTP(req *domain.RequestGenerateOTP) error {
 	key := req.Email + ":" + req.Type
 	_, found := clients[key]
 
@@ -67,7 +66,7 @@ func RateLimiterOTP(req *dto.OTPGenerateReq) error {
 	clients[key].lastSeen = time.Now()
 	if clients[key].limit >= 3 {
 		log.Warn().Msg("rate limited")
-		return _error.ErrStringDefault(http.StatusTooManyRequests)
+		return _error.HttpErrString("anda sudah mencapai batas limit", response.CM05)
 	}
 	return nil
 }

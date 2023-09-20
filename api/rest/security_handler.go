@@ -1,125 +1,119 @@
 package rest
 
 import (
-	"context"
+	"errors"
 	"net/http"
-	"time"
+	"strconv"
 
+	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 	"github.com/rs/zerolog/log"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/usecase"
-
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/mapper"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type SecurityHandlerImpl struct {
-	securityUsecase usecase.SecurityUsecase
-	appUsecase      usecase.AppUsecase
+	securityUsecase domain.SecurityUsecase
 }
 
 func NewSecurityHandlerImpl(
-	securityUsecase usecase.SecurityUsecase,
-	appUsecase usecase.AppUsecase,
+	securityUsecase domain.SecurityUsecase,
 ) *SecurityHandlerImpl {
 	return &SecurityHandlerImpl{
 		securityUsecase: securityUsecase,
-		appUsecase:      appUsecase,
 	}
 }
 
 func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
+	req := new(domain.RequestJwtToken)
+	appID := r.Header.Get(util.AppIDHeader)
+	userID := r.Header.Get(util.UserIDHeader)
+	token := r.Header.Get(util.AuthorizationHeader)
 
-	// set variable request, and header
-	var validateAccessReq dto.JwtTokenReq
-	appID := r.Header.Get("App-ID")
-	userID := r.Header.Get("User-ID")
-	token := r.Header.Get("Authorization")
-
-	// check apakah data header atau gak
-	// jika tidak ada akan return 401
 	if appID == "" || userID == "" || token == "" {
 		log.Warn().Msgf("app id / user id / authorization header tidak tersedia")
-		mapper.NewErrorResp(w, r, _error.ErrStringDefault(http.StatusUnauthorized))
+		helper.ErrorResponseEncode(w, _error.HttpErrString(response.CodeCompanyName[response.CM04], response.CM04))
 		return
 	}
 
-	// masukan variable header tadi kedalam request validate
-	validateAccessReq.AppId = appID
-	validateAccessReq.UserId = userID
-	validateAccessReq.Authorization = token
-
-	// check appid, jika error akan return error
-	// ini error sudah di set dari _usecase, apakah error tersebut 500 atau yang lainnya
-	err := h.appUsecase.CheckAppByID(ctx, &dto.AppReq{
-		AppID: appID,
-	})
+	activasiHeader := r.Header.Get(util.ActivasiHeader)
+	activasiHeaderBool, err := strconv.ParseBool(activasiHeader)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
-		return
+		helper.ErrorResponseEncode(w, _error.HttpErrString(response.CodeCompanyName[response.CM05], response.CM05))
 	}
 
-	// get url path nya
-	// validasi apakah access token valid atau gak
-	activasiHeader := r.Header.Get("Activasi")
-	expAT, err := h.securityUsecase.JwtValidateAT(ctx, &validateAccessReq, activasiHeader)
+	req.AppId = appID
+	req.UserId = userID
+	req.Authorization = token
+	req.ActivasiHeader = activasiHeaderBool
+
+	expAT, err := h.securityUsecase.JwtValidation(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		if errors.Is(err, _usecase.InvalidToken) {
+			err = _error.HttpErrString("invalid token", response.CM04)
+		}
+		if errors.Is(err, _usecase.JwtUserIDAndHeaderUserIDNotMatch) {
+			err = _error.HttpErrString("user id tidak sesuai", response.CM04)
+		}
+		if errors.Is(err, _usecase.InvalidUserID) {
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
+		}
+		if errors.Is(err, _usecase.UserIsNotActivited) {
+			err = _error.HttpErrString("akun anda belum di aktivasi", response.CM05)
+		}
+		if errors.Is(err, _usecase.JwtAppIDAndHeaderAppIDNotMatch) {
+			err = _error.HttpErrString("app id tidak sesuai", response.CM05)
+		}
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// jika access token expired maka akan registrasi at dan rt ulang
 	if expAT {
-		// process registrasi rt at
-		newAT, err := h.securityUsecase.JwtGenerateRTAT(ctx, &validateAccessReq)
+		newAT, err := h.securityUsecase.JwtGenerate(r.Context(), req)
 		if err != nil {
-			mapper.NewErrorResp(w, r, err)
+			if errors.Is(err, _usecase.InvalidToken) {
+				err = _error.HttpErrString("invalid token", response.CM04)
+			}
+			if errors.Is(err, _usecase.JwtUserIDAndHeaderUserIDNotMatch) {
+				err = _error.HttpErrString("user id tidak sesuai", response.CM04)
+			}
+			helper.ErrorResponseEncode(w, err)
 			return
 		}
 
-		log.Info().Msgf("set token baru for user %s", validateAccessReq.UserId)
+		log.Info().Msgf("set token baru for user %s", req.UserId)
 		// set new token ke dalam header authorization
 		w.Header().Set("Authorization", newAT.Token)
 	}
 
-	mapper.NewSuccessResp(w, r, nil, 200)
+	helper.SuccessResponseEncode(w, nil, "ok")
 }
 
 func (h *SecurityHandlerImpl) Logout(w http.ResponseWriter, r *http.Request) {
-	// set time out proccess
-	ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
-	defer cancel()
+	req := new(domain.RequestLogout)
+	userID := r.Header.Get(util.UserIDHeader)
+	token := r.Header.Get(util.AuthorizationHeader)
 
-	// declare variable dan get header user id dan authorization
-	var reqLogout dto.LogoutReq
-	userID := r.Header.Get("User-ID")
-	token := r.Header.Get("Authorization")
-
-	// declare response success
-	// jika header tersebut kosong maka akan return aja success
-	resp := mapper.ResponseSuccess{
-		Message: "anda berhasil logout",
-	}
 	if userID == "" && token == "" {
 		log.Warn().Msgf("user id / authorization header tidak tersedia")
-		mapper.NewSuccessResp(w, r, resp, 200)
+		helper.SuccessResponseEncode(w, nil, "successfully logouts")
 		return
 	}
 
 	// set variable header kedalam request
-	reqLogout.UserID = userID
-	reqLogout.Token = token
+	req.UserID = userID
+	req.Token = token
 
 	// process logout
-	err := h.securityUsecase.Logout(ctx, &reqLogout)
+	err := h.securityUsecase.Logout(r.Context(), req)
 	if err != nil {
-		mapper.NewErrorResp(w, r, err)
+		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	mapper.NewSuccessResp(w, r, resp, 200)
+	helper.SuccessResponseEncode(w, nil, "successfully logouts")
 }

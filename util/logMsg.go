@@ -18,17 +18,6 @@ const (
 )
 
 const (
-	LogErrOpenFile  = "failed open file | file : %v | err : %v"
-	LogErrCloseFile = "failed close file | file : %v | err : %v"
-)
-
-const (
-	LogErrPutObjectMinio   = "failed put object minio | err : %v"
-	LogErrDelObjectMinio   = "failed delete object minio | err : %v"
-	LogInfoFileUploadMinio = "file upload info | msg : %v"
-)
-
-const (
 	LogErrDecode    = "failed decode | data : %v | err : %v"
 	LogErrEncode    = "failed encode | data : %v | err : %v"
 	LogErrUnmarshal = "failed unmarshal | data : %v | err : %v "
@@ -39,4 +28,21 @@ const (
 	LogErrHttpNewRequest = "failed new request | err : %v"
 	LogErrClientDo       = "failed client do http | err : %v"
 	LogErrClientDoClose  = "failed close client do http | err : %v"
+)
+
+const (
+	LogErrRedisClientExists = "failed check data | err : %v"
+	LogErrRedisClientGet    = "failed get data | err : %v"
+	LogErrRedisClientExpire = "failed set expire data | err : %v"
+	LogErrRedisClientSet    = "failed set expire data | err : %v"
+	LogErrRedisClientDel    = "failed delete data | err : %v"
+)
+
+const (
+	LogErrKafkaWriterClose  = "failed close kafka writer | err : %v"
+	LogErrKafkaWriteMessage = "failed publish message kafka | err : %v"
+)
+
+const (
+	LogErrFailedClaimJwt = "failed claims jwt token | err : %v | token : %s"
 )

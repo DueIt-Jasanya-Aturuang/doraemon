@@ -7,14 +7,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 func charseByte(length int, charset string) ([]byte, error) {
 	b := make([]byte, length)
-	max := big.NewInt(int64(len(charset)))
+	maxCharset := big.NewInt(int64(len(charset)))
 
 	for i := range b {
-		n, err := rand.Int(rand.Reader, max)
+		n, err := rand.Int(rand.Reader, maxCharset)
 		if err != nil {
 			log.Err(err).Msg("CANNOT GENERATE RAND INT")
 			return nil, err

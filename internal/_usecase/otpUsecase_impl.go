@@ -36,22 +36,20 @@ func (o *OTPUsecaseImpl) Generate(ctx context.Context, req *domain.RequestGenera
 	}
 	defer o.userRepo.CloseConn()
 
-	domain.GetUserByID = req.UserID
-	user, err := o.userRepo.Get(ctx, domain.GetUserByID)
+	domain.GetUserByEmail = req.Email
+	user, err := o.userRepo.Get(ctx, domain.GetUserByEmail)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Info().Msgf("invalid user, user generate otp tapi invalid user id nya")
-			return InvalidUserID
+			log.Info().Msgf("invalid email, user generate otp tapi invalid user email nya")
+			return InvalidEmail
 		}
 		return err
 	}
 
-	if user.Email != req.Email {
-		log.Info().Msgf("email user tidak terdaftar")
-		return InvalidEmail
-	}
-
 	if req.Type == util.ActivasiAccount {
+		if req.UserID != user.ID {
+			return InvalidUserID
+		}
 		if user.EmailVerifiedAt {
 			return EmailIsActivited
 		}

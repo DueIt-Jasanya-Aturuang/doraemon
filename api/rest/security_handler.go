@@ -71,6 +71,7 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	log.Info().Msgf("%v", expAT)
 	// jika access token expired maka akan registrasi at dan rt ulang
 	if expAT {
 		newAT, err := h.securityUsecase.JwtGenerate(r.Context(), req)
@@ -88,6 +89,8 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 		log.Info().Msgf("set token baru for user %s", req.UserId)
 		// set new token ke dalam header authorization
 		w.Header().Set("Authorization", newAT.Token)
+	} else {
+		w.Header().Set("Authorization", r.Header.Get("Authorization"))
 	}
 
 	helper.SuccessResponseEncode(w, nil, "ok")

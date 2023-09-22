@@ -59,7 +59,7 @@ func (s *SecurityRepositoryImpl) Create(ctx context.Context, token *domain.Token
 }
 
 func (s *SecurityRepositoryImpl) GetByAccessToken(ctx context.Context, token string) (*domain.Token, error) {
-	query := `SELECT id, refresh_token, app_id, remember_me FROM m_tokens WHERE access_token = $1`
+	query := `SELECT id, user_id, refresh_token, app_id, remember_me FROM m_tokens WHERE access_token = $1`
 
 	conn, err := s.GetConn()
 	if err != nil {
@@ -82,6 +82,7 @@ func (s *SecurityRepositoryImpl) GetByAccessToken(ctx context.Context, token str
 	var tokenModel domain.Token
 	err = row.Scan(
 		&tokenModel.ID,
+		&tokenModel.UserID,
 		&tokenModel.RefreshToken,
 		&tokenModel.AppID,
 		&tokenModel.RememberMe,

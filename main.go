@@ -50,9 +50,12 @@ func main() {
 	r.Use(chimiddleware.Logger)
 	middleware.DeletedClient([]string{"activasi-account"})
 
-	r.Put("/auth/change-password", userHandler.ChangePassword)
-	r.Put("/auth/activasi-account", userHandler.ActivasiAccount)
-	r.Post("/auth/logout", securityHandler.Logout)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.SetAuthorization)
+		r.Put("/auth/change-password", userHandler.ChangePassword)
+		r.Put("/auth/activasi-account", userHandler.ActivasiAccount)
+		r.Post("/auth/logout", securityHandler.Logout)
+	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(appMiddleware.CheckAppID)

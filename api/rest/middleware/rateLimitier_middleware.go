@@ -28,12 +28,12 @@ func DeletedClient(typeReq []string) {
 			mu.Lock()
 			for key, client := range clients {
 				if typeReq[0] == "activasi-account" {
-					if time.Since(client.lastSeen) > 1*time.Hour {
+					if time.Since(client.lastSeen) > 10*time.Minute {
 						delete(clients, key)
 						log.Info().Msgf("deleted key %s", key)
 					}
 				} else {
-					if time.Since(client.lastSeen) > 6*time.Hour {
+					if time.Since(client.lastSeen) > 10*time.Minute {
 						delete(clients, key)
 						log.Info().Msgf("deleted key %s", key)
 					}
@@ -64,9 +64,9 @@ func RateLimiterOTP(req *domain.RequestGenerateOTP) error {
 	}
 
 	clients[key].lastSeen = time.Now()
-	if clients[key].limit >= 3 {
+	if clients[key].limit >= 5 {
 		log.Warn().Msg("rate limited")
-		return _error.HttpErrString("anda sudah mencapai batas limit", response.CM05)
+		return _error.HttpErrString("anda sudah mencapai batas limit", response.CM12)
 	}
 	return nil
 }

@@ -6,9 +6,9 @@ type MicroServiceRepository interface {
 }
 
 type Profile struct {
-	ProfileID string `json:"profile_id"`
-	Quote     string `json:"quote"`
-	Profesi   string `json:"profesi"`
+	ProfileID string  `json:"profile_id"`
+	Quote     *string `json:"quote"`
+	Profesi   *string `json:"profesi"`
 }
 
 type RequestCreateProfile struct {
@@ -16,7 +16,7 @@ type RequestCreateProfile struct {
 }
 
 type ResponseProfile struct {
-	ProfileID string `json:"profile_id"`
-	Quote     string `json:"quote"`
-	Profesi   string `json:"profesi"`
+	ProfileID string  `json:"profile_id"`
+	Quote     *string `json:"quote"`
+	Profesi   *string `json:"profesi"`
 }

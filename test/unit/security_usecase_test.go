@@ -13,8 +13,8 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/helper"
 )
 
 func TestSecurityUsecaseJwtValidateAT(t *testing.T) {

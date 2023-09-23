@@ -15,8 +15,8 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/converter"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/converter"
 )
 
 func TestAuthUsecaseLogin(t *testing.T) {

@@ -10,7 +10,8 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
 )
 
 func TestAppUsecaseCheckAppByID(t *testing.T) {

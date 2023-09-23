@@ -1,3 +1,5 @@
 !/test/unit/.env
 .env
 .idea/
+tmp
+.air.toml

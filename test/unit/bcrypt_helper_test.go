@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/helper"
 )
 
 func TestBcryptHelper(t *testing.T) {

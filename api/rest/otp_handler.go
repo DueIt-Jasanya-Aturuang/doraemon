@@ -12,7 +12,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 

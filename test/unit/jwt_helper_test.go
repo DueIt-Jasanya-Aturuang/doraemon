@@ -11,7 +11,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/helper"
 )
 
 func TestJwtHelper(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/internal/_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_repository"
 )
 
 func CreateProfile(t *testing.T) {

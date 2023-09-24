@@ -55,7 +55,7 @@ func (s *SecurityUsecaseImpl) JwtValidation(ctx context.Context, req *domain.Req
 	}
 	defer s.securityRepo.CloseConn()
 
-	if req.ActivasiHeader {
+	if !req.ActivasiHeader {
 		activasi, err := s.userRepo.CheckActivasiUser(ctx, req.UserId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {

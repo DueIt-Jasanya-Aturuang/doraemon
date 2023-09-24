@@ -78,7 +78,7 @@ func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
 		UserID: resp.ID,
 	})
 
-	helper.SuccessResponseEncode(w, req, "register successfully")
+	helper.SuccessResponseEncode(w, resp, "register successfully")
 }
 
 func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {

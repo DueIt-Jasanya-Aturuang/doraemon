@@ -40,14 +40,14 @@ func (h *UserHandlerImpl) ChangePassword(w http.ResponseWriter, r *http.Request)
 	userID := r.Header.Get(util.UserIDHeader)
 	req.UserID = userID
 
-	err = validation.ResetPasswordValidation(req)
+	err = validation.ChangePasswordValidation(req)
 	if err != nil {
 		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
 	// reset password process
-	err = h.userUsecase.ResetPassword(r.Context(), req)
+	err = h.userUsecase.ChangePassword(r.Context(), req)
 	if err != nil {
 		if errors.Is(err, _usecase.InvalidUserID) {
 			err = _error.HttpErrString("user id tidak valid", response.CM04)
@@ -65,6 +65,45 @@ func (h *UserHandlerImpl) ChangePassword(w http.ResponseWriter, r *http.Request)
 	}
 
 	helper.SuccessResponseEncode(w, nil, "password anda telah berhasil dirubah")
+
+}
+
+func (h *UserHandlerImpl) ChangeUsername(w http.ResponseWriter, r *http.Request) {
+	req := new(domain.RequestChangeUsername)
+	err := helper.DecodeJson(r, req)
+	if err != nil {
+		helper.ErrorResponseEncode(w, err)
+		return
+	}
+
+	userID := r.Header.Get(util.UserIDHeader)
+	req.UserID = userID
+
+	err = validation.ChangeUsernameValidation(req)
+	if err != nil {
+		helper.ErrorResponseEncode(w, err)
+		return
+	}
+
+	err = h.userUsecase.ChangeUsername(r.Context(), req)
+	if err != nil {
+		if errors.Is(err, _usecase.InvalidUserID) {
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
+		}
+		if errors.Is(err, _usecase.UsernameIsExist) {
+			err = _error.HttpErrMapOfSlices(map[string][]string{
+				"username": {
+					"username sudah tersedia",
+				},
+			}, response.CM06)
+		}
+		helper.ErrorResponseEncode(w, err)
+		return
+	}
+
+	helper.SuccessResponseEncode(w, map[string]string{
+		"username": req.Username,
+	}, "username anda telah berhasil dirubah")
 
 }
 

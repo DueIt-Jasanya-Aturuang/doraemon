@@ -68,11 +68,11 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 		}()
 		userRepo.EndTxReturns(nil)
 
-		userConv := converter.ResetPasswordReqToModel("passwordHash", user.ID)
+		userConv := converter.ChangePasswordReqToModel("passwordHash", user.ID)
 		_ = userRepo.UpdatePasswordUser(context.TODO(), userConv)
 		userRepo.UpdatePasswordUserReturns(nil)
 
-		err := userUsecase.ResetPassword(context.TODO(), req)
+		err := userUsecase.ChangePassword(context.TODO(), req)
 		assert.NoError(t, err)
 	})
 
@@ -93,11 +93,11 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 		}()
 		userRepo.EndTxReturns(nil)
 
-		userConv := converter.ResetPasswordReqToModel("passwordHash", user.ID)
+		userConv := converter.ChangePasswordReqToModel("passwordHash", user.ID)
 		_ = userRepo.UpdatePasswordUser(context.TODO(), userConv)
 		userRepo.UpdatePasswordUserReturns(nil)
 
-		err := userUsecase.ResetPassword(context.TODO(), req)
+		err := userUsecase.ChangePassword(context.TODO(), req)
 
 		assert.Error(t, err)
 		var errHTTP *model.ErrResponseHTTP
@@ -113,7 +113,7 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 		_, _ = userRepo.GetUserByID(context.TODO(), "nil")
 		userRepo.GetUserByIDReturns(nil, sql.ErrNoRows)
 
-		err := userUsecase.ResetPassword(context.TODO(), req)
+		err := userUsecase.ChangePassword(context.TODO(), req)
 		assert.Error(t, err)
 		var errHTTP *model.ErrResponseHTTP
 		assert.Equal(t, true, errors.As(err, &errHTTP))
@@ -241,7 +241,7 @@ func TestUserUsecaseResetForgottenPassword(t *testing.T) {
 
 		mock.ExpectGet("forgot-password-link:" + req.Email).SetVal(user.ID)
 
-		userConv := converter.ResetPasswordReqToModel("passwordHash", "userID_1")
+		userConv := converter.ChangePasswordReqToModel("passwordHash", "userID_1")
 
 		_ = userRepo.UpdatePasswordUser(context.TODO(), userConv)
 		userRepo.UpdatePasswordUserReturns(nil)
@@ -267,7 +267,7 @@ func TestUserUsecaseResetForgottenPassword(t *testing.T) {
 			userRepo.EndTxReturns(nil)
 		}()
 
-		userConv := converter.ResetPasswordReqToModel("passwordHash", "userID_1")
+		userConv := converter.ChangePasswordReqToModel("passwordHash", "userID_1")
 
 		_ = userRepo.UpdatePasswordUser(context.TODO(), userConv)
 		userRepo.UpdatePasswordUserReturns(nil)

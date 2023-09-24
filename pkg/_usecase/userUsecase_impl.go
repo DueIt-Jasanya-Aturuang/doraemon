@@ -31,7 +31,7 @@ func NewUserUsecaseImpl(
 	}
 }
 
-func (u *UserUsecaseImpl) ResetPassword(ctx context.Context, req *domain.RequestChangePassword) error {
+func (u *UserUsecaseImpl) ChangePassword(ctx context.Context, req *domain.RequestChangePassword) error {
 	if err := u.userRepo.OpenConn(ctx); err != nil {
 		return err
 	}
@@ -58,8 +58,45 @@ func (u *UserUsecaseImpl) ResetPassword(ctx context.Context, req *domain.Request
 	}
 
 	err = u.userRepo.StartTx(ctx, helper.LevelReadCommitted(), func() error {
-		userConv := converter.ResetPasswordReqToModel(newPass, user.ID)
+		userConv := converter.ChangePasswordReqToModel(newPass, user.ID)
 		err = u.userRepo.UpdatePassword(ctx, userConv)
+		return err
+	})
+
+	return err
+}
+
+func (u *UserUsecaseImpl) ChangeUsername(ctx context.Context, req *domain.RequestChangeUsername) error {
+	if err := u.userRepo.OpenConn(ctx); err != nil {
+		return err
+	}
+	defer u.userRepo.CloseConn()
+
+	domain.GetUserByID = req.UserID
+	user, err := u.userRepo.Get(ctx, domain.GetUserByID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return InvalidUserID
+		}
+		return err
+	}
+
+	if user.Username == req.Username {
+		return nil
+	}
+
+	domain.CheckUserByUsername = req.Username
+	exist, err := u.userRepo.Check(ctx, domain.CheckUserByUsername)
+	if err != nil {
+		return err
+	}
+	if exist {
+		return UsernameIsExist
+	}
+
+	err = u.userRepo.StartTx(ctx, helper.LevelReadCommitted(), func() error {
+		userConv := converter.ChangeUsernameReqToModel(req.Username, user.ID)
+		err = u.userRepo.UpdateUsername(ctx, userConv)
 		return err
 	})
 
@@ -137,7 +174,7 @@ func (u *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *domai
 	defer u.userRepo.CloseConn()
 
 	err = u.userRepo.StartTx(ctx, helper.LevelReadCommitted(), func() error {
-		userConv := converter.ResetPasswordReqToModel(newPass, userID)
+		userConv := converter.ChangePasswordReqToModel(newPass, userID)
 		err = u.userRepo.UpdatePassword(ctx, userConv)
 		return err
 	})

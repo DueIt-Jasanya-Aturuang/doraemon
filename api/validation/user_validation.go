@@ -50,7 +50,7 @@ func ResetForgottenPasswordValidation(req *domain.RequestResetForgottenPassword)
 
 }
 
-func ResetPasswordValidation(req *domain.RequestChangePassword) error {
+func ChangePasswordValidation(req *domain.RequestChangePassword) error {
 	if _, err := uuid.Parse(req.UserID); err != nil {
 		return _error.HttpErrString(response.CodeCompanyName[response.CM04], response.CM04)
 	}
@@ -76,6 +76,28 @@ func ResetPasswordValidation(req *domain.RequestChangePassword) error {
 	if req.Password != req.RePassword {
 		errBadRequest["password"] = append(errBadRequest["password"], passwordAndRePassword)
 		errBadRequest["re_password"] = append(errBadRequest["re_password"], passwordAndRePassword)
+	}
+
+	if len(errBadRequest) != 0 {
+		return _error.HttpErrMapOfSlices(errBadRequest, response.CM06)
+	}
+	return nil
+}
+
+func ChangeUsernameValidation(req *domain.RequestChangeUsername) error {
+	if _, err := uuid.Parse(req.UserID); err != nil {
+		return _error.HttpErrString(response.CodeCompanyName[response.CM04], response.CM04)
+	}
+
+	errBadRequest := map[string][]string{}
+
+	if req.Username == "" {
+		errBadRequest["username"] = append(errBadRequest["username"], required)
+	}
+
+	username := maxMinString(req.Username, 3, 22)
+	if username != "" {
+		errBadRequest["username"] = append(errBadRequest["username"], username)
 	}
 
 	if len(errBadRequest) != 0 {

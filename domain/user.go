@@ -10,6 +10,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *User) error
 	UpdateActivasi(ctx context.Context, user *User) error
 	UpdatePassword(ctx context.Context, user *User) error
+	UpdateUsername(ctx context.Context, user *User) error
 	CheckActivasiUser(ctx context.Context, id string) (bool, error)
 	GetByEmailOrUsername(ctx context.Context, s string) (*User, error)
 	Check(ctx context.Context, s string) (bool, error)
@@ -19,7 +20,8 @@ type UserRepository interface {
 
 //counterfeiter:generate -o ./../mocks . UserUsecase
 type UserUsecase interface {
-	ResetPassword(ctx context.Context, req *RequestChangePassword) error
+	ChangePassword(ctx context.Context, req *RequestChangePassword) error
+	ChangeUsername(ctx context.Context, req *RequestChangeUsername) error
 	ForgottenPassword(ctx context.Context, req *RequestForgottenPassword) (string, error)
 	ResetForgottenPassword(ctx context.Context, req *RequestResetForgottenPassword) error
 	ActivasiAccount(c context.Context, email string) (resp *ResponseActivasiAccount, err error)
@@ -59,6 +61,11 @@ type RequestChangePassword struct {
 	Password    string `json:"password"`
 	RePassword  string `json:"re_password"`
 	UserID      string // UserID get in header
+}
+
+type RequestChangeUsername struct {
+	Username string `json:"username"`
+	UserID   string // UserID get in header
 }
 
 type RequestForgottenPassword struct {

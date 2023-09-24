@@ -130,6 +130,40 @@ func (u *UserRepositoryImpl) UpdatePassword(ctx context.Context, user *domain.Us
 	return nil
 }
 
+func (u *UserRepositoryImpl) UpdateUsername(ctx context.Context, user *domain.User) error {
+	query := `UPDATE m_users SET username = $1, updated_at = $2, updated_by = $3 WHERE id = $4`
+
+	tx, err := u.GetTx()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		log.Warn().Msgf(util.LogErrPrepareContext, err)
+		return err
+	}
+	defer func() {
+		if errClose := stmt.Close(); errClose != nil {
+			log.Warn().Msgf(util.LogErrPrepareContextClose, errClose)
+		}
+	}()
+
+	_, err = stmt.ExecContext(
+		ctx,
+		user.Username,
+		user.UpdatedAt,
+		user.UpdatedBy,
+		user.ID,
+	)
+	if err != nil {
+		log.Warn().Msgf(util.LogErrExecContext, err)
+		return err
+	}
+
+	return nil
+}
+
 func (u *UserRepositoryImpl) CheckActivasiUser(ctx context.Context, id string) (bool, error) {
 	query := "SELECT email_verified_at FROM m_users WHERE id = $1 AND deleted_at IS NULL"
 

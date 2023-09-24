@@ -53,6 +53,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.SetAuthorization)
 		r.Put("/auth/change-password", userHandler.ChangePassword)
+		r.Put("/auth/change-username", userHandler.ChangeUsername)
 		r.Put("/auth/activasi-account", userHandler.ActivasiAccount)
 		r.Post("/auth/logout", securityHandler.Logout)
 	})

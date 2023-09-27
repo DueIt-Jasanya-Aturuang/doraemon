@@ -59,7 +59,7 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *domain.RequestLogin) (
 	if err != nil {
 		var errhttp *response.HttpError
 		if errors.As(err, &errhttp) {
-			if errhttp.CodeCompany == response.CM05 {
+			if errhttp.CodeCompany == response.CM01 {
 				profileByte, err := helper.SerializeProfile(user.ID)
 				if err != nil {
 					return nil, err

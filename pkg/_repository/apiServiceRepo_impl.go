@@ -117,9 +117,19 @@ func (m *MicroServiceRepositoryImpl) fetchResponse(r *http.Response) (*domain.Pr
 		return nil, err
 	}
 
+	log.Warn().Msgf("error fetch data in account service | response : %v", resp)
+
+	statusString, ok := resp["status"].(string)
+	if !ok {
+		err = &response.HttpError{
+			Err:         "bad gateway",
+			CodeCompany: response.CM09,
+		}
+	}
+
 	err = &response.HttpError{
 		Err:         resp["errors"],
-		CodeCompany: resp["status"].(response.CodeCompany),
+		CodeCompany: response.CodeCompany(statusString),
 	}
 	return nil, err
 }

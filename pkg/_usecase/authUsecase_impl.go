@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
@@ -54,9 +55,27 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *domain.RequestLogin) (
 		}
 	}
 
-	profile, err := a.apiService.GetProfileByUserID(user.ID)
+	profile, err := a.apiService.GetProfileByUserID(user.ID, req.AppID)
 	if err != nil {
-		return nil, err
+		var errhttp *response.HttpError
+		if errors.As(err, &errhttp) {
+			if errhttp.CodeCompany == response.CM05 {
+				profileByte, err := helper.SerializeProfile(user.ID)
+				if err != nil {
+					return nil, err
+				}
+
+				profile, err = a.apiService.CreateProfile(profileByte, req.AppID)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+
 	}
 
 	rtat, err := helper.GenerateRTAT(user.ID, req.AppID, req.RememberMe)
@@ -146,7 +165,7 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *domain.RequestRegis
 			return err
 		}
 
-		profile, err = a.apiService.CreateProfile(profileByte)
+		profile, err = a.apiService.CreateProfile(profileByte, req.AppID)
 		if err != nil {
 			return err
 		}

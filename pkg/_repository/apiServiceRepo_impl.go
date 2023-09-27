@@ -25,8 +25,8 @@ func NewMicroServiceRepositoryImpl(endPoint string) domain.MicroServiceRepositor
 	}
 }
 
-func (m *MicroServiceRepositoryImpl) CreateProfile(data []byte) (*domain.Profile, error) {
-	endPoint := fmt.Sprintf("%s/account/profile", m.endPoint)
+func (m *MicroServiceRepositoryImpl) CreateProfile(data []byte, appID string) (*domain.Profile, error) {
+	endPoint := fmt.Sprintf("%s/account/profile/%s", m.endPoint, appID)
 
 	dataReq := bytes.NewReader(data)
 	req, err := http.NewRequest("POST", endPoint, dataReq)
@@ -58,8 +58,8 @@ func (m *MicroServiceRepositoryImpl) CreateProfile(data []byte) (*domain.Profile
 	return profile, err
 }
 
-func (m *MicroServiceRepositoryImpl) GetProfileByUserID(userID string) (*domain.Profile, error) {
-	endPoint := fmt.Sprintf("%s/account/profile", m.endPoint)
+func (m *MicroServiceRepositoryImpl) GetProfileByUserID(userID string, appID string) (*domain.Profile, error) {
+	endPoint := fmt.Sprintf("%s/account/profile/%s", m.endPoint, appID)
 
 	req, err := http.NewRequest("GET", endPoint, nil)
 	if err != nil {

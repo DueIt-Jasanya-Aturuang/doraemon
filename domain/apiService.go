@@ -1,8 +1,8 @@
 package domain
 
 type MicroServiceRepository interface {
-	CreateProfile(data []byte) (*Profile, error)
-	GetProfileByUserID(userID string) (*Profile, error)
+	CreateProfile(data []byte, appID string) (*Profile, error)
+	GetProfileByUserID(userID string, appID string) (*Profile, error)
 }
 
 type Profile struct {

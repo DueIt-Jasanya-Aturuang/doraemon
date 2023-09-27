@@ -98,6 +98,7 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 		Password:        userGoogle.ID,
 		RememberMe:      true,
 		Oauth2:          true,
+		AppID:           appID,
 	})
 	if err != nil {
 		helper.ErrorResponseEncode(w, err)

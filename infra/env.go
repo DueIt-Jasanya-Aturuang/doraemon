@@ -20,6 +20,7 @@ func EnvInit() {
 	// AppStatus = os.Getenv("APPLICATION_STATUS")
 	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
 	AppAuthApi = os.Getenv("APPLICATION_AUTH_API")
+	AppApiKeyAuth = os.Getenv("APPLICATION_KEY_AUTH")
 
 	PgHost = os.Getenv("DB_POSTGRESQL_HOST")
 	PgPort = os.Getenv("DB_POSTGRESQL_PORT")
@@ -90,6 +91,7 @@ var (
 
 	AppAccountApi string
 	AppAuthApi    string
+	AppApiKeyAuth string
 
 	PgHost   string
 	PgPort   string

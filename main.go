@@ -48,6 +48,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
+	r.Use(middleware.CheckApiKey)
 	middleware.DeletedClient([]string{"activasi-account"})
 
 	r.Group(func(r chi.Router) {

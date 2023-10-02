@@ -10,7 +10,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -45,7 +45,7 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 
 	userGoogle, err := h.oauth2Usecase.GoogleClaimUser(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidTokenOauth) {
+		if errors.Is(err, usecase.InvalidTokenOauth) {
 			err = _error.HttpErrString("invalid token", response.CM05)
 		}
 		helper.ErrorResponseEncode(w, err)
@@ -70,14 +70,14 @@ func (h *Oauth2HandlerImpl) LoginWithGoogle(w http.ResponseWriter, r *http.Reque
 		// register process
 		resp, err := h.authUsecase.Register(r.Context(), reqRegister)
 		if err != nil {
-			if errors.Is(err, _usecase.EmailIsExist) {
+			if errors.Is(err, usecase.EmailIsExist) {
 				err = _error.HttpErrMapOfSlices(map[string][]string{
 					"email": {
 						"email sudah terdaftar",
 					},
 				}, response.CM06)
 			}
-			if errors.Is(err, _usecase.UsernameIsExist) {
+			if errors.Is(err, usecase.UsernameIsExist) {
 				err = _error.HttpErrMapOfSlices(map[string][]string{
 					"username": {
 						"username sudah tersedia",

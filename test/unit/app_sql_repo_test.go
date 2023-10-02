@@ -8,7 +8,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 
-	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_repository"
+	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/repository"
 )
 
 func TestCheckAppByID(t *testing.T) {

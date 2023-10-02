@@ -10,7 +10,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -49,10 +49,10 @@ func (h *UserHandlerImpl) ChangePassword(w http.ResponseWriter, r *http.Request)
 	// reset password process
 	err = h.userUsecase.ChangePassword(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidUserID) {
+		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
-		if errors.Is(err, _usecase.InvalidOldPassword) {
+		if errors.Is(err, usecase.InvalidOldPassword) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"old_password": {
 					"password lama tidak sesuai",
@@ -87,10 +87,10 @@ func (h *UserHandlerImpl) ChangeUsername(w http.ResponseWriter, r *http.Request)
 
 	err = h.userUsecase.ChangeUsername(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidUserID) {
+		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
-		if errors.Is(err, _usecase.UsernameIsExist) {
+		if errors.Is(err, usecase.UsernameIsExist) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"username": {
 					"username sudah tersedia",
@@ -126,7 +126,7 @@ func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Reque
 	// process validasi otp
 	err = h.otpUsecase.Validation(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidEmailOrOTP) {
+		if errors.Is(err, usecase.InvalidEmailOrOTP) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
 					"invalid email or otp",
@@ -147,7 +147,7 @@ func (h *UserHandlerImpl) ForgottenPassword(w http.ResponseWriter, r *http.Reque
 	// process forgotten password
 	url, err := h.userUsecase.ForgottenPassword(r.Context(), reqFP)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidUserID) {
+		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
 		helper.ErrorResponseEncode(w, err)
@@ -185,10 +185,10 @@ func (h *UserHandlerImpl) ResetForgottenPassword(w http.ResponseWriter, r *http.
 	// process reset forgotten password
 	err = h.userUsecase.ResetForgottenPassword(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidToken) {
+		if errors.Is(err, usecase.InvalidToken) {
 			err = _error.HttpErrString("invalid token", response.CM04)
 		}
-		if errors.Is(err, _usecase.TokenExpired) {
+		if errors.Is(err, usecase.TokenExpired) {
 			err = _error.HttpErrString("token anda sudah expired", response.CM05)
 		}
 		helper.ErrorResponseEncode(w, err)
@@ -217,7 +217,7 @@ func (h *UserHandlerImpl) ActivasiAccount(w http.ResponseWriter, r *http.Request
 	// validasi otp
 	err = h.otpUsecase.Validation(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidEmailOrOTP) {
+		if errors.Is(err, usecase.InvalidEmailOrOTP) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
 					"invalid email or otp",
@@ -234,10 +234,10 @@ func (h *UserHandlerImpl) ActivasiAccount(w http.ResponseWriter, r *http.Request
 	// process activasi account
 	activasi, err := h.userUsecase.ActivasiAccount(r.Context(), req.Email)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidUserID) {
+		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
-		if errors.Is(err, _usecase.EmailIsActivited) {
+		if errors.Is(err, usecase.EmailIsActivited) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
 					"email anda sudah aktif silangkah login",

@@ -11,8 +11,8 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_repository"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/repository"
+	usecase2 "github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 )
 
 func main() {
@@ -24,20 +24,20 @@ func main() {
 	redisConn := infra.NewRedisConnection()
 	// redisConn := &config.RedisImpl{}
 
-	uow := _repository.NewUnitOfWorkRepositoryImpl(pgConn)
-	userRepo := _repository.NewUserRepositoryImpl(uow)
-	accessRepo := _repository.NewAccessRepositoryImpl(uow)
-	appRepo := _repository.NewAppRepositoryImpl(uow)
-	apiService := _repository.NewMicroServiceRepositoryImpl(infra.AppAccountApi)
-	securityRepo := _repository.NewSecurityRepositoryImpl(uow)
-	oauth2Repo := _repository.NewOauth2RepositoryImpl(infra.OauthClientId, infra.OauthClientSecret, infra.OauthClientRedirectURI)
+	uow := repository2.NewUnitOfWorkRepositoryImpl(pgConn)
+	userRepo := repository2.NewUserRepositoryImpl(uow)
+	accessRepo := repository2.NewAccessRepositoryImpl(uow)
+	appRepo := repository2.NewAppRepositoryImpl(uow)
+	apiService := repository2.NewMicroServiceRepositoryImpl(infra.AppAccountApi)
+	securityRepo := repository2.NewSecurityRepositoryImpl(uow)
+	oauth2Repo := repository2.NewOauth2RepositoryImpl(infra.OauthClientId, infra.OauthClientSecret, infra.OauthClientRedirectURI)
 
-	userUsecase := _usecase.NewUserUsecaseImpl(userRepo, redisConn)
-	authUsecase := _usecase.NewAuthUsecaseImpl(userRepo, accessRepo, apiService, securityRepo)
-	appUsecase := _usecase.NewAppUsecaseImpl(appRepo)
-	oauth2Usecase := _usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
-	otpUsecase := _usecase.NewOTPUsecaseImpl(userRepo, redisConn)
-	securityUsecase := _usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	userUsecase := usecase2.NewUserUsecaseImpl(userRepo, redisConn)
+	authUsecase := usecase2.NewAuthUsecaseImpl(userRepo, accessRepo, apiService, securityRepo)
+	appUsecase := usecase2.NewAppUsecaseImpl(appRepo)
+	oauth2Usecase := usecase2.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
+	otpUsecase := usecase2.NewOTPUsecaseImpl(userRepo, redisConn)
+	securityUsecase := usecase2.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
 	userHandler := rest.NewUserHandlerImpl(userUsecase, otpUsecase)
 	oauth2Handler := rest.NewOauth2HandlerImpl(oauth2Usecase, authUsecase)

@@ -11,7 +11,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -52,19 +52,19 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 
 	expAT, err := h.securityUsecase.JwtValidation(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidToken) {
+		if errors.Is(err, usecase.InvalidToken) {
 			err = _error.HttpErrString("invalid token", response.CM04)
 		}
-		if errors.Is(err, _usecase.JwtUserIDAndHeaderUserIDNotMatch) {
+		if errors.Is(err, usecase.JwtUserIDAndHeaderUserIDNotMatch) {
 			err = _error.HttpErrString("user id tidak sesuai", response.CM04)
 		}
-		if errors.Is(err, _usecase.InvalidUserID) {
+		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
-		if errors.Is(err, _usecase.UserIsNotActivited) {
+		if errors.Is(err, usecase.UserIsNotActivited) {
 			err = _error.HttpErrString("akun anda belum di aktivasi", response.CM05)
 		}
-		if errors.Is(err, _usecase.JwtAppIDAndHeaderAppIDNotMatch) {
+		if errors.Is(err, usecase.JwtAppIDAndHeaderAppIDNotMatch) {
 			err = _error.HttpErrString("app id tidak sesuai", response.CM05)
 		}
 		helper.ErrorResponseEncode(w, err)
@@ -76,10 +76,10 @@ func (h *SecurityHandlerImpl) ValidateAccess(w http.ResponseWriter, r *http.Requ
 	if expAT {
 		newAT, err := h.securityUsecase.JwtGenerate(r.Context(), req)
 		if err != nil {
-			if errors.Is(err, _usecase.InvalidToken) {
+			if errors.Is(err, usecase.InvalidToken) {
 				err = _error.HttpErrString("invalid token", response.CM04)
 			}
-			if errors.Is(err, _usecase.JwtUserIDAndHeaderUserIDNotMatch) {
+			if errors.Is(err, usecase.JwtUserIDAndHeaderUserIDNotMatch) {
 				err = _error.HttpErrString("user id tidak sesuai", response.CM04)
 			}
 			helper.ErrorResponseEncode(w, err)

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/helper"
 )
 
 func ChangePasswordReqToModel(password string, userID string) *domain.User {

@@ -12,7 +12,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_repository"
+	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/repository"
 )
 
 func TestCreateUserRepo(t *testing.T) {

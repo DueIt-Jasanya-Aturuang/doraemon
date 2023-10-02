@@ -1,4 +1,4 @@
-package _usecase
+package usecase
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/converter"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/converter"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util/encryption"
 )
 

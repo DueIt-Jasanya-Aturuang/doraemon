@@ -1,4 +1,4 @@
-package _usecase
+package usecase
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/converter"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/converter"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/helper"
 )
 
 type AuthUsecaseImpl struct {

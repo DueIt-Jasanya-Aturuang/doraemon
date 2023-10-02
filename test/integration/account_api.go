@@ -5,14 +5,15 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/repository"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_repository"
 )
 
 func CreateProfile(t *testing.T) {
 	infra.LogInit()
 	infra.AppAccountApi = "http://localhost:8181"
-	accountApi := _repository.NewAccountApiRepoImpl(infra.AppAccountApi)
+	accountApi := repository.NewAccountApiRepoImpl(infra.AppAccountApi)
 
 	req := []byte(`{
 			"user_id": "123"

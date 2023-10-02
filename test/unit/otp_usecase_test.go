@@ -14,7 +14,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 )
 
 func TestOTPUsecaseOTPGenerate(t *testing.T) {
@@ -22,7 +22,7 @@ func TestOTPUsecaseOTPGenerate(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	otpUsecase := _usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
+	otpUsecase := usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
 	userID := "userID_1"
 
 	req := &dto.OTPGenerateReq{
@@ -91,7 +91,7 @@ func TestOTPUsecaseOTPValidation(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	otpUsecase := _usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
+	otpUsecase := usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
 
 	req := &dto.OTPValidationReq{
 		Email: "ibanrama29@gmail.com",

@@ -6,7 +6,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/helper"
 )
 
 func AuthModelToResp(user *domain.User, profile *domain.Profile, emailFormat string) *domain.ResponseAuth {

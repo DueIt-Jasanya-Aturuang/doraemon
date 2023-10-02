@@ -12,7 +12,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 )
 
 func TestOauth2UsecaseGoogleClaimUser(t *testing.T) {
@@ -20,7 +20,7 @@ func TestOauth2UsecaseGoogleClaimUser(t *testing.T) {
 	userRepo := &mocks.FakeUserSqlRepo{}
 	oauth2Repo := &mocks.FakeOauth2ProviderRepo{}
 
-	oauth2Usecase := _usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
+	oauth2Usecase := usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
 
 	googleTokenModel := &model.GoogleOauth2Token{
 		AccessToken: "access_token",

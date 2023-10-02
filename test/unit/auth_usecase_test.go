@@ -15,8 +15,8 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/converter"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/converter"
 )
 
 func TestAuthUsecaseLogin(t *testing.T) {
@@ -25,7 +25,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 
 	accountApi := &mocks.FakeAccountApiRepo{}
 
-	authUsecase := _usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
+	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
 
 	user := &model.User{
 		ID:              "userID_1",
@@ -231,7 +231,7 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 
 	accountApi := &mocks.FakeAccountApiRepo{}
 
-	authUsecase := _usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
+	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
 
 	req := &dto.RegisterReq{
 		FullName:        "ibanrama",

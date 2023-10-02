@@ -10,7 +10,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -53,14 +53,14 @@ func (h *AuthHandlerImpl) Register(w http.ResponseWriter, r *http.Request) {
 	// register user
 	resp, err := h.authUsecase.Register(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.EmailIsExist) {
+		if errors.Is(err, usecase.EmailIsExist) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
 					"email sudah terdaftar",
 				},
 			}, response.CM06)
 		}
-		if errors.Is(err, _usecase.UsernameIsExist) {
+		if errors.Is(err, usecase.UsernameIsExist) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"username": {
 					"username sudah tersedia",
@@ -99,7 +99,7 @@ func (h *AuthHandlerImpl) Login(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.authUsecase.Login(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidEmailOrUsernameOrPassword) {
+		if errors.Is(err, usecase.InvalidEmailOrUsernameOrPassword) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email_or_username": {
 					"invalid email atau password",

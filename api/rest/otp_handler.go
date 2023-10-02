@@ -12,7 +12,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/validation"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -57,17 +57,17 @@ func (h *OTPHandlerImpl) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	// generate otp
 	err = h.otpUsecase.Generate(r.Context(), req)
 	if err != nil {
-		if errors.Is(err, _usecase.InvalidUserID) {
+		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("invalid user id", response.CM05)
 		}
-		if errors.Is(err, _usecase.InvalidEmail) {
+		if errors.Is(err, usecase.InvalidEmail) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
 					"email tidak terdaftar",
 				},
 			}, response.CM06)
 		}
-		if errors.Is(err, _usecase.EmailIsActivited) {
+		if errors.Is(err, usecase.EmailIsActivited) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
 					"permintaan anda tidak dapat di proses, email anda sudah di aktivasi silahkan login",

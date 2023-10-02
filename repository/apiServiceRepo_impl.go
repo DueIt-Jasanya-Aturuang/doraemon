@@ -1,4 +1,4 @@
-package _repository
+package repository
 
 import (
 	"bytes"
@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -36,6 +37,7 @@ func (m *MicroServiceRepositoryImpl) CreateProfile(data []byte, appID string) (*
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Api-Key", infra.AppApiKeyAccount)
 
 	client := http.Client{
 		Timeout: 2 * time.Second,
@@ -69,6 +71,7 @@ func (m *MicroServiceRepositoryImpl) GetProfileByUserID(userID string, appID str
 
 	req.Header.Set("User-Id", userID)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Api-Key", infra.AppApiKeyAccount)
 
 	client := http.Client{
 		Timeout: 2 * time.Second,

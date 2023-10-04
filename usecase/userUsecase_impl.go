@@ -217,3 +217,23 @@ func (u *UserUsecaseImpl) ActivasiAccount(ctx context.Context, email string) (*d
 	}
 	return resp, nil
 }
+
+func (u *UserUsecaseImpl) GetUserByID(ctx context.Context, id string) (*domain.ResponseUser, error) {
+	if err := u.userRepo.OpenConn(ctx); err != nil {
+		return nil, err
+	}
+	defer u.userRepo.CloseConn()
+
+	domain.GetUserByID = id
+	user, err := u.userRepo.Get(ctx, domain.GetUserByID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, InvalidUserID
+		}
+		return nil, err
+	}
+
+	resp := converter.UserModelToResp(user)
+
+	return resp, nil
+}

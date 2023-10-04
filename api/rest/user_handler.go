@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
 	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 
@@ -249,4 +250,24 @@ func (h *UserHandlerImpl) ActivasiAccount(w http.ResponseWriter, r *http.Request
 	}
 
 	helper.SuccessResponseEncode(w, activasi, "activasi berhasil")
+}
+
+func (h *UserHandlerImpl) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	id := r.Header.Get("User-ID")
+
+	if _, err := uuid.Parse(id); err != nil {
+		helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM04))
+		return
+	}
+
+	resp, err := h.userUsecase.GetUserByID(r.Context(), id)
+	if err != nil {
+		if errors.Is(err, usecase.InvalidUserID) {
+			err = _error.HttpErrString("invalid user id", response.CM04)
+		}
+		helper.ErrorResponseEncode(w, err)
+		return
+	}
+
+	helper.SuccessResponseEncode(w, resp, "data user")
 }

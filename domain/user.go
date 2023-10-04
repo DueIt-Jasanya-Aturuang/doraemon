@@ -20,6 +20,7 @@ type UserRepository interface {
 
 //counterfeiter:generate -o ./../mocks . UserUsecase
 type UserUsecase interface {
+	GetUserByID(ctx context.Context, id string) (*ResponseUser, error)
 	ChangePassword(ctx context.Context, req *RequestChangePassword) error
 	ChangeUsername(ctx context.Context, req *RequestChangeUsername) error
 	ForgottenPassword(ctx context.Context, req *RequestForgottenPassword) (string, error)

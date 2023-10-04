@@ -41,3 +41,17 @@ func ActivasiAccountReqToModel(userID string) *domain.User {
 
 	return user
 }
+
+func UserModelToResp(u *domain.User) *domain.ResponseUser {
+	return &domain.ResponseUser{
+		ID:              u.ID,
+		FullName:        u.FullName,
+		Gender:          u.Gender,
+		Image:           u.Image,
+		Username:        u.Username,
+		Email:           u.Email,
+		EmailFormat:     helper.EmailFormat(u.Email),
+		PhoneNumber:     helper.GetNullString(u.PhoneNumber),
+		EmailVerifiedAt: u.EmailVerifiedAt,
+	}
+}

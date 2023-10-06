@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
@@ -38,7 +40,10 @@ func (a *AppMiddleware) CheckAppID(next http.Handler) http.Handler {
 			AppID: appID,
 		})
 		if err != nil {
-			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid app id", response.CM05))
+			if errors.Is(err, usecase.InvalidAppID) {
+				err = _error.HttpErrString("invalid app id", response.CM05)
+			}
+			helper.ErrorResponseEncode(w, err)
 			return
 		}
 

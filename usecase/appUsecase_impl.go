@@ -21,11 +21,6 @@ func NewAppUsecaseImpl(
 }
 
 func (a *AppUsecaseImpl) CheckByID(ctx context.Context, req *domain.RequestCheckApp) error {
-	if err := a.appRepo.OpenConn(ctx); err != nil {
-		return err
-	}
-	defer a.appRepo.CloseConn()
-
 	exist, err := a.appRepo.CheckAppByID(ctx, req.AppID)
 	if err != nil {
 		return err

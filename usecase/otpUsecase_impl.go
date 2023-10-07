@@ -31,11 +31,6 @@ func NewOTPUsecaseImpl(
 }
 
 func (o *OTPUsecaseImpl) Generate(ctx context.Context, req *domain.RequestGenerateOTP) error {
-	if err := o.userRepo.OpenConn(ctx); err != nil {
-		return err
-	}
-	defer o.userRepo.CloseConn()
-
 	domain.GetUserByEmail = req.Email
 	user, err := o.userRepo.Get(ctx, domain.GetUserByEmail)
 	if err != nil {

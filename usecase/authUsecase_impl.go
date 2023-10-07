@@ -35,11 +35,6 @@ func NewAuthUsecaseImpl(
 }
 
 func (a *AuthUsecaseImpl) Login(ctx context.Context, req *domain.RequestLogin) (*domain.ResponseAuth, error) {
-	if err := a.userRepo.OpenConn(ctx); err != nil {
-		return nil, err
-	}
-	defer a.userRepo.CloseConn()
-
 	user, err := a.userRepo.GetByEmailOrUsername(ctx, req.EmailOrUsername)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -104,11 +99,6 @@ func (a *AuthUsecaseImpl) Login(ctx context.Context, req *domain.RequestLogin) (
 }
 
 func (a *AuthUsecaseImpl) Register(ctx context.Context, req *domain.RequestRegister) (*domain.ResponseAuth, error) {
-	if err := a.userRepo.OpenConn(ctx); err != nil {
-		return nil, err
-	}
-	defer a.userRepo.CloseConn()
-
 	domain.CheckUserByEmail = req.Email
 	exist, err := a.userRepo.Check(ctx, domain.CheckUserByEmail)
 	if err != nil {

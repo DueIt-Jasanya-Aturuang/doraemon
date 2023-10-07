@@ -50,11 +50,6 @@ func (s *SecurityUsecaseImpl) JwtValidation(ctx context.Context, req *domain.Req
 		return false, JwtUserIDAndHeaderUserIDNotMatch
 	}
 
-	if err = s.securityRepo.OpenConn(ctx); err != nil {
-		return false, err
-	}
-	defer s.securityRepo.CloseConn()
-
 	if !req.ActivasiHeader {
 		activasi, err := s.userRepo.CheckActivasiUser(ctx, req.UserId)
 		if err != nil {
@@ -88,11 +83,6 @@ func (s *SecurityUsecaseImpl) JwtValidation(ctx context.Context, req *domain.Req
 }
 
 func (s *SecurityUsecaseImpl) JwtGenerate(ctx context.Context, req *domain.RequestJwtToken) (*domain.ResponseJwtToken, error) {
-	if err := s.securityRepo.OpenConn(ctx); err != nil {
-		return nil, err
-	}
-	defer s.securityRepo.CloseConn()
-
 	token, err := s.securityRepo.GetByAccessToken(ctx, req.Authorization)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -144,11 +134,6 @@ func (s *SecurityUsecaseImpl) JwtGenerate(ctx context.Context, req *domain.Reque
 }
 
 func (s *SecurityUsecaseImpl) Logout(ctx context.Context, req *domain.RequestLogout) error {
-	if err := s.securityRepo.OpenConn(ctx); err != nil {
-		return err
-	}
-	defer s.securityRepo.CloseConn()
-
 	token, err := s.securityRepo.GetByAccessToken(ctx, req.Token)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

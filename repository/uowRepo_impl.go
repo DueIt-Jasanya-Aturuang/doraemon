@@ -11,9 +11,8 @@ import (
 )
 
 type UnitOfWorkRepositoryImpl struct {
-	tx   *sql.Tx
-	db   *sql.DB
-	conn *sql.Conn
+	tx *sql.Tx
+	db *sql.DB
 }
 
 func NewUnitOfWorkRepositoryImpl(db *sql.DB) *UnitOfWorkRepositoryImpl {
@@ -22,45 +21,24 @@ func NewUnitOfWorkRepositoryImpl(db *sql.DB) *UnitOfWorkRepositoryImpl {
 	}
 }
 
-func (u *UnitOfWorkRepositoryImpl) OpenConn(ctx context.Context) error {
-	conn, err := u.db.Conn(ctx)
-	if err != nil {
-		log.Warn().Msgf(util.LogErrDBConn, err)
-		return err
-	}
-
-	u.conn = conn
-
-	return nil
-}
-
-func (u *UnitOfWorkRepositoryImpl) GetConn() (*sql.Conn, error) {
-	if u.conn == nil {
+func (u *UnitOfWorkRepositoryImpl) GetDB() (*sql.DB, error) {
+	if u.db == nil {
 		err := fmt.Errorf("no Connection Database Available")
 		log.Warn().Msg(err.Error())
 		return nil, err
 	}
 
-	return u.conn, nil
-}
-
-func (u *UnitOfWorkRepositoryImpl) CloseConn() {
-	err := u.conn.Close()
-	if err != nil {
-		log.Warn().Msgf(util.LogErrDBConnClose, err)
-	} else {
-		log.Info().Msgf("close connetion")
-	}
+	return u.db, nil
 }
 
 func (u *UnitOfWorkRepositoryImpl) StartTx(ctx context.Context, opts *sql.TxOptions, fn func() error) error {
-	if u.conn == nil {
+	if u.db == nil {
 		err := fmt.Errorf("no Connection Database Available")
 		log.Warn().Msg(err.Error())
 		return err
 	}
 
-	tx, err := u.conn.BeginTx(ctx, opts)
+	tx, err := u.db.BeginTx(ctx, opts)
 	if err != nil {
 		log.Warn().Msgf(util.LogErrBeginTx, err)
 		return err

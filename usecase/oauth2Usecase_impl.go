@@ -60,12 +60,6 @@ func (o *Oauth2UsecaseImpl) GoogleClaimUser(ctx context.Context, req *domain.Req
 		return nil, err
 	}
 
-	err = o.userRepo.OpenConn(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer o.userRepo.CloseConn()
-
 	domain.CheckUserByEmail = googleUser.Email
 	exist, err := o.userRepo.Check(ctx, domain.CheckUserByEmail)
 	if err != nil {

@@ -23,12 +23,12 @@ func NewAppRepositoryImpl(repo domain.UnitOfWorkRepository) domain.AppRepository
 
 func (a *AppRepositoryImpl) CheckAppByID(ctx context.Context, id string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM m_apps WHERE id = $1 AND deleted_at IS NULL)`
-	conn, err := a.GetConn()
+	db, err := a.GetDB()
 	if err != nil {
 		return false, err
 	}
 
-	stmt, err := conn.PrepareContext(ctx, query)
+	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return false, err

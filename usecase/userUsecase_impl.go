@@ -32,11 +32,6 @@ func NewUserUsecaseImpl(
 }
 
 func (u *UserUsecaseImpl) ChangePassword(ctx context.Context, req *domain.RequestChangePassword) error {
-	if err := u.userRepo.OpenConn(ctx); err != nil {
-		return err
-	}
-	defer u.userRepo.CloseConn()
-
 	domain.GetUserByID = req.UserID
 	user, err := u.userRepo.Get(ctx, domain.GetUserByID)
 	if err != nil {
@@ -67,11 +62,6 @@ func (u *UserUsecaseImpl) ChangePassword(ctx context.Context, req *domain.Reques
 }
 
 func (u *UserUsecaseImpl) ChangeUsername(ctx context.Context, req *domain.RequestChangeUsername) error {
-	if err := u.userRepo.OpenConn(ctx); err != nil {
-		return err
-	}
-	defer u.userRepo.CloseConn()
-
 	domain.GetUserByID = req.UserID
 	user, err := u.userRepo.Get(ctx, domain.GetUserByID)
 	if err != nil {
@@ -104,11 +94,6 @@ func (u *UserUsecaseImpl) ChangeUsername(ctx context.Context, req *domain.Reques
 }
 
 func (u *UserUsecaseImpl) ForgottenPassword(ctx context.Context, req *domain.RequestForgottenPassword) (string, error) {
-	if err := u.userRepo.OpenConn(ctx); err != nil {
-		return "", err
-	}
-	defer u.userRepo.CloseConn()
-
 	domain.GetUserByEmail = req.Email
 	user, err := u.userRepo.Get(ctx, domain.GetUserByEmail)
 	if err != nil {
@@ -168,11 +153,6 @@ func (u *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *domai
 		return err
 	}
 
-	if err = u.userRepo.OpenConn(ctx); err != nil {
-		return err
-	}
-	defer u.userRepo.CloseConn()
-
 	err = u.userRepo.StartTx(ctx, helper.LevelReadCommitted(), func() error {
 		userConv := converter.ChangePasswordReqToModel(newPass, userID)
 		err = u.userRepo.UpdatePassword(ctx, userConv)
@@ -183,11 +163,6 @@ func (u *UserUsecaseImpl) ResetForgottenPassword(ctx context.Context, req *domai
 }
 
 func (u *UserUsecaseImpl) ActivasiAccount(ctx context.Context, email string) (*domain.ResponseActivasiAccount, error) {
-	if err := u.userRepo.OpenConn(ctx); err != nil {
-		return nil, err
-	}
-	defer u.userRepo.CloseConn()
-
 	domain.GetUserByEmail = email
 	user, err := u.userRepo.Get(ctx, domain.GetUserByEmail)
 	if err != nil {
@@ -219,11 +194,6 @@ func (u *UserUsecaseImpl) ActivasiAccount(ctx context.Context, email string) (*d
 }
 
 func (u *UserUsecaseImpl) GetUserByID(ctx context.Context, id string) (*domain.ResponseUser, error) {
-	if err := u.userRepo.OpenConn(ctx); err != nil {
-		return nil, err
-	}
-	defer u.userRepo.CloseConn()
-
 	domain.GetUserByID = id
 	user, err := u.userRepo.Get(ctx, domain.GetUserByID)
 	if err != nil {

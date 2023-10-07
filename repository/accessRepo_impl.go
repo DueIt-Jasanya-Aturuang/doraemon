@@ -64,12 +64,12 @@ func (a *AccessRepositoryImpl) GetByUserIDAndAppID(ctx context.Context, userID s
        			   updated_at, updated_by, deleted_at, deleted_by 
 			FROM m_access WHERE user_id = $1 AND app_id = $2`
 
-	conn, err := a.GetConn()
+	db, err := a.GetDB()
 	if err != nil {
 		return nil, err
 	}
 
-	stmt, err := conn.PrepareContext(ctx, query)
+	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return nil, err

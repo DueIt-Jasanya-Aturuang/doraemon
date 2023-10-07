@@ -61,12 +61,12 @@ func (s *SecurityRepositoryImpl) Create(ctx context.Context, token *domain.Token
 func (s *SecurityRepositoryImpl) GetByAccessToken(ctx context.Context, token string) (*domain.Token, error) {
 	query := `SELECT id, user_id, refresh_token, app_id, remember_me FROM m_tokens WHERE access_token = $1`
 
-	conn, err := s.GetConn()
+	db, err := s.GetDB()
 	if err != nil {
 		return nil, err
 	}
 
-	stmt, err := conn.PrepareContext(ctx, query)
+	stmt, err := db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Warn().Msgf(util.LogErrPrepareContext, err)
 		return nil, err

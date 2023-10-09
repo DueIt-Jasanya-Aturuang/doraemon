@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN go build -o auth_usecase .
+RUN go build -o auth .
 
 FROM alpine:latest
 

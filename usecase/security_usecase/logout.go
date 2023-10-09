@@ -14,7 +14,7 @@ func (s *SecurityUsecaseImpl) Logout(ctx context.Context, req *usecase.RequestLo
 	token, err := s.securityRepo.GetByAccessToken(ctx, req.Token)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Warn().Msg("user_repository mencoba untuk logout menggunakan token yang lama")
+			log.Warn().Msg("user mencoba untuk logout menggunakan token yang lama")
 			return nil
 		}
 		return err

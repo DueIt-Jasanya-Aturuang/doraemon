@@ -9,7 +9,7 @@ services:
     volumes:
       - type: bind
         source: ./.env
-        target: /app_repository/.env
+        target: /app/.env
         read_only: true
     networks:
       - dueit_network

@@ -23,7 +23,7 @@ func (u *UserUsecaseImpl) ChangePassword(ctx context.Context, req *usecase.Reque
 
 	checkPass := usecase.BcryptPasswordCompare(req.OldPassword, user.Password)
 	if !checkPass {
-		log.Warn().Msgf("password lama user_repository salah")
+		log.Warn().Msgf("password lama user salah")
 		return usecase.InvalidOldPassword
 	}
 
@@ -84,7 +84,7 @@ func (u *UserUsecaseImpl) ActivasiAccount(ctx context.Context, email string) (bo
 	}
 
 	if user.EmailVerifiedAt {
-		log.Warn().Msgf("user_repository sudah melakukan activasi akun tapi mencoba aktivasi kembali")
+		log.Warn().Msgf("user sudah melakukan activasi akun tapi mencoba aktivasi kembali")
 		return false, usecase.EmailIsActivited
 	}
 

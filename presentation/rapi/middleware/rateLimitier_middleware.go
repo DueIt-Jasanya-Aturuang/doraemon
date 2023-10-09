@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type client struct {
@@ -27,7 +28,7 @@ func DeletedClient(typeReq []string) {
 			time.Sleep(10 * time.Minute)
 			mu.Lock()
 			for key, client := range clients {
-				if typeReq[0] == "activasi-account" {
+				if typeReq[0] == util.ActivasiAccount {
 					if time.Since(client.lastSeen) > 10*time.Minute {
 						delete(clients, key)
 						log.Info().Msgf("deleted key %s", key)
@@ -46,7 +47,7 @@ func DeletedClient(typeReq []string) {
 }
 
 func DeletedClientHelper(key string) {
-	log.Info().Msgf("Deleted otp_usecase %s", key)
+	log.Info().Msgf("Deleted otp %s", key)
 	delete(clients, key)
 }
 

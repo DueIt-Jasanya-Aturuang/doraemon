@@ -1,4 +1,4 @@
-name: service auth_usecase ci
+name: service auth ci
 
 on:
   push:

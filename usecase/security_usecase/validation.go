@@ -31,7 +31,7 @@ func (s *SecurityUsecaseImpl) ValidationJWT(ctx context.Context, req *usecase.Re
 	}
 
 	if userID != req.UserID {
-		log.Warn().Msgf("user_repository id jwt_usecase and user_repository id header not match | jwt_usecase : %s | header : %s", userID, req.UserID)
+		log.Warn().Msgf("user id jwt and user id header not match | jwt : %s | header : %s", userID, req.UserID)
 		return false, usecase.JwtUserIDAndHeaderUserIDNotMatch
 	}
 
@@ -53,7 +53,7 @@ func (s *SecurityUsecaseImpl) ValidationJWT(ctx context.Context, req *usecase.Re
 	token, err := s.securityRepo.GetByAccessToken(ctx, req.Authorization)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Warn().Msg("user_repository mencoba untuk request menggunakan token yang lama, kita delete semua tokennya")
+			log.Warn().Msg("user mencoba untuk request menggunakan token yang lama, kita delete semua tokennya")
 
 			err = s.deletedAllToken(ctx, req.UserID)
 		}

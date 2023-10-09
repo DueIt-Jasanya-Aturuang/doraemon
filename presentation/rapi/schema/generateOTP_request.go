@@ -14,11 +14,6 @@ type RequestGenerateOTP struct {
 }
 
 func (r *RequestGenerateOTP) Validation() error {
-	// if req.Type != util.ActivasiAccount && req.Type != util.ForgotPassword {
-	// 	log.Warn().Msgf("invalid type otp_usecase %s", req.Type)
-	// 	return _error.HttpErrString("invalid type otp_usecase", response.CM05)
-	// }
-
 	errBadRequest := map[string][]string{}
 
 	if r.Email == "" {

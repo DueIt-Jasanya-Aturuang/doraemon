@@ -3,6 +3,8 @@ package schema
 import (
 	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
 	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type RequestLoginGoogle struct {
@@ -16,7 +18,7 @@ func (r *RequestLoginGoogle) Validation() error {
 		return _error.HttpErrString("invalid token", response.CM05)
 	}
 
-	if r.Device != "web" && r.Device != "mobile" {
+	if r.Device != util.DeviceTypeWeb && r.Device != util.DeviceTypeMobile {
 		return _error.HttpErrString("invalid device", response.CM05)
 	}
 

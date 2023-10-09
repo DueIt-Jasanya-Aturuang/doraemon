@@ -43,7 +43,7 @@ func (p *Presenter) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("user_repository id tidak valid", response.CM04)
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
 		if errors.Is(err, usecase.InvalidOldPassword) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
@@ -87,7 +87,7 @@ func (p *Presenter) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("user_repository id tidak valid", response.CM04)
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
 		if errors.Is(err, usecase.UsernameIsExist) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
@@ -126,7 +126,6 @@ func (p *Presenter) ActivasiAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validasi otp_usecase
 	err = p.otpUsecase.Validation(r.Context(), &usecase.RequestValidationOTP{
 		Email: req.Email,
 		OTP:   req.OTP,
@@ -136,10 +135,10 @@ func (p *Presenter) ActivasiAccount(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, usecase.InvalidEmailOrOTP) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
-					"invalid email or otp_usecase",
+					"invalid email or otp",
 				},
-				"otp_usecase": {
-					"invalid email or otp_usecase",
+				"otp": {
+					"invalid email or otp",
 				},
 			}, response.CM06)
 		}
@@ -147,11 +146,10 @@ func (p *Presenter) ActivasiAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// process activasi account
 	activasi, err := p.userUsecase.ActivasiAccount(r.Context(), req.Email)
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("user_repository id tidak valid", response.CM04)
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
 		if errors.Is(err, usecase.EmailIsActivited) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
@@ -181,11 +179,11 @@ func (p *Presenter) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	resp, err := p.userUsecase.GetUserByID(r.Context(), userID)
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("invalid user_repository id", response.CM04)
+			err = _error.HttpErrString("invalid user id", response.CM04)
 		}
 		helper.ErrorResponseEncode(w, err)
 		return
 	}
 
-	helper.SuccessResponseEncode(w, resp, "data user_repository")
+	helper.SuccessResponseEncode(w, resp, "data user")
 }

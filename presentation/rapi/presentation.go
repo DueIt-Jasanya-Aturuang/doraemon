@@ -11,6 +11,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/presentation/rapi/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 type Presenter struct {
@@ -58,7 +59,7 @@ func NewPresenter(config PresenterConfig) (*http.Server, error) {
 		MaxAge:           300,
 	}))
 	r.Use(middleware.CheckApiKey)
-	middleware.DeletedClient([]string{"activasi-account"})
+	middleware.DeletedClient([]string{util.ActivasiAccount})
 	appMiddleware := middleware.NewAppMiddleware(config.Dependency.AppUsecase)
 
 	r.Group(func(r chi.Router) {
@@ -74,7 +75,7 @@ func NewPresenter(config PresenterConfig) (*http.Server, error) {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.SetAuthorization)
-		r.Get("/auth/user_repository", presenter.GetUserByID)
+		r.Get("/auth/user", presenter.GetUserByID)
 		r.Put("/auth/change-password", presenter.ChangePassword)
 		r.Put("/auth/change-username", presenter.ChangeUsername)
 		r.Put("/auth/activasi-account", presenter.ActivasiAccount)

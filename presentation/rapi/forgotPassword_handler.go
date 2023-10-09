@@ -38,10 +38,10 @@ func (p *Presenter) ForgottenPassword(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, usecase.InvalidEmailOrOTP) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
 				"email": {
-					"invalid email or otp_usecase",
+					"invalid email or otp",
 				},
-				"otp_usecase": {
-					"invalid email or otp_usecase",
+				"otp": {
+					"invalid email or otp",
 				},
 			}, response.CM06)
 		}
@@ -54,7 +54,7 @@ func (p *Presenter) ForgottenPassword(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("user_repository id tidak valid", response.CM04)
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
 		helper.ErrorResponseEncode(w, err)
 		return

@@ -107,7 +107,7 @@ func (o *Oauth2RepositoryImpl) GetGoogleUser(token *repository.Oauth2GoogleToken
 	}()
 
 	if responseReq.StatusCode != http.StatusOK {
-		log.Warn().Msgf("failed recive user_repository | responseReq : %v", responseReq)
+		log.Warn().Msgf("failed recive user | responseReq : %v", responseReq)
 		return nil, _error.HttpErrString("invalid token", response.CM05)
 	}
 

@@ -32,7 +32,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 		ID:              "userID_1",
 		FullName:        "rama",
 		Gender:          "undefined",
-		Image:           "/files/user_repository-image/public/default-male.png",
+		Image:           "/files/user-image/public/default-male.png",
 		Username:        "iban.rama",
 		Email:           "ibanrama29@gmail.com",
 		Password:        "$2a$14$XmVO9LPkf1aDBUF8M/3jqOt8TPizQC1j5p1Hf.VhHHmA0kviudEm6",
@@ -166,7 +166,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 		assert.Nil(t, profileResp)
 	})
 
-	t.Run("ERROR_empty-user_repository", func(t *testing.T) {
+	t.Run("ERROR_empty-user", func(t *testing.T) {
 		req := &dto.LoginReq{
 			EmailOrUsername: "iban.rama",
 			Password:        "rama1234",
@@ -195,7 +195,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 		assert.Nil(t, profileResp)
 	})
 
-	t.Run("ERROR_empty-apiService_repository", func(t *testing.T) {
+	t.Run("ERROR_empty-apiService", func(t *testing.T) {
 		req := &dto.LoginReq{
 			EmailOrUsername: "iban.rama",
 			Password:        "rama123",

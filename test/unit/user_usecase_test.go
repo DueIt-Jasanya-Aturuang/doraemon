@@ -14,10 +14,11 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/converter"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/helper"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 )
 
 func TestUserUsecaseResetPassword(t *testing.T) {
@@ -105,7 +106,7 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 		assert.Equal(t, 400, errHTTP.Code)
 	})
 
-	t.Run("ERROR_invalid-user_repository", func(t *testing.T) {
+	t.Run("ERROR_invalid-user", func(t *testing.T) {
 		req.OldPassword = "invalid"
 		_ = userRepo.OpenConn(context.TODO())
 		defer userRepo.CloseConn()

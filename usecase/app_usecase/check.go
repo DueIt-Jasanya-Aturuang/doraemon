@@ -15,7 +15,7 @@ func (a *AppUsecaseImpl) CheckByID(ctx context.Context, appID string) error {
 	}
 
 	if !exist {
-		log.Info().Msgf("invalid app_repository id | data : %s", appID)
+		log.Info().Msgf("invalid app id | data : %s", appID)
 		return usecase.InvalidAppID
 	}
 

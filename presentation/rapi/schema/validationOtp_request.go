@@ -11,18 +11,13 @@ import (
 
 type RequestValidationOTP struct {
 	Email string `json:"email"`
-	OTP   string `json:"otp_usecase"`
+	OTP   string `json:"otp"`
 }
 
 func (r *RequestValidationOTP) Validation() error {
-	// if req.Type != util.ActivasiAccount && req.Type != util.ForgotPassword {
-	// 	log.Warn().Msgf("invalid type otp_usecase %s", req.Type)
-	// 	return _error.HttpErrString("invalid type otp_usecase", response.CM05)
-	// }
-
 	errBadRequest := map[string][]string{}
 	if len(r.OTP) != 6 {
-		errBadRequest["otp_usecase"] = append(errBadRequest["otp_usecase"], "kode otp_usecase anda tidak valid")
+		errBadRequest["otp"] = append(errBadRequest["otp"], "kode otp anda tidak valid")
 	}
 
 	if r.Email == "" {

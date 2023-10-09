@@ -39,8 +39,8 @@ func TestEncrypStringCBC(t *testing.T) {
 	iv := "mydigit15digit11"
 
 	// req := map[string]string{
-	// 	"access_token": "this is access_repository token",
-	// 	"id_token":     "this is access_repository token",
+	// 	"access_token": "this is access token",
+	// 	"id_token":     "this is access token",
 	// }
 	//
 	// reqJson, _ := json.Marshal(req)

@@ -27,8 +27,8 @@ func MaxMinString(s string, min, max int) string {
 
 func TypeHeaderValidation(typeHeader string) error {
 	if typeHeader != ActivasiAccount && typeHeader != ForgotPassword {
-		log.Warn().Msgf("invalid type otp_usecase %s", typeHeader)
-		return _error.HttpErrString("invalid type otp_usecase", response.CM05)
+		log.Warn().Msgf("invalid type otp %s", typeHeader)
+		return _error.HttpErrString("invalid type otp", response.CM05)
 	}
 
 	return nil

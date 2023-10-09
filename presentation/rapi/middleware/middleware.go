@@ -31,14 +31,14 @@ func (a *AppMiddleware) CheckAppID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		appID := r.Header.Get(util.AppIDHeader)
 		if _, err := uuid.Parse(appID); err != nil {
-			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid app_repository id", response.CM05))
+			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid app id", response.CM05))
 			return
 		}
 
 		err := a.appUsecase.CheckByID(r.Context(), appID)
 		if err != nil {
 			if errors.Is(err, usecase.InvalidAppID) {
-				err = _error.HttpErrString("invalid app_repository id", response.CM05)
+				err = _error.HttpErrString("invalid app id", response.CM05)
 			}
 			helper.ErrorResponseEncode(w, err)
 			return

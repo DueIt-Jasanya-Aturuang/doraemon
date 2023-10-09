@@ -11,4 +11,4 @@ CREATE TABLE m_roles (
 
 INSERT INTO m_roles
 ("name", created_at, created_by, updated_at, updated_by, deleted_at, deleted_by)
-VALUES('user_repository', 1684768468, NULL, 1684768468, NULL, NULL, NULL);
+VALUES('user', 1684768468, NULL, 1684768468, NULL, NULL, NULL);

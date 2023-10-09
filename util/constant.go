@@ -9,6 +9,8 @@ const TypeHeader = "Type"
 const UserIDHeader = "User-ID"
 const AuthorizationHeader = "Authorization"
 const ActivasiHeader = "Activasi"
+const DeviceTypeWeb = "web"
+const DeviceTypeMobile = "mobile"
 
 var Endpoint = []string{
 	"/auth/login",

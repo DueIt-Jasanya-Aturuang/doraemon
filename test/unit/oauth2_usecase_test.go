@@ -132,7 +132,7 @@ func TestOauth2UsecaseGoogleClaimUser(t *testing.T) {
 		assert.Equal(t, true, errors.As(err, &errHTTP))
 	})
 
-	t.Run("ERROR_error-get-user_repository-google-mobile", func(t *testing.T) {
+	t.Run("ERROR_error-get-user-google-mobile", func(t *testing.T) {
 		req := &dto.LoginGoogleReq{
 			Token:  "62idN0WO0Ym9cqcKnCPus8HGj1RE8SZ54IgGFLyRgw6BPjtfsV47NnBfKV3jSZEi8f8mhk8Olu+OslX/2a2Oi1S+Jlwh6zRezSSMPqwjRug=",
 			Device: "mobile",
@@ -181,7 +181,7 @@ func TestOauth2UsecaseGoogleClaimUser(t *testing.T) {
 		assert.Equal(t, true, errors.As(err, &errHTTP))
 	})
 
-	t.Run("ERROR_error-get-user_repository-google-web", func(t *testing.T) {
+	t.Run("ERROR_error-get-user-google-web", func(t *testing.T) {
 		req := &dto.LoginGoogleReq{
 			Token:  "GYaFpgGgx8HvLd+elVnfFA==",
 			Device: "web",

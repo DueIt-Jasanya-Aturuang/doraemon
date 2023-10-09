@@ -33,12 +33,11 @@ func (p *Presenter) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	userIDHeader := r.Header.Get(util.UserIDHeader)
 	if typeHeader == util.ActivasiAccount {
 		if err = util.ParseUlid(userIDHeader); err != nil {
-			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user_repository id", response.CM05))
+			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
 			return
 		}
 	}
 
-	// generate otp_usecase
 	err = p.otpUsecase.Generate(r.Context(), &usecase.RequestGenerateOTP{
 		Email:  req.Email,
 		Type:   typeHeader,
@@ -46,7 +45,7 @@ func (p *Presenter) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("invalid user_repository id", response.CM05)
+			err = _error.HttpErrString("invalid user id", response.CM05)
 		}
 		if errors.Is(err, usecase.InvalidEmail) {
 			err = _error.HttpErrMapOfSlices(map[string][]string{
@@ -77,5 +76,5 @@ func (p *Presenter) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helper.SuccessResponseEncode(w, nil, "kode otp_usecase telah berhasil dikirim, silahkan cek gmail anda")
+	helper.SuccessResponseEncode(w, nil, "kode otp telah berhasil dikirim, silahkan cek gmail anda")
 }

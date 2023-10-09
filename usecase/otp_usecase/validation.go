@@ -17,7 +17,7 @@ func (o *OTPUsecaseImpl) Validation(ctx context.Context, req *usecase.RequestVal
 	}
 
 	if getOtp != req.OTP {
-		log.Info().Msg("otp_usecase in redis and request not the same")
+		log.Info().Msg("otp in redis and request not the same")
 		return usecase.InvalidEmailOrOTP
 	}
 

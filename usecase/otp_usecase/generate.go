@@ -20,7 +20,7 @@ func (o *OTPUsecaseImpl) Generate(ctx context.Context, req *usecase.RequestGener
 	user, err := o.userRepo.Get(ctx, repository.GetUserByEmail)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			log.Info().Msgf("invalid email, user_repository generate otp_usecase tapi invalid user_repository email nya")
+			log.Info().Msgf("invalid email, user generate otp tapi invalid user email nya")
 			return usecase.InvalidEmail
 		}
 		return err

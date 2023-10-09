@@ -17,7 +17,7 @@ import (
 )
 
 func (m *ApiServiceRepositoryImpl) CreateProfileDueit(data []byte, appID string) (*repository.ProfileDueit, error) {
-	endPoint := fmt.Sprintf("%s/account/apiService_repository/%s", m.baseUrlDueit, appID)
+	endPoint := fmt.Sprintf("%s/account/profile/%s", m.baseUrlDueit, appID)
 
 	dataReq := bytes.NewReader(data)
 	req, err := http.NewRequest("POST", endPoint, dataReq)
@@ -51,7 +51,7 @@ func (m *ApiServiceRepositoryImpl) CreateProfileDueit(data []byte, appID string)
 }
 
 func (m *ApiServiceRepositoryImpl) GetProfileByUserIDDueit(userID string, appID string) (*repository.ProfileDueit, error) {
-	endPoint := fmt.Sprintf("%s/account/apiService_repository/%s", m.baseUrlDueit, appID)
+	endPoint := fmt.Sprintf("%s/account/profile/%s", m.baseUrlDueit, appID)
 
 	req, err := http.NewRequest("GET", endPoint, nil)
 	if err != nil {

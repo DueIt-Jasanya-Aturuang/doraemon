@@ -108,9 +108,9 @@ func (p *Presenter) LoginWithGoogle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := map[string]any{
-		"profile":         profileResp,
-		"user_repository": userResp,
-		"token":           tokenResp,
+		"profile": profileResp,
+		"user":    userResp,
+		"token":   tokenResp,
 	}
 
 	helper.SuccessResponseEncode(w, resp, "register successfully")

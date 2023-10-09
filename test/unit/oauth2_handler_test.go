@@ -119,7 +119,7 @@ func TestOauth2HandlerLoginWithGoogle(t *testing.T) {
 		t.Log(responWriter.Body)
 	})
 
-	t.Run("ERROR_claim-user_repository-invalid-token", func(t *testing.T) {
+	t.Run("ERROR_claim-user-invalid-token", func(t *testing.T) {
 		reqBytes, err := json.Marshal(req)
 		assert.NoError(t, err)
 

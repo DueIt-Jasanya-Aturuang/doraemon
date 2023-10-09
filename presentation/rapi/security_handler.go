@@ -20,7 +20,7 @@ func (p *Presenter) ValidateAccess(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get(util.AuthorizationHeader)
 
 	if appID == "" || userID == "" || token == "" {
-		log.Warn().Msgf("app_repository id / user_repository id / authorization header tidak tersedia")
+		log.Warn().Msgf("app id / user id / authorization header tidak tersedia")
 		helper.ErrorResponseEncode(w, _error.HttpErrString(response.CodeCompanyName[response.CM04], response.CM04))
 		return
 	}
@@ -43,16 +43,16 @@ func (p *Presenter) ValidateAccess(w http.ResponseWriter, r *http.Request) {
 			err = _error.HttpErrString("invalid token", response.CM04)
 		}
 		if errors.Is(err, usecase.JwtUserIDAndHeaderUserIDNotMatch) {
-			err = _error.HttpErrString("user_repository id tidak sesuai", response.CM04)
+			err = _error.HttpErrString("user id tidak sesuai", response.CM04)
 		}
 		if errors.Is(err, usecase.InvalidUserID) {
-			err = _error.HttpErrString("user_repository id tidak valid", response.CM04)
+			err = _error.HttpErrString("user id tidak valid", response.CM04)
 		}
 		if errors.Is(err, usecase.UserIsNotActivited) {
 			err = _error.HttpErrString("akun anda belum di aktivasi", response.CM05)
 		}
 		if errors.Is(err, usecase.JwtAppIDAndHeaderAppIDNotMatch) {
-			err = _error.HttpErrString("app_repository id tidak sesuai", response.CM05)
+			err = _error.HttpErrString("app id tidak sesuai", response.CM05)
 		}
 		helper.ErrorResponseEncode(w, err)
 		return
@@ -70,13 +70,13 @@ func (p *Presenter) ValidateAccess(w http.ResponseWriter, r *http.Request) {
 				err = _error.HttpErrString("invalid token", response.CM04)
 			}
 			if errors.Is(err, usecase.JwtUserIDAndHeaderUserIDNotMatch) {
-				err = _error.HttpErrString("user_repository id tidak sesuai", response.CM04)
+				err = _error.HttpErrString("user id tidak sesuai", response.CM04)
 			}
 			helper.ErrorResponseEncode(w, err)
 			return
 		}
 
-		log.Info().Msgf("set token baru for user_repository %s", userID)
+		log.Info().Msgf("set token baru for user %s", userID)
 
 		w.Header().Set("Authorization", newAT.Token)
 	} else {
@@ -91,7 +91,7 @@ func (p *Presenter) Logout(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get(util.AuthorizationHeader)
 
 	if userID == "" && token == "" {
-		log.Warn().Msgf("user_repository id / authorization header tidak tersedia")
+		log.Warn().Msgf("user id / authorization header tidak tersedia")
 		helper.SuccessResponseEncode(w, nil, "successfully logouts")
 		return
 	}

@@ -28,7 +28,7 @@ func (p *Presenter) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := r.Header.Get(util.UserIDHeader)
-	err = util.ParseUlid(userID)
+	err = util.ParseUUID(userID)
 	if err != nil {
 		helper.ErrorResponseEncode(w, err)
 		return
@@ -76,7 +76,7 @@ func (p *Presenter) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := r.Header.Get(util.UserIDHeader)
-	if err = util.ParseUlid(userID); err != nil {
+	if err = util.ParseUUID(userID); err != nil {
 		helper.ErrorResponseEncode(w, err)
 		return
 	}
@@ -171,7 +171,7 @@ func (p *Presenter) ActivasiAccount(w http.ResponseWriter, r *http.Request) {
 func (p *Presenter) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("User-ID")
 
-	if err := util.ParseUlid(userID); err != nil {
+	if err := util.ParseUUID(userID); err != nil {
 		helper.ErrorResponseEncode(w, err)
 		return
 	}

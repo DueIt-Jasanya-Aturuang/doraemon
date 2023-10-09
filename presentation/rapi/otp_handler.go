@@ -32,7 +32,7 @@ func (p *Presenter) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 	typeHeader := r.Header.Get(util.TypeHeader)
 	userIDHeader := r.Header.Get(util.UserIDHeader)
 	if typeHeader == util.ActivasiAccount {
-		if err = util.ParseUlid(userIDHeader); err != nil {
+		if err = util.ParseUUID(userIDHeader); err != nil {
 			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
 			return
 		}

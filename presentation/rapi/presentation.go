@@ -53,7 +53,7 @@ func NewPresenter(config PresenterConfig) (*http.Server, error) {
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "App-ID", "User-ID", "Type", "X-Key", "X-Api-Key", "Profile-ID"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "App-ID", "User-ID", "Type", "X-Key", "X-Api-Key", "Profile-ID", "Activasi"},
 		ExposedHeaders:   []string{"Authorization", "App-ID", "User-ID", "Type"},
 		AllowCredentials: false,
 		MaxAge:           300,

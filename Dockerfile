@@ -13,7 +13,7 @@ RUN go build -o auth_usecase .
 
 FROM alpine:latest
 
-RUN mkdir /app_repository
+RUN mkdir /app
 
 COPY --from=builder /app/auth /app
 

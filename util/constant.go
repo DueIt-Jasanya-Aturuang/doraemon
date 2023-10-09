@@ -11,6 +11,6 @@ const AuthorizationHeader = "Authorization"
 const ActivasiHeader = "Activasi"
 
 var Endpoint = []string{
-	"/auth_usecase/login",
-	"/auth_usecase/register",
+	"/auth/login",
+	"/auth/register",
 }

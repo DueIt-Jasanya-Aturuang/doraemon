@@ -12,7 +12,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/old/rapi"
 )
 
 func TestUserHandlerResetPassword(t *testing.T) {
@@ -20,7 +20,7 @@ func TestUserHandlerResetPassword(t *testing.T) {
 	appUsecase := &mocks.FakeAppUsecase{}
 	otpUsecase := &mocks.FakeOTPUsecase{}
 
-	userHandler := rest.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
+	userHandler := rapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
 
 	req := &dto.ResetPasswordReq{
 		OldPassword: "",
@@ -44,7 +44,7 @@ func TestUserHandlerForgottenPassword(t *testing.T) {
 	appUsecase := &mocks.FakeAppUsecase{}
 	otpUsecase := &mocks.FakeOTPUsecase{}
 
-	userHandler := rest.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
+	userHandler := rapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
 
 	req := &dto.OTPValidationReq{
 		Email: "",
@@ -67,7 +67,7 @@ func TestUserHandlerResetForgottenPassword(t *testing.T) {
 	appUsecase := &mocks.FakeAppUsecase{}
 	otpUsecase := &mocks.FakeOTPUsecase{}
 
-	userHandler := rest.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
+	userHandler := rapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
 
 	req := &dto.ResetForgottenPasswordReq{
 		Password:   "",
@@ -90,7 +90,7 @@ func TestUserHandlerActivasiAccount(t *testing.T) {
 	appUsecase := &mocks.FakeAppUsecase{}
 	otpUsecase := &mocks.FakeOTPUsecase{}
 
-	userHandler := rest.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
+	userHandler := rapi.NewUserHandlerImpl(userUsecase, appUsecase, otpUsecase)
 
 	req := &dto.OTPValidationReq{
 		Email: "",

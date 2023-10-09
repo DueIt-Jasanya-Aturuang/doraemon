@@ -11,14 +11,14 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/old/rapi"
 )
 
 func TestSecurityHandlerValidateAccess(t *testing.T) {
 	securityUsecase := &mocks.FakeSecurityUsecase{}
 	appUsecase := &mocks.FakeAppUsecase{}
 
-	securityHandler := rest.NewSecurityHandlerImpl(securityUsecase, appUsecase)
+	securityHandler := rapi.NewSecurityHandlerImpl(securityUsecase, appUsecase)
 
 	t.Run("SUCCESS", func(t *testing.T) {
 		httpreq, err := http.NewRequest("POST", "/validate", nil)
@@ -68,7 +68,7 @@ func TestSecurityHandlerLogout(t *testing.T) {
 	securityUsecase := &mocks.FakeSecurityUsecase{}
 	appUsecase := &mocks.FakeAppUsecase{}
 
-	securityHandler := rest.NewSecurityHandlerImpl(securityUsecase, appUsecase)
+	securityHandler := rapi.NewSecurityHandlerImpl(securityUsecase, appUsecase)
 
 	t.Run("SUCCESS", func(t *testing.T) {
 		httpreq, err := http.NewRequest("POST", "/validate", nil)

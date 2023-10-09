@@ -44,5 +44,5 @@ const (
 )
 
 const (
-	LogErrFailedClaimJwt = "failed claims jwt token | err : %v | token : %s"
+	LogErrFailedClaimJwt = "failed claims jwt_usecase token | err : %v | token : %s"
 )

@@ -14,7 +14,7 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old"
 )
 
 func TestOTPUsecaseOTPGenerate(t *testing.T) {
@@ -22,7 +22,7 @@ func TestOTPUsecaseOTPGenerate(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	otpUsecase := usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
+	otpUsecase := usecase_old.NewOTPUsecaseImpl(userRepo, redisImpl)
 	userID := "userID_1"
 
 	req := &dto.OTPGenerateReq{
@@ -64,7 +64,7 @@ func TestOTPUsecaseOTPGenerate(t *testing.T) {
 		err := otpUsecase.OTPGenerate(context.TODO(), req)
 		assert.Error(t, err)
 		t.Log("emang sengaja error karna kafka, karna malas bikin mock interfacenya")
-		t.Log("ini bener cuman otp nya harus sama, karena random jadinya di ignore aja yang status were metnya")
+		t.Log("ini bener cuman otp_usecase nya harus sama, karena random jadinya di ignore aja yang status were metnya")
 	})
 
 	t.Run("ERROR_activasi-account-is-true", func(t *testing.T) {
@@ -91,7 +91,7 @@ func TestOTPUsecaseOTPValidation(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	otpUsecase := usecase.NewOTPUsecaseImpl(userRepo, redisImpl)
+	otpUsecase := usecase_old.NewOTPUsecaseImpl(userRepo, redisImpl)
 
 	req := &dto.OTPValidationReq{
 		Email: "ibanrama29@gmail.com",

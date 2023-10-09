@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/helper"
 )
 
 func TestBcryptHelper(t *testing.T) {

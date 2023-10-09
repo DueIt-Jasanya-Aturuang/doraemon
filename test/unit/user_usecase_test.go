@@ -15,9 +15,9 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/converter"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/converter"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/helper"
 )
 
 func TestUserUsecaseResetPassword(t *testing.T) {
@@ -25,7 +25,7 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 	redisClient, _ := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	userUsecase := usecase.NewUserUsecaseImpl(userRepo, redisImpl)
+	userUsecase := usecase_old.NewUserUsecaseImpl(userRepo, redisImpl)
 
 	req := &dto.ResetPasswordReq{
 		OldPassword: "old12345",
@@ -105,7 +105,7 @@ func TestUserUsecaseResetPassword(t *testing.T) {
 		assert.Equal(t, 400, errHTTP.Code)
 	})
 
-	t.Run("ERROR_invalid-user", func(t *testing.T) {
+	t.Run("ERROR_invalid-user_repository", func(t *testing.T) {
 		req.OldPassword = "invalid"
 		_ = userRepo.OpenConn(context.TODO())
 		defer userRepo.CloseConn()
@@ -127,7 +127,7 @@ func TestUserUsecaseForgottenPassword(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	userUsecase := usecase.NewUserUsecaseImpl(userRepo, redisImpl)
+	userUsecase := usecase_old.NewUserUsecaseImpl(userRepo, redisImpl)
 
 	req := &dto.ForgottenPasswordReq{
 		Email: "ibanrama29@gmail.com",
@@ -193,7 +193,7 @@ func TestUserUsecaseResetForgottenPassword(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	userUsecase := usecase.NewUserUsecaseImpl(userRepo, redisImpl)
+	userUsecase := usecase_old.NewUserUsecaseImpl(userRepo, redisImpl)
 
 	var jwtModel *model.Jwt
 	jwtModel = jwtModel.ForgotPasswordTokenDefault("userID_1")
@@ -316,7 +316,7 @@ func TestUserUsecaseActivasiAccount(t *testing.T) {
 	redisClient, mock := redismock.NewClientMock()
 	redisImpl := &infra.RedisImpl{Client: redisClient}
 
-	userUsecase := usecase.NewUserUsecaseImpl(userRepo, redisImpl)
+	userUsecase := usecase_old.NewUserUsecaseImpl(userRepo, redisImpl)
 
 	user := &model.User{
 		ID:              "userID_1",

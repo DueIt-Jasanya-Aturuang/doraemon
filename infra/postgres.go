@@ -19,7 +19,7 @@ func NewPgConn() *sql.DB {
 	dbSSL := PgSSL
 	dbSchema := PgSchema
 
-	fDB := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSchema, dbSSL)
+	fDB := fmt.Sprintf("host=%s port=%s user_repository=%s password=%s dbname=%s search_path=%s sslmode=%s", dbHost, dbPort, dbUser, dbPass, dbName, dbSchema, dbSSL)
 
 	db, err := sql.Open("postgres", fDB)
 	if err != nil {

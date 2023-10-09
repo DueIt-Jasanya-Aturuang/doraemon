@@ -13,15 +13,15 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/helper"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/helper"
 )
 
 func TestSecurityUsecaseJwtValidateAT(t *testing.T) {
 	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	securityRepo := &mocks.FakeSecuritySqlRepo{}
-	securityUsecase := usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	securityUsecase := usecase_old.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
 	userID := "userID_1"
 	var jwtModel *model.Jwt
@@ -150,7 +150,7 @@ func TestSecurityUsecaseJwtGenerateRTAT(t *testing.T) {
 	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	securityRepo := &mocks.FakeSecuritySqlRepo{}
-	securityUsecase := usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	securityUsecase := usecase_old.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
 	userID := "userID_1"
 	var jwtModel *model.Jwt
@@ -276,7 +276,7 @@ func TestSecurityUsecaseJwtRegistredRTAT(t *testing.T) {
 	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	securityRepo := &mocks.FakeSecuritySqlRepo{}
-	securityUsecase := usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	securityUsecase := usecase_old.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
 	userID := "userID_1"
 	var jwtModel *model.Jwt
@@ -327,7 +327,7 @@ func TestSecurityUsecaseLogout(t *testing.T) {
 	infra.EnvInit()
 	userRepo := &mocks.FakeUserSqlRepo{}
 	securityRepo := &mocks.FakeSecuritySqlRepo{}
-	securityUsecase := usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	securityUsecase := usecase_old.NewSecurityUsecaseImpl(userRepo, securityRepo)
 
 	userID := "userID_1"
 

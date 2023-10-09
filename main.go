@@ -1,19 +1,32 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
-	"github.com/go-chi/chi/v5"
-	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest/middleware"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/repository"
-	usecase2 "github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/presentation/rapi"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/access_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/apiService_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/app_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/oauth2_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/security_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/uow_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository/user_repository"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/apiService_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/app_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/auth_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/oauth2_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/otp_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/security_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/user_usecase"
 )
 
 func main() {
@@ -21,69 +34,77 @@ func main() {
 	infra.EnvInit()
 
 	pgConn := infra.NewPgConn()
-	// pgConn := &sql.DB{}
+	defer func() {
+		if err := pgConn.Close(); err != nil {
+			log.Warn().Msgf("failed close connection postgres | err %v", err)
+		}
+	}()
+
 	redisConn := infra.NewRedisConnection()
-	// redisConn := &config.RedisImpl{}
+	defer func() {
+		if err := redisConn.Client.Close(); err != nil {
+			log.Warn().Msgf("failed close redis client | err %v", err)
+		}
+	}()
 
-	uow := repository2.NewUnitOfWorkRepositoryImpl(pgConn)
-	userRepo := repository2.NewUserRepositoryImpl(uow)
-	accessRepo := repository2.NewAccessRepositoryImpl(uow)
-	appRepo := repository2.NewAppRepositoryImpl(uow)
-	apiService := repository2.NewMicroServiceRepositoryImpl(infra.AppAccountApi)
-	securityRepo := repository2.NewSecurityRepositoryImpl(uow)
-	oauth2Repo := repository2.NewOauth2RepositoryImpl(infra.OauthClientId, infra.OauthClientSecret, infra.OauthClientRedirectURI)
+	depen := dependency(pgConn, redisConn)
 
-	userUsecase := usecase2.NewUserUsecaseImpl(userRepo, redisConn)
-	authUsecase := usecase2.NewAuthUsecaseImpl(userRepo, accessRepo, apiService, securityRepo)
-	appUsecase := usecase2.NewAppUsecaseImpl(appRepo)
-	oauth2Usecase := usecase2.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
-	otpUsecase := usecase2.NewOTPUsecaseImpl(userRepo, redisConn)
-	securityUsecase := usecase2.NewSecurityUsecaseImpl(userRepo, securityRepo)
-
-	userHandler := rest.NewUserHandlerImpl(userUsecase, otpUsecase)
-	oauth2Handler := rest.NewOauth2HandlerImpl(oauth2Usecase, authUsecase)
-	authHandler := rest.NewAuthHandlerImpl(authUsecase, otpUsecase)
-	otpHandler := rest.NewOTPHandlerImpl(otpUsecase)
-	securityHandler := rest.NewSecurityHandlerImpl(securityUsecase)
-	appMiddleware := middleware.NewAppMiddleware(appUsecase)
-
-	r := chi.NewRouter()
-	r.Use(chimiddleware.Logger)
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "App-ID", "User-ID"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300,
-	}))
-	r.Use(middleware.CheckApiKey)
-	middleware.DeletedClient([]string{"activasi-account"})
-
-	r.Group(func(r chi.Router) {
-		r.Use(middleware.SetAuthorization)
-		r.Get("/auth/user", userHandler.GetUserByID)
-		r.Put("/auth/change-password", userHandler.ChangePassword)
-		r.Put("/auth/change-username", userHandler.ChangeUsername)
-		r.Put("/auth/activasi-account", userHandler.ActivasiAccount)
-		r.Post("/auth/logout", securityHandler.Logout)
+	httpServer, err := rapi.NewPresenter(rapi.PresenterConfig{
+		Dependency: depen,
 	})
+	if err != nil {
+		log.Fatal().Msgf("creating new presenter: %s", err.Error())
+	}
 
-	r.Group(func(r chi.Router) {
-		r.Use(appMiddleware.CheckAppID)
-		r.Post("/auth/forgot-password", userHandler.ForgottenPassword)
-		r.Put("/auth/forgot-password", userHandler.ResetForgottenPassword)
-		r.Post("/auth/login-google", oauth2Handler.LoginWithGoogle)
-		r.Post("/auth/login", authHandler.Login)
-		r.Post("/auth/register", authHandler.Register)
-		r.Post("/auth/otorisasi", securityHandler.ValidateAccess)
-		r.Post("/auth/otp", otpHandler.GenerateOTP)
-	})
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, os.Interrupt)
+	go func() {
+		<-exitSignal
+		log.Info().Msg("Interrupt signal received, exiting...")
+
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Minute)
+		defer shutdownCancel()
+
+		log.Info().Msg("shutting down HTTP server")
+		err := httpServer.Shutdown(shutdownCtx)
+		if err != nil {
+			log.Err(err).Msg("shutting down HTTP server")
+		}
+
+	}()
 
 	log.Info().Msgf("Server is running on port %s", infra.AppPort)
-	err := http.ListenAndServe(infra.AppPort, r)
-	if err != nil {
-		log.Err(err).Msg("failed run server")
-		os.Exit(1)
+
+	err = httpServer.ListenAndServe()
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal().Msgf("serving HTTP server: %s", err.Error())
+	}
+}
+
+func dependency(db *sql.DB, cache *infra.RedisImpl) *rapi.Dependency {
+	uow := uow_repository.NewUnitOfWorkRepositoryImpl(db)
+	userRepo := user_repository.NewUserRepositoryImpl(uow)
+	accessRepo := access_repository.NewAccessRepositoryImpl(uow)
+	appRepo := app_repository.NewAppRepositoryImpl(uow)
+	apiServiceRepo := apiService_repository.NewApiServiceRepositoryImpl()
+	securityRepo := security_repository.NewSecurityRepositoryImpl(uow)
+	oauth2Repo := oauth2_repository.NewOauth2RepositoryImpl()
+
+	apiServiceUsecase := apiService_usecase.NewApiServiceUsecaseImpl(apiServiceRepo)
+	securityUsecase := security_usecase.NewSecurityUsecaseImpl(userRepo, securityRepo)
+	authUsecase := auth_usecase.NewAuthUsecaseImpl(userRepo, accessRepo, apiServiceUsecase, securityUsecase)
+	oauth2Usecase := oauth2_usecase.NewOauth2UsecaseImpl(userRepo, oauth2Repo)
+	otpUsecase := otp_usecase.NewOTPUsecaseImpl(userRepo, cache)
+	userUsecase := user_usecase.NewUserUsecaseImpl(userRepo, cache)
+	appUsecase := app_usecase.NewAppUsecaseImpl(appRepo)
+
+	return &rapi.Dependency{
+		AuthUsecase:       authUsecase,
+		Oauth2Usecase:     oauth2Usecase,
+		OtpUsecase:        otpUsecase,
+		ApiServiceUsecase: apiServiceUsecase,
+		SecurityUsecase:   securityUsecase,
+		UserUsecase:       userUsecase,
+		AppUsecase:        appUsecase,
 	}
 }

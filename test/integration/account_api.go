@@ -12,8 +12,8 @@ import (
 
 func CreateProfile(t *testing.T) {
 	infra.LogInit()
-	infra.AppAccountApi = "http://localhost:8181"
-	accountApi := repository.NewAccountApiRepoImpl(infra.AppAccountApi)
+	infra.BaseUrlDueitAccountService = "http://localhost:8181"
+	accountApi := repository.NewAccountApiRepoImpl(infra.BaseUrlDueitAccountService)
 
 	req := []byte(`{
 			"user_id": "123"

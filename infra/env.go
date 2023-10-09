@@ -18,8 +18,8 @@ func EnvInit() {
 
 	AppPort = os.Getenv("APPLICATION_PORT")
 	// AppStatus = os.Getenv("APPLICATION_STATUS")
-	AppAccountApi = os.Getenv("APPLICATION_ACCOUNT_API")
-	AppAuthApi = os.Getenv("APPLICATION_AUTH_API")
+	BaseUrlDueitAccountService = os.Getenv("APPLICATION_ACCOUNT_API")
+	BaseUrlAuthService = os.Getenv("APPLICATION_AUTH_API")
 	AppApiKeyAuth = os.Getenv("APPLICATION_KEY_AUTH")
 	AppApiKeyAccount = os.Getenv("APPLICATION_KEY_ACCOUNT")
 
@@ -90,10 +90,10 @@ var (
 	AppPort string
 	// AppStatus     string
 
-	AppAccountApi    string
-	AppAuthApi       string
-	AppApiKeyAuth    string
-	AppApiKeyAccount string
+	BaseUrlDueitAccountService string
+	BaseUrlAuthService         string
+	AppApiKeyAuth              string
+	AppApiKeyAccount           string
 
 	PgHost   string
 	PgPort   string

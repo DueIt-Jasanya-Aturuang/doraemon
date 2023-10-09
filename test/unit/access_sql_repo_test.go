@@ -11,7 +11,7 @@ import (
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/repository"
+	repository2 "github.com/DueIt-Jasanya-Aturuang/doraemon/pkg/repository_old"
 )
 
 func TestCreateAccess(t *testing.T) {
@@ -78,7 +78,7 @@ func TestGetAccessByUserIDAndAppID(t *testing.T) {
 
 	rows := sqlmock.NewRows([]string{
 		"ID", "AppID",
-		"UserId", "role_id",
+		"UserID", "role_id",
 		"AccessEndpoint", "CreatedAt",
 		"CreatedBy", "UpdatedAt",
 		"UpdatedBy", "DeletedAt", "DeletedBy",

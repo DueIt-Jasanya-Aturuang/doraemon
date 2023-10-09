@@ -11,13 +11,13 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old"
 )
 
 func TestAppUsecaseCheckAppByID(t *testing.T) {
 	appRepo := &mocks.FakeAppSqlRepo{}
 
-	appUsecase := usecase.NewAppUsecaseImpl(appRepo)
+	appUsecase := usecase_old.NewAppUsecaseImpl(appRepo)
 
 	t.Run("SUCCESS", func(t *testing.T) {
 		err := appRepo.OpenConn(context.TODO())

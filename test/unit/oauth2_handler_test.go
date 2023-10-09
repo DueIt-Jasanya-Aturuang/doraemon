@@ -13,8 +13,9 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
 	_error2 "github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/old/rapi"
 )
 
 func TestOauth2HandlerLoginWithGoogle(t *testing.T) {
@@ -23,7 +24,7 @@ func TestOauth2HandlerLoginWithGoogle(t *testing.T) {
 	securityUsecase := &mocks.FakeSecurityUsecase{}
 	appUsecase := &mocks.FakeAppUsecase{}
 
-	oauth2Handler := rest.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, securityUsecase, appUsecase)
+	oauth2Handler := rapi.NewOauth2HandlerImpl(oauth2Usecase, authUsecase, securityUsecase, appUsecase)
 
 	req := &dto.LoginGoogleReq{
 		Token:  "this tokenss",
@@ -118,7 +119,7 @@ func TestOauth2HandlerLoginWithGoogle(t *testing.T) {
 		t.Log(responWriter.Body)
 	})
 
-	t.Run("ERROR_claim-user-invalid-token", func(t *testing.T) {
+	t.Run("ERROR_claim-user_repository-invalid-token", func(t *testing.T) {
 		reqBytes, err := json.Marshal(req)
 		assert.NoError(t, err)
 

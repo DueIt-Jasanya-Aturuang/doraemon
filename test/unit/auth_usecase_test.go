@@ -14,9 +14,10 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/model"
 
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase_old/converter"
+
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase"
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/converter"
 )
 
 func TestAuthUsecaseLogin(t *testing.T) {
@@ -25,13 +26,13 @@ func TestAuthUsecaseLogin(t *testing.T) {
 
 	accountApi := &mocks.FakeAccountApiRepo{}
 
-	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
+	authUsecase := usecase_old.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
 
 	user := &model.User{
 		ID:              "userID_1",
 		FullName:        "rama",
 		Gender:          "undefined",
-		Image:           "/files/user-image/public/default-male.png",
+		Image:           "/files/user_repository-image/public/default-male.png",
 		Username:        "iban.rama",
 		Email:           "ibanrama29@gmail.com",
 		Password:        "$2a$14$XmVO9LPkf1aDBUF8M/3jqOt8TPizQC1j5p1Hf.VhHHmA0kviudEm6",
@@ -165,7 +166,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 		assert.Nil(t, profileResp)
 	})
 
-	t.Run("ERROR_empty-user", func(t *testing.T) {
+	t.Run("ERROR_empty-user_repository", func(t *testing.T) {
 		req := &dto.LoginReq{
 			EmailOrUsername: "iban.rama",
 			Password:        "rama1234",
@@ -194,7 +195,7 @@ func TestAuthUsecaseLogin(t *testing.T) {
 		assert.Nil(t, profileResp)
 	})
 
-	t.Run("ERROR_empty-profile", func(t *testing.T) {
+	t.Run("ERROR_empty-apiService_repository", func(t *testing.T) {
 		req := &dto.LoginReq{
 			EmailOrUsername: "iban.rama",
 			Password:        "rama123",
@@ -231,7 +232,7 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 
 	accountApi := &mocks.FakeAccountApiRepo{}
 
-	authUsecase := usecase.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
+	authUsecase := usecase_old.NewAuthUsecaseImpl(userRepo, accessRepo, accountApi)
 
 	req := &dto.RegisterReq{
 		FullName:        "ibanrama",
@@ -387,7 +388,7 @@ func TestAuthUsecaseRegiser(t *testing.T) {
 		assert.Equal(t, _error.BadExistField("username", "username has been registered"), errHTTP)
 	})
 
-	t.Run("ERROR_bad-account-api", func(t *testing.T) {
+	t.Run("ERROR_bad-account-old", func(t *testing.T) {
 		err := userRepo.OpenConn(context.TODO())
 		userRepo.OpenConnReturns(nil)
 		assert.NoError(t, err)

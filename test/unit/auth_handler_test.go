@@ -13,8 +13,9 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
 	_error2 "github.com/DueIt-Jasanya-Aturuang/doraemon/util/error"
+
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/old/rapi"
 )
 
 func TestAuthHandlerLogin(t *testing.T) {
@@ -22,7 +23,7 @@ func TestAuthHandlerLogin(t *testing.T) {
 	securityUsecase := &mocks.FakeSecurityUsecase{}
 	appUsecase := &mocks.FakeAppUsecase{}
 
-	authHandler := rest.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase)
+	authHandler := rapi.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase)
 
 	req := dto.LoginReq{
 		EmailOrUsername: "ibanrama29@gmail.com",
@@ -112,7 +113,7 @@ func TestAuthHandlerLogin(t *testing.T) {
 		t.Log(responWriter.Body)
 	})
 
-	t.Run("ERROR_502-api-bad-gateway", func(t *testing.T) {
+	t.Run("ERROR_502-old-bad-gateway", func(t *testing.T) {
 		reqByte, err := json.Marshal(req)
 		assert.NoError(t, err)
 
@@ -169,7 +170,7 @@ func TestAuthHandlerRegister(t *testing.T) {
 	securityUsecase := &mocks.FakeSecurityUsecase{}
 	appUsecase := &mocks.FakeAppUsecase{}
 
-	authHandler := rest.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase)
+	authHandler := rapi.NewAuthHandlerImpl(authUsecase, securityUsecase, appUsecase)
 
 	req := &dto.RegisterReq{
 		FullName:   "ibanraa",
@@ -294,7 +295,7 @@ func TestAuthHandlerRegister(t *testing.T) {
 		t.Log(responseWriter.Body)
 	})
 
-	t.Run("ERROR_badgateway-api-account", func(t *testing.T) {
+	t.Run("ERROR_badgateway-old-account", func(t *testing.T) {
 		reqByte, err := json.Marshal(req)
 		assert.NoError(t, err)
 

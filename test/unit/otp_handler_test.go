@@ -13,13 +13,13 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/dto"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/domain/mocks"
 
-	"github.com/DueIt-Jasanya-Aturuang/doraemon/api/rest"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/old/rapi"
 )
 
 func TestOTPHandlerOTPGenerate(t *testing.T) {
 	otpUsecase := &mocks.FakeOTPUsecase{}
 
-	otpHandler := rest.NewOTPHandlerImpl(otpUsecase)
+	otpHandler := rapi.NewOTPHandlerImpl(otpUsecase)
 
 	t.Run("SUCCESS_activasi-account", func(t *testing.T) {
 		req := &dto.OTPGenerateReq{

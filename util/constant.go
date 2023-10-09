@@ -9,3 +9,8 @@ const TypeHeader = "Type"
 const UserIDHeader = "User-ID"
 const AuthorizationHeader = "Authorization"
 const ActivasiHeader = "Activasi"
+
+var Endpoint = []string{
+	"/auth_usecase/login",
+	"/auth_usecase/register",
+}

@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/docker/distribution/uuid"
+	"github.com/google/uuid"
 	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
 	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
 	"github.com/rs/zerolog/log"

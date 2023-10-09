@@ -52,18 +52,18 @@ func (a *AuthUsecaseImpl) Register(ctx context.Context, req *usecase.RequestRegi
 			return err
 		}
 
-		securityToken, err = a.securityUsecase.GenerateJWT(ctx, &usecase.RequestGenerateJWT{
-			AppID:      req.AppID,
-			UserID:     user.ID,
-			RememberMe: req.RememberMe,
-		})
-		if err != nil {
-			return err
-		}
-
 		return nil
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
+	securityToken, err = a.securityUsecase.GenerateJWT(ctx, &usecase.RequestGenerateJWT{
+		AppID:      req.AppID,
+		UserID:     user.ID,
+		RememberMe: req.RememberMe,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/presentation/rapi/middleware"
@@ -50,14 +49,6 @@ func NewPresenter(config PresenterConfig) (*http.Server, error) {
 	r := chi.NewRouter()
 
 	r.Use(chimiddleware.Logger)
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "App-ID", "User-ID", "Type", "X-Key", "X-Api-Key", "Profile-ID", "Activasi"},
-		ExposedHeaders:   []string{"Authorization", "App-ID", "User-ID", "Type"},
-		AllowCredentials: false,
-		MaxAge:           300,
-	}))
 	r.Use(middleware.CheckApiKey)
 	middleware.DeletedClient([]string{util.ActivasiAccount})
 	appMiddleware := middleware.NewAppMiddleware(config.Dependency.AppUsecase)

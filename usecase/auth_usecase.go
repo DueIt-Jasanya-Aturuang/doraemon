@@ -88,7 +88,7 @@ func AuthRegisterRequestToModel(req *RequestRegister) (*repository.User, *reposi
 		log.Warn().Msgf(util.LogErrMarshal, util.Endpoint, err)
 	}
 
-	id := util.NewUUID
+	id := util.NewUUID()
 	user := &repository.User{
 		ID:              id,
 		FullName:        req.FullName,

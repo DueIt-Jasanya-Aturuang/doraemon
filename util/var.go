@@ -24,8 +24,9 @@ var Endpoint = []string{
 	"/auth/register",
 }
 
-var NewUUID = uuidSatori.NewV4().String()
-
+func NewUUID() string {
+	return uuidSatori.NewV4().String()
+}
 func ParseUUID(u string) error {
 	if _, err := uuid.Parse(u); err != nil {
 		log.Info().Msgf("failed parse uuid | err : %v", err)

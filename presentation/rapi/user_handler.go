@@ -30,7 +30,7 @@ func (p *Presenter) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(util.UserIDHeader)
 	err = util.ParseUUID(userID)
 	if err != nil {
-		helper.ErrorResponseEncode(w, err)
+		helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
 		return
 	}
 
@@ -77,7 +77,7 @@ func (p *Presenter) ChangeUsername(w http.ResponseWriter, r *http.Request) {
 
 	userID := r.Header.Get(util.UserIDHeader)
 	if err = util.ParseUUID(userID); err != nil {
-		helper.ErrorResponseEncode(w, err)
+		helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
 		return
 	}
 
@@ -172,7 +172,7 @@ func (p *Presenter) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("User-ID")
 
 	if err := util.ParseUUID(userID); err != nil {
-		helper.ErrorResponseEncode(w, err)
+		helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
 		return
 	}
 

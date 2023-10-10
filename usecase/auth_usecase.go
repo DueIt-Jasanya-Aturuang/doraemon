@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/infra"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/repository"
@@ -84,14 +83,13 @@ func (m *AuthMergeModelToResponse) Execute() *ResponseAuth {
 }
 
 func AuthRegisterRequestToModel(req *RequestRegister) (*repository.User, *repository.Access) {
-	id := uuid.NewV4().String()
 	endpoint, err := json.Marshal(util.Endpoint)
 	if err != nil {
 		log.Warn().Msgf(util.LogErrMarshal, util.Endpoint, err)
 	}
 
 	user := &repository.User{
-		ID:              id,
+		ID:              util.NewUUID,
 		FullName:        req.FullName,
 		Gender:          "undefined",
 		Image:           infra.DefaultImage,

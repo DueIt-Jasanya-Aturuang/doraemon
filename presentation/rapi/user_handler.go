@@ -176,7 +176,7 @@ func (p *Presenter) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := p.userUsecase.GetUserByID(r.Context(), userID)
+	user, err := p.userUsecase.GetUserByID(r.Context(), userID)
 	if err != nil {
 		if errors.Is(err, usecase.InvalidUserID) {
 			err = _error.HttpErrString("invalid user id", response.CM04)
@@ -185,5 +185,16 @@ func (p *Presenter) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resp := &schema.UserResponse{
+		ID:              user.ID,
+		FullName:        user.FullName,
+		Gender:          user.Gender,
+		Image:           user.Image,
+		Username:        user.Username,
+		Email:           user.Email,
+		EmailFormat:     user.EmailFormat,
+		PhoneNumber:     user.PhoneNumber,
+		EmailVerifiedAt: user.EmailVerifiedAt,
+	}
 	helper.SuccessResponseEncode(w, resp, "data user")
 }

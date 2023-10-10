@@ -1,9 +1,9 @@
 package util
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
-	uuid "github.com/satori/go.uuid"
+	uuidSatori "github.com/satori/go.uuid"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -23,10 +23,10 @@ var Endpoint = []string{
 	"/auth/register",
 }
 
-var NewUUID = uuid.NewV4().String()
+var NewUUID = uuidSatori.NewV4().String()
 
 func ParseUUID(u string) error {
-	if _, err := ulid.Parse(u); err != nil {
+	if _, err := uuid.Parse(u); err != nil {
 		log.Info().Msgf("failed parse uuid | err : %v", err)
 		return err
 	}

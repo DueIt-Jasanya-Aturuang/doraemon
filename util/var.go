@@ -6,7 +6,8 @@ import (
 	uuidSatori "github.com/satori/go.uuid"
 )
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+var Charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 const ActivasiAccount = "activasi-account"
 const ForgotPasswordLink = "forgot-password-link"
 const ForgotPassword = "forgot-password"

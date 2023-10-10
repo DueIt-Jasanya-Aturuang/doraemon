@@ -43,9 +43,15 @@ func (p *Presenter) LoginWithGoogle(w http.ResponseWriter, r *http.Request) {
 	var auth *usecase.ResponseAuth
 
 	if !userGoogle.ExistsUser {
+		randomChar, err := util.RandomChar(5)
+		if err != nil {
+			helper.ErrorResponseEncode(w, _error.HttpErrString("internal server error", response.CM99))
+			return
+		}
+
 		auth, err = p.authUsecase.Register(r.Context(), &usecase.RequestRegister{
 			FullName:        userGoogle.Name,
-			Username:        userGoogle.GivenName,
+			Username:        userGoogle.GivenName + randomChar,
 			Email:           userGoogle.Email,
 			Password:        userGoogle.ID,
 			RePassword:      userGoogle.ID,

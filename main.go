@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -27,11 +28,20 @@ import (
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/otp_usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/security_usecase"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/usecase/user_usecase"
+	"github.com/DueIt-Jasanya-Aturuang/doraemon/util"
 )
 
 func main() {
 	infra.LogInit()
 	infra.EnvInit()
+
+	for i := 1; i <= 1000; i++ {
+		if i == 1000 {
+			util.Charset += strconv.Itoa(i)
+		} else {
+			util.Charset += strconv.Itoa(i) + ""
+		}
+	}
 
 	pgConn := infra.NewPgConn()
 	defer func() {

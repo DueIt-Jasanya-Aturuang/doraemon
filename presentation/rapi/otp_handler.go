@@ -6,6 +6,7 @@ import (
 
 	"github.com/jasanya-tech/jasanya-response-backend-golang/_error"
 	"github.com/jasanya-tech/jasanya-response-backend-golang/response"
+	"github.com/rs/zerolog/log"
 
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/presentation/rapi/helper"
 	"github.com/DueIt-Jasanya-Aturuang/doraemon/presentation/rapi/middleware"
@@ -31,6 +32,12 @@ func (p *Presenter) GenerateOTP(w http.ResponseWriter, r *http.Request) {
 
 	typeHeader := r.Header.Get(util.TypeHeader)
 	userIDHeader := r.Header.Get(util.UserIDHeader)
+
+	if typeHeader != util.ActivasiAccount && typeHeader != util.ForgotPassword {
+		log.Info().Msgf("invalid type header | %s", typeHeader)
+		helper.SuccessResponseEncode(w, nil, "kode otp telah berhasil dikirim, silahkan cek gmail anda")
+		return
+	}
 	if typeHeader == util.ActivasiAccount {
 		if err = util.ParseUUID(userIDHeader); err != nil {
 			helper.ErrorResponseEncode(w, _error.HttpErrString("invalid user id", response.CM05))
